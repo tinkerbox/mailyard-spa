@@ -9,6 +9,7 @@ module.exports = {
   entry: [
     'webpack/hot/dev-server',
     'webpack-hot-middleware/client',
+    // 'webpack-hot-middleware/client?path=/__webpack_hmr&timeout=20000',
     './src/index.js',
   ],
   output: {
@@ -18,7 +19,7 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.(js)$/,
+        test: /\.(js|jsx)$/,
         exclude: /node_modules/,
         use: ['babel-loader']
       }
@@ -26,7 +27,7 @@ module.exports = {
   },
   resolve: {
     modules: ['node_modules', 'src'],
-    extensions: ['*', '.js']
+    extensions: ['*', '.js', ',jsx'],
   },
   plugins: [
     new CleanWebpackPlugin(),
