@@ -1,9 +1,13 @@
 const path = require('path');
 
+const merge = require('webpack-merge');
+
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
-module.exports = {
+const common = require('./webpack.common.config.js');
+
+const config = {
   mode: 'production',
   devtool: 'source-map',
   entry: './src/index.js',
@@ -11,23 +15,6 @@ module.exports = {
     filename: 'bundle.js',
     path: path.resolve(__dirname, '..', 'dist'),
   },
-  module: {
-    rules: [
-      {
-        test: /\.(js|jsx)$/,
-        exclude: /node_modules/,
-        use: ['babel-loader']
-      }
-    ]
-  },
-  resolve: {
-    modules: ['node_modules', 'src'],
-    extensions: ['*', '.js', ',jsx'],
-  },
-  plugins: [
-    new CleanWebpackPlugin(),
-    new HtmlWebpackPlugin({
-      template: './src/index.html',
-    }),
-  ],
 };
+
+module.exports = merge(common, config);
