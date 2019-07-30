@@ -10,7 +10,7 @@ const config = {
   entry: [
     'webpack/hot/dev-server',
     'webpack-hot-middleware/client',
-    './src/index.js',
+    './src/index.jsx',
   ],
   output: {
     publicPath: '/',

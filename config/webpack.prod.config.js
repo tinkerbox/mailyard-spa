@@ -10,7 +10,7 @@ const common = require('./webpack.common.config.js');
 const config = {
   mode: 'production',
   devtool: 'source-map',
-  entry: './src/index.js',
+  entry: './src/index.jsx',
   output: {
     filename: 'bundle.js',
     path: path.resolve(__dirname, '..', 'dist'),
