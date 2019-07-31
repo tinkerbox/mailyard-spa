@@ -12,7 +12,7 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 app.use(webpackDevMiddleware(compiler, {
-  noInfo: false,
+  noInfo: true,
   publicPath: config.output.publicPath,
   stats: { colors: true },
 }))

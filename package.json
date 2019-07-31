@@ -5,6 +5,7 @@
   "main": "server.js",
   "scripts": {
     "build": "webpack --config ./config/webpack.prod.config.js",
+    "build:graph": "webpack --config ./config/webpack.prod.config.js --json > stats.json",
     "dev": "node ./server-dev.js",
     "start": "node ./server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -50,6 +51,7 @@
     "webpack-cli": "^3.3.6",
     "webpack-dev-middleware": "^3.7.0",
     "webpack-hot-middleware": "^2.25.0",
-    "webpack-merge": "^4.2.1"
+    "webpack-merge": "^4.2.1",
+    "webpack-stats-graph": "^1.0.8"
   }
 }
