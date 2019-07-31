@@ -1,5 +1,4 @@
 const webpack = require('webpack');
-
 const merge = require('webpack-merge');
 
 const common = require('./webpack.common.config.js');
@@ -14,6 +13,15 @@ const config = {
   ],
   output: {
     publicPath: '/',
+  },
+  module: {
+    rules: [
+      {
+        test: /\.(js|jsx)$/,
+        exclude: /node_modules/,
+        use: ['eslint-loader'],
+      }
+    ]
   },
   plugins: [
     new webpack.HotModuleReplacementPlugin(),
