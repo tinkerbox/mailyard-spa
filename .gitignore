@@ -92,7 +92,3 @@ dist/
 
 # DynamoDB Local files
 .dynamodb/
-
-# Bundle stats output
-stats.json
-statsgraph/
