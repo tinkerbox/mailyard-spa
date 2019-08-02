@@ -30,6 +30,7 @@
     "apollo-link-http": "^1.5.15",
     "apollo-link-retry": "^2.2.14",
     "cross-fetch": "^3.0.4",
+    "dotenv": "^8.0.0",
     "express": "^4.17.1",
     "graphql": "^14.4.2",
     "graphql-tag": "^2.10.1",
@@ -43,7 +44,6 @@
     "node": "11.4"
   },
   "devDependencies": {
-    "dotenv-webpack": "^1.7.0",
     "nodemon": "^1.19.1"
   }
 }
