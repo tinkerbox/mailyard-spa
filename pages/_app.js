@@ -7,7 +7,10 @@ import * as Sentry from '@sentry/browser';
 import apollo from '../config/apollo';
 import config from '../config/runtime';
 
-Sentry.init({ dsn: config.SENTRY_DSN });
+Sentry.init({
+  dsn: config.SENTRY_FRONTEND_DSN,
+  release: `${config.HEROKU_SLUG_COMMIT}@mailyard-spa`,
+});
 
 class MailyardSPA extends App {
   render() {
