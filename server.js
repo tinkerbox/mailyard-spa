@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 const express = require('express');
 const next = require('next');
 const helmet = require('helmet');
@@ -13,7 +15,6 @@ const handler = nextApp.getRequestHandler();
 nextApp.prepare()
   .then(() => {
     app.use(helmet());
-    // app.use(express.static('dist'));
     app.get('*', handler);
     app.listen(port, () => console.log(`Mailyard SPA listening on port ${port}!`));
   })

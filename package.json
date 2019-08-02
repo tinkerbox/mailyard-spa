@@ -22,10 +22,21 @@
   "dependencies": {
     "@babel/runtime": "^7.5.5",
     "@sentry/browser": "^5.5.0",
+    "apollo-cache-inmemory": "^1.6.2",
+    "apollo-client": "^2.6.3",
+    "apollo-link": "^1.2.12",
+    "apollo-link-context": "^1.0.18",
+    "apollo-link-error": "^1.1.11",
+    "apollo-link-http": "^1.5.15",
+    "apollo-link-retry": "^2.2.14",
+    "cross-fetch": "^3.0.4",
     "express": "^4.17.1",
+    "graphql": "^14.4.2",
+    "graphql-tag": "^2.10.1",
     "helmet": "^3.20.0",
     "next": "^9.0.3",
     "react": "^16.8.6",
+    "react-apollo": "^2.5.8",
     "react-dom": "^16.8.6"
   },
   "engines": {
