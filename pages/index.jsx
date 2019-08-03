@@ -1,5 +1,7 @@
 import React from 'react';
 
+import Link from 'next/link';
+
 import gql from 'graphql-tag';
 import { Query } from 'react-apollo';
 
@@ -19,6 +21,7 @@ const Index = () => {
           return <p>{data.hello}</p>;
         }}
       </Query>
+      <Link href='/login'><a>Login</a></Link>
     </div>
   );
 };
