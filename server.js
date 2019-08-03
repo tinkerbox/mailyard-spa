@@ -6,6 +6,8 @@ const express = require('express');
 const next = require('next');
 const helmet = require('helmet');
 
+const csp = require('./config/csp');
+
 Sentry.init({
   dsn: process.env.SENTRY_BACKEND_DSN,
   release: `${process.env.HEROKU_SLUG_COMMIT}@mailyard-spa`,
@@ -29,6 +31,7 @@ if (process.env.CANONICAL_HOST) {
 }
 
 app.use(helmet());
+app.use(csp);
 
 const nextApp = next({
   dev: (process.env.NODE_ENV !== 'production' && process.env.NODE_ENV !== 'staging'),
