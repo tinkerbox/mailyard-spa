@@ -30,7 +30,11 @@ if (process.env.CANONICAL_HOST) {
   });
 }
 
-app.use(helmet());
+app.use(helmet({
+  frameguard: {
+    action: 'deny',
+  },
+}));
 app.use(csp);
 
 const nextApp = next({
