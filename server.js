@@ -14,6 +14,13 @@ Sentry.init({
 const app = express();
 const port = process.env.PORT || 3000;
 
+if (process.env.NODE_ENV !== 'development') {
+  app.use((req, res, next) => {
+    if (req.headers['x-forwarded-proto'] === 'https') return next();
+    return res.redirect(`https://${req.headers.host}${req.url}`);
+  });
+}
+
 if (process.env.CANONICAL_HOST) {
   app.use((req, res, next) => {
     if (req.headers.host === process.env.CANONICAL_HOST) return next();
