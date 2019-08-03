@@ -1,5 +1,3 @@
 {
-  "ignore": [
-    "dist/"
-  ]
+  "ignore": ["dist/", "pages/"]
 }
