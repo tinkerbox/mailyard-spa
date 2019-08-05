@@ -1,6 +1,46 @@
-module.exports = {
+const path = require('path');
+
+var loaderUtils = require('loader-utils');
+
+const withCSS = require('@zeit/next-css');
+
+// TODO: find out if there is a better way
+
+const _getLocalIdent = (loaderContext, localIdentName, localName, options) => {
+  if (!options.context) {
+    if (loaderContext.rootContext) {
+      options.context = loaderContext.rootContext;
+    } else if (loaderContext.options && typeof loaderContext.options.context === "string") {
+      options.context = loaderContext.options.context;
+    } else {
+      options.context = loaderContext.context;
+    }
+  }
+  var request = path.relative(options.context, loaderContext.resourcePath);
+  options.content = options.hashPrefix + request + "+" + localName;
+  localIdentName = localIdentName.replace(/\[local\]/gi, localName);
+  var hash = loaderUtils.interpolateName(loaderContext, localIdentName, options);
+  return hash.replace(new RegExp("[^a-zA-Z0-9\\-_\u00A0-\uFFFF]", "g"), "-").replace(/^((-?[0-9])|--)/, "_$1");
+};
+
+module.exports = withCSS({
   distDir: './dist',
   poweredByHeader: false,
+
+  cssModules: true,
+  cssLoaderOptions: {
+    importLoaders: 1,
+    getLocalIdent: (loaderContext, localIdentName, localName, options) => {
+      const dirname = path.dirname(loaderContext.resourcePath);
+      if (dirname.endsWith('antd/dist')) {
+        // leave antd css as global
+        return localName;
+      } else {
+        return _getLocalIdent(loaderContext, localIdentName, localName, options);
+      }
+    },
+  },
+
   publicRuntimeConfig: {
     REPORT_URI: process.env.REPORT_URI,
     MAILYARD_WEB_URL: process.env.MAILYARD_WEB_URL,
@@ -8,4 +48,4 @@ module.exports = {
     SENTRY_FRONTEND_DSN: process.env.SENTRY_FRONTEND_DSN,
     HEROKU_SLUG_COMMIT: process.env.HEROKU_SLUG_COMMIT,
   },
-};
+});

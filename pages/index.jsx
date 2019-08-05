@@ -5,6 +5,10 @@ import Link from 'next/link';
 import gql from 'graphql-tag';
 import { Query } from 'react-apollo';
 
+import { Layout } from 'antd';
+
+const { Content } = Layout;
+
 const HELLO = gql`
   {
     hello
@@ -13,7 +17,7 @@ const HELLO = gql`
 
 const Index = () => {
   return (
-    <div>
+    <Content>
       <Query query={HELLO}>
         {({ loading, error, data}) => {
           if (loading) return "Loading...";
@@ -22,7 +26,7 @@ const Index = () => {
         }}
       </Query>
       <Link href='/login'><a>Login</a></Link>
-    </div>
+    </Content>
   );
 };
 

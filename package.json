@@ -23,6 +23,8 @@
     "@babel/runtime": "^7.5.5",
     "@sentry/browser": "^5.5.0",
     "@sentry/node": "^5.5.0",
+    "@zeit/next-css": "^1.0.1",
+    "antd": "^3.21.1",
     "apollo-cache-inmemory": "^1.6.2",
     "apollo-client": "^2.6.3",
     "apollo-link": "^1.2.12",
