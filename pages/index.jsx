@@ -20,8 +20,8 @@ const Index = () => {
     <Content>
       <Query query={HELLO}>
         {({ loading, error, data}) => {
-          if (loading) return "Loading...";
-          if (error) return `Error: ${error.message}`;
+          if (loading) return <p>Loading...</p>;
+          if (error) return <p>{`Error: ${error.message}`}</p>;
           return <p>{data.hello}</p>;
         }}
       </Query>

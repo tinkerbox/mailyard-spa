@@ -1,0 +1,46 @@
+import React from 'react';
+
+import Link from 'next/link';
+import { Divider, Row, Col, Layout as NextLayout } from 'antd';
+
+const { Header, Footer } = NextLayout;
+
+import config from '../../config/runtime';
+
+import { makeStyles } from '../../utils/styles';
+import custom from './styles.css';
+
+const styles = makeStyles(custom);
+
+const Simple = (props) => {
+  return (
+    <NextLayout className={styles.layout}>
+      <div className={styles.container}>
+
+        <Header className={styles.header}>
+          <Link href={config.MAILYARD_WEB_URL}><a>Mailyard</a></Link>
+        </Header>
+
+        <Row>
+          <Col xs={0} sm={2} md={4} lg={6} />
+          <Col xs={24} sm={20} md={16} lg={12}>
+            {props.children}
+          </Col>
+          <Col xs={0} sm={2} md={4} lg={6} />
+        </Row>
+
+        <Footer className={styles.header}>
+          <Divider />
+          <small>Mailyard, by Tinkerbox Studios Pte Ltd &copy; 2019</small>
+        </Footer>
+
+      </div>
+    </NextLayout>
+  );
+};
+
+const Layout = {};
+
+Layout.Simple = Simple;
+
+export default Layout;

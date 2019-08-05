@@ -3,14 +3,14 @@ import React, { useState } from 'react';
 import { Menu, Avatar, Layout } from 'antd';
 import Link from 'next/link';
 
-import { makeStyles } from '../../../utils/styles';
+import { makeStyles } from '../../utils/styles';
 
 const { Sider } = Layout;
 
 import custom from './styles.css';
 const styles = makeStyles(custom);
 
-const MainNavigation = () => {
+const Navigation = () => {
   const [collapsed, setCollapsed] = useState(true);
 
   return (
@@ -29,4 +29,8 @@ const MainNavigation = () => {
   );
 };
 
-export default MainNavigation;
+const Main = {};
+
+Main.Navigation = Navigation;
+
+export default Main;

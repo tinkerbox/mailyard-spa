@@ -14,7 +14,7 @@ import { makeStyles } from '../../utils/styles';
 
 import { Layout } from 'antd';
 
-import MainNavigation from '../../components/app/MainNavigation';
+import Main from '../../components/Main';
 
 import custom from './styles.css';
 const styles = makeStyles(custom);
@@ -30,15 +30,18 @@ class MailyardSPA extends App {
 
     return (
       <React.Fragment>
+
         <Head>
           <title>Mailyard SPA</title>
         </Head>
+
         <ApolloProvider client={apollo}>
           <Layout className={styles.main}>
-            <MainNavigation />
+            <Main.Navigation />
             <Component {...pageProps} />
           </Layout>
         </ApolloProvider>
+
       </React.Fragment>
     );
   }
