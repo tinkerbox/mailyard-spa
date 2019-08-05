@@ -7,7 +7,7 @@ module.exports = helmet.contentSecurityPolicy({
     formAction: ["'self'"],
     scriptSrc: ["'self'"],
     connectSrc: ["'self'", process.env.MAILYARD_API_HOST],
-    styleSrc: ["'self'"],
+    styleSrc: ["'self'", "'unsafe-inline'"],
     imgSrc: ["'self'"],
     frameAncestors: ["'none'"],
     reportUri: process.env.REPORT_URI,

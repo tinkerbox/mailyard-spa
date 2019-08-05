@@ -16,11 +16,19 @@ Sentry.init({
 const app = express();
 const port = process.env.PORT || 3000;
 
+app.use(helmet({
+  frameguard: {
+    action: 'deny',
+  },
+}));
+
 if (process.env.NODE_ENV !== 'development') {
   app.use((req, res, next) => {
     if (req.headers['x-forwarded-proto'] === 'https') return next();
     return res.redirect(`https://${req.headers.host}${req.url}`);
   });
+
+  app.use(csp);
 }
 
 if (process.env.CANONICAL_HOST) {
@@ -29,13 +37,6 @@ if (process.env.CANONICAL_HOST) {
     return res.redirect(301, `${req.protocol}://${process.env.CANONICAL_HOST}${req.url}`);
   });
 }
-
-app.use(helmet({
-  frameguard: {
-    action: 'deny',
-  },
-}));
-app.use(csp);
 
 const nextApp = next({
   dev: (process.env.NODE_ENV !== 'production' && process.env.NODE_ENV !== 'staging'),
