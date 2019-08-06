@@ -1,33 +1,44 @@
 import React from 'react';
 
 import Link from 'next/link';
+import { useRouter } from 'next/router'
 
-import { Card, Form, Input, Button, Divider } from 'antd';
+import { Card, Divider } from 'antd';
+import { Form, Input, SubmitButton } from '@jbuschke/formik-antd';
+import { Formik } from 'formik';
 
 import Layout from '../../components/Layout';
+import schema from './validations';
 
 const Login = () => {
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    console.log('logging in...');
+  const router = useRouter();
+
+  const handleSubmit = (values, { setSubmitting, setErrors }) => {
+    setTimeout(() => {
+      setSubmitting(false);
+      router.push('/');
+    }, 1000)
   };
 
   return (
     <Layout.Simple>
       <Card title='Login'>
 
-        <Form layout='vertical' onSubmit={handleSubmit}>
+        <Formik onSubmit={handleSubmit} validationSchema={schema}>
+          <Form layout='vertical'>
 
-          <Form.Item label='Username'>
-            <Input size='large' placeholder='Username' />
-          </Form.Item>
-          <Form.Item label='Password'>
-            <Input size='large' placeholder='Password' />
-          </Form.Item>
+            <Form.Item name='username' label='Username'>
+              <Input name='username' placeholder='Username' size='large' />
+            </Form.Item>
 
-          <Button type='primary' htmlType='submit' size='large'>Login</Button>
+            <Form.Item name='password' label='Password'>
+              <Input name='password' placeholder='Password' size='large' />
+            </Form.Item>
 
-        </Form>
+            <SubmitButton type='primary' htmlType='submit' size='large'>Login</SubmitButton>
+
+          </Form>
+        </Formik>
 
         <Divider />
 

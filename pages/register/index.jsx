@@ -1,36 +1,47 @@
 import React from 'react';
 
 import Link from 'next/link';
+import { useRouter } from 'next/router'
 
-import { Card, Form, Input, Button, Divider } from 'antd';
+import { Card, Divider } from 'antd';
+import { Form, Input, SubmitButton } from '@jbuschke/formik-antd';
+import { Formik } from 'formik';
 
 import Layout from '../../components/Layout';
+import schema from './validations';
 
 const Register = () => {
-  const handleSubmit = (e) => {
-    console.log('registering account...');
-    e.preventDefault();
+  const router = useRouter();
+
+  const handleSubmit = (values, { setSubmitting, setErrors }) => {
+    console.log(values);
+    setTimeout(() => {
+      setSubmitting(false);
+      router.push('/');
+    }, 1000)
   };
 
   return (
     <Layout.Simple>
       <Card title='Register'>
 
-        <Form layout='vertical' onSubmit={handleSubmit}>
+        <Formik onSubmit={handleSubmit} validationSchema={schema}>
+          <Form layout='vertical'>
 
-          <Form.Item label='Username'>
-            <Input size='large' placeholder='Username' />
-          </Form.Item>
-          <Form.Item label='Password'>
-            <Input size='large' placeholder='Password' />
-          </Form.Item>
-          <Form.Item label='Confirm password'>
-            <Input size='large' placeholder='Confirm password' />
-          </Form.Item>
+            <Form.Item name='username' label='Username'>
+              <Input name='username' placeholder='Username' size='large' />
+            </Form.Item>
+            <Form.Item name='password' label='Password'>
+              <Input name='password' placeholder='Password' size='large' />
+            </Form.Item>
+            <Form.Item name='passwordConfirmation' label='Confirm password'>
+              <Input name='passwordConfirmation' placeholder='Confirm password' size='large' />
+            </Form.Item>
 
-          <Button type='primary' htmlType='submit' size='large'>Register</Button>
+            <SubmitButton type='primary' htmlType='submit' size='large'>Register</SubmitButton>
 
-        </Form>
+          </Form>
+        </Formik>
 
         <Divider />
 

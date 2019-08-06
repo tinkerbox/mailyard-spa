@@ -29,7 +29,7 @@ const Simple = (props) => {
           <Col xs={0} sm={2} md={4} lg={6} />
         </Row>
 
-        <Footer className={styles.header}>
+        <Footer className={styles.footer}>
           <Divider />
           <small>Mailyard, by Tinkerbox Studios Pte Ltd &copy; 2019</small>
         </Footer>
