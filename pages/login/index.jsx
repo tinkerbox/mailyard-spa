@@ -6,13 +6,20 @@ import { useRouter } from 'next/router'
 import { Card, Divider } from 'antd';
 import { Form, Input, SubmitButton } from '@jbuschke/formik-antd';
 import { Formik } from 'formik';
+import * as Yup from 'yup';
 
 import gql from 'graphql-tag';
 import { ApolloContext } from 'react-apollo';
 
 import Layout from '../../components/Layout';
 import format from '../../utils/error-formatter';
-import schema from './validations';
+
+const schema = Yup.object().shape({
+  username: Yup.string()
+    .required('Required'),
+  password: Yup.string()
+    .required('Required'),
+});
 
 const AUTHENTICATE = gql`
   mutation ($username: ID!, $password: String!) {
