@@ -17,11 +17,16 @@ const withError = onError((error) => {
 
   if (graphQLErrors) {
     graphQLErrors.map(({ message, locations, path }) => {
+      // TODO: filter out errors that can be ignored, track the rest
       console.log(`[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}`);
     });
   }
 
-  if (networkError) console.error(`[Network error]: ${networkError}`);
+  if (networkError) {
+    // TODO: track authentication failures, and remove JWT
+    console.log(error);
+    console.error(`[Network error]: ${networkError}`);
+  }
 });
 
 const withToken = setContext(() => {
