@@ -12,37 +12,23 @@ import { InMemoryCache } from 'apollo-cache-inmemory';
 
 import config from '../config/runtime';
 
-const withError = onError((error) => {
-  const { graphQLErrors, networkError } = error;
-
-  if (graphQLErrors) {
-    graphQLErrors.map(({ message, locations, path }) => {
-      // TODO: filter out errors that can be ignored, track the rest
-      console.log(`[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}`);
-    });
-  }
-
-  if (networkError) {
-    // TODO: track authentication failures, and remove JWT
-    console.log(error);
-    console.error(`[Network error]: ${networkError}`);
-  }
-});
-
 const withToken = setContext(() => {
   const token = localStorage.getItem('authToken');
   const authorization = token ? `Bearer ${token}` : '';
   return { headers: { authorization } };
 });
 
-const client = new ApolloClient({
-  link: ApolloLink.from([
-    withToken,
-    withError,
-    new RetryLink(),
-    new HttpLink({ uri: config.MAILYARD_API_URL }),
-  ]),
-  cache: new InMemoryCache(),
-});
+const Connect = (release, errorHandler) => {
+  return new ApolloClient({
+    version: release,
+    link: ApolloLink.from([
+      withToken,
+      onError(errorHandler),
+      new RetryLink(),
+      new HttpLink({ uri: config.MAILYARD_API_URL }),
+    ]),
+    cache: new InMemoryCache(),
+  });
+};
 
-module.exports = client;
+module.exports = Connect;

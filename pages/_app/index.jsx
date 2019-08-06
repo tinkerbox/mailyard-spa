@@ -7,7 +7,7 @@ import * as Sentry from '@sentry/browser';
 
 import 'antd/dist/antd.min.css';
 
-import apollo from '../../config/apollo';
+import Connect from '../../config/apollo';
 import config from '../../config/runtime';
 
 import { makeStyles } from '../../utils/styles';
@@ -19,10 +19,31 @@ import Main from '../../components/Main';
 import custom from './styles.css';
 const styles = makeStyles(custom);
 
+const RELEASE_NAME = `${config.HEROKU_SLUG_COMMIT}@mailyard-spa`;
+
 Sentry.init({
   dsn: config.SENTRY_FRONTEND_DSN,
-  release: `${config.HEROKU_SLUG_COMMIT}@mailyard-spa`,
+  release: RELEASE_NAME,
 });
+
+const errorHandler = (error) => {
+  const { graphQLErrors, networkError } = error;
+
+  if (graphQLErrors) {
+    graphQLErrors.map(({ message, locations, path }) => {
+      // TODO: filter out errors that can be ignored, track the rest
+      console.log(`[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}`);
+    });
+  }
+
+  if (networkError) {
+    // TODO: track authentication failures, and remove JWT
+    console.log(error);
+    console.error(`[Network error]: ${networkError}`);
+  }
+};
+
+const apollo = Connect(RELEASE_NAME, errorHandler);
 
 class MailyardSPA extends App {
   render() {
