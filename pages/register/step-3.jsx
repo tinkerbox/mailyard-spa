@@ -2,10 +2,11 @@ import React from 'react';
 
 import { useRouter } from 'next/router'
 
-import { Card, Divider, Button, Empty } from 'antd';
+import { Card, Divider, Empty } from 'antd';
 
 import Layout from '../../components/Layout';
 import Wizard from '../../components/pages/register/Wizard';
+import Button from '../../components/Button';
 
 const Step3 = () => {
   const router = useRouter();
@@ -20,7 +21,7 @@ const Step3 = () => {
 
         <Divider />
 
-        <Button type='primary' size='large' onClick={() => router.push('/')}>Done</Button>
+        <Button type='primary' size='large' href='/'>Done</Button>
 
       </Card>
     </Layout.SimpleWide>

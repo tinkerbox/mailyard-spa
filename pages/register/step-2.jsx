@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 
 import { useRouter } from 'next/router'
 
-import { Card, Divider, Button } from 'antd';
+import { Card, Divider } from 'antd';
 import { Form, Input, SubmitButton } from '@jbuschke/formik-antd';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
@@ -11,6 +11,7 @@ import { useAuth } from '../../hooks/auth-context';
 import Layout from '../../components/Layout';
 import Wizard from '../../components/pages/register/Wizard';
 import format from '../../utils/error-formatter';
+import Button from '../../components/Button';
 
 const schema = Yup.object().shape({
   username: Yup.string()
@@ -68,7 +69,7 @@ const Step2 = () => {
 
             <Divider />
 
-            <Button size='large' type='link' onClick={() => router.push('/register')}>Back</Button>
+            <Button type='link' href='/register'>Back</Button>
             <SubmitButton size='large' type='primary' htmlType='submit'>Next</SubmitButton>
 
           </Form>

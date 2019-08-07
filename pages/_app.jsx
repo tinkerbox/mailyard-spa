@@ -11,6 +11,7 @@ import Connect from '../config/apollo';
 import config from '../config/runtime';
 
 import { AuthProvider } from '../hooks/auth-context';
+import { GoogleProvider } from '../hooks/google-context';
 
 const RELEASE_NAME = `${config.HEROKU_SLUG_COMMIT}@mailyard-spa`;
 
@@ -50,9 +51,11 @@ class MailyardSPA extends App {
         </Head>
 
         <ApolloProvider client={apollo}>
-          <AuthProvider>
-            <Component {...pageProps} />
-          </AuthProvider>
+          <GoogleProvider clientId={config.GOOGLE_CLIENT_ID} scope={config.GOOGLE_SCOPE}>
+            <AuthProvider>
+              <Component {...pageProps} />
+            </AuthProvider>
+          </GoogleProvider>
         </ApolloProvider>
 
       </React.Fragment>
