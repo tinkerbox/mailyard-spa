@@ -28,6 +28,7 @@ const Connect = (release, errorHandler) => {
       new HttpLink({ uri: config.MAILYARD_API_URL }),
     ]),
     cache: new InMemoryCache(),
+    connectToDevTools: process.env.NODE_ENV === 'development',
   });
 };
 
