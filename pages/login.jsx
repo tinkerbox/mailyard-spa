@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React from 'react';
 
 import Link from 'next/link';
 import { useRouter } from 'next/router'
@@ -8,11 +8,9 @@ import { Form, Input, SubmitButton } from '@jbuschke/formik-antd';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 
-import gql from 'graphql-tag';
-import { ApolloContext } from 'react-apollo';
-
-import Layout from '../../components/Layout';
-import format from '../../utils/error-formatter';
+import Layout from '../components/Layout';
+import { useAuth } from '../hooks/auth-context';
+import format from '../utils/error-formatter';
 
 const schema = Yup.object().shape({
   username: Yup.string()
@@ -21,32 +19,18 @@ const schema = Yup.object().shape({
     .required('Required'),
 });
 
-const AUTHENTICATE = gql`
-  mutation ($username: ID!, $password: String!) {
-    authenticate(username: $username, password: $password) {
-      token
-    }
-  }
-`;
-
 const Login = () => {
   const router = useRouter();
-  const { client } = useContext(ApolloContext);
+  const { login } = useAuth();
 
   const handleSubmit = async (values, { setSubmitting, setErrors }) => {
-    try {
-      const result = await client.mutate({
-        mutation: AUTHENTICATE,
-        variables: values,
-      });
-      console.log(result.data.authenticate.token);
-    } catch (error) {
-      setErrors(format(error));
-      return;
-    } finally {
-      setSubmitting(false);
-    }
-    router.push('/');
+    await login(values, {
+      success: () => { router.push('/') },
+      failure: (error) => {
+        setErrors(format(error));
+        setSubmitting(false);
+      },
+    });
   };
 
   return (

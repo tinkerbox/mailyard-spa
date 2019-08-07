@@ -10,6 +10,8 @@ import 'antd/dist/antd.min.css';
 import Connect from '../config/apollo';
 import config from '../config/runtime';
 
+import { AuthProvider } from '../hooks/auth-context';
+
 const RELEASE_NAME = `${config.HEROKU_SLUG_COMMIT}@mailyard-spa`;
 
 Sentry.init({
@@ -48,7 +50,9 @@ class MailyardSPA extends App {
         </Head>
 
         <ApolloProvider client={apollo}>
-          <Component {...pageProps} />
+          <AuthProvider>
+            <Component {...pageProps} />
+          </AuthProvider>
         </ApolloProvider>
 
       </React.Fragment>

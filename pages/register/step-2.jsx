@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React from 'react';
 
 import { useRouter } from 'next/router'
 
@@ -7,9 +7,7 @@ import { Form, Input, SubmitButton } from '@jbuschke/formik-antd';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 
-import gql from 'graphql-tag';
-import { ApolloContext } from 'react-apollo';
-
+import { useAuth } from '../../hooks/auth-context';
 import Layout from '../../components/Layout';
 import Wizard from '../../components/pages/register/Wizard';
 import format from '../../utils/error-formatter';
@@ -24,38 +22,25 @@ const schema = Yup.object().shape({
     .oneOf([Yup.ref('password'), null], 'Passwords must match'),
 });
 
-const REGISTER = gql`
-  mutation ($username: ID!, $password: String!, $mailbox: MailboxInput!) {
-    register(username: $username, password: $password, mailbox: $mailbox) {
-      token
-    }
-  }
-`;
-
 const Step2 = () => {
   const router = useRouter();
-  const { client } = useContext(ApolloContext);
+  const { register } = useAuth();
 
   const handleSubmit = async (values, { setSubmitting, setErrors }) => {
-    try {
-      const result = await client.mutate({
-        mutation: REGISTER,
-        variables: {
-          ...values,
-          mailbox: {
-            name: "John Doe",
-            email: "john.doe@example.net",
-          },
-        },
-      });
-      console.log(result.data.register.token);
-    } catch (error) {
-      setErrors(format(error));
-      return;
-    } finally {
-      setSubmitting(false);
-    }
-    router.push('/register/step-3');
+    const params = {
+      ...values,
+      mailbox: {
+        name: "John Doe",
+        email: "john.doe@example.net",
+      },
+    };
+    await register(params, {
+      success: () => { router.push('/register/step-3') },
+      failure: (error) => {
+        setErrors(format(error));
+        setSubmitting(false);
+      },
+    });
   };
 
   return (
