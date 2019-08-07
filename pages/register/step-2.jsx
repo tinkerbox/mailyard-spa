@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 
 import { useRouter } from 'next/router'
 
@@ -24,7 +24,11 @@ const schema = Yup.object().shape({
 
 const Step2 = () => {
   const router = useRouter();
-  const { register } = useAuth();
+  const { loggedIn, register } = useAuth();
+
+  useEffect(() => {
+    if (loggedIn) router.push('/');
+  }, [loggedIn]);
 
   const handleSubmit = async (values, { setSubmitting, setErrors }) => {
     const params = {
@@ -65,7 +69,6 @@ const Step2 = () => {
             <Divider />
 
             <Button size='large' type='link' onClick={() => router.push('/register')}>Back</Button>
-
             <SubmitButton size='large' type='primary' htmlType='submit'>Next</SubmitButton>
 
           </Form>

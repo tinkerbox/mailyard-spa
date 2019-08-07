@@ -1,11 +1,13 @@
-import React from 'react';
-
-import Link from 'next/link';
+import React, { useEffect } from 'react';
 
 import gql from 'graphql-tag';
 import { Query } from 'react-apollo';
 
-import { Layout } from 'antd';
+import { Layout, Button } from 'antd';
+import { useRouter } from 'next/router';
+import Link from 'next/link';
+
+import { useAuth } from '../hooks/auth-context';
 
 const { Content } = Layout;
 
@@ -16,6 +18,18 @@ const HELLO = gql`
 `;
 
 const Index = () => {
+  const { loggedIn, logout } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!loggedIn) router.push('/login');
+  }, [loggedIn]);
+
+  const onLogout = () => {
+    logout();
+    router.push('/login');
+  }
+
   return (
     <Content>
       <Query query={HELLO}>
@@ -25,7 +39,9 @@ const Index = () => {
           return <p>{data.hello}</p>;
         }}
       </Query>
-      <Link href='/login'><a>Login</a></Link>
+      <Link href='/'><a>Again</a></Link>
+      <Button type='link' onClick={onLogout}>Logout</Button>
+      <Button onClick={() => router.push('/login')}>Login</Button>
     </Content>
   );
 };

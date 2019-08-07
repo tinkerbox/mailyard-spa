@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 
 import Link from 'next/link';
 import { useRouter } from 'next/router'
@@ -8,8 +8,9 @@ import { Form, Input, SubmitButton } from '@jbuschke/formik-antd';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 
-import Layout from '../components/Layout';
+
 import { useAuth } from '../hooks/auth-context';
+import Layout from '../components/Layout';
 import format from '../utils/error-formatter';
 
 const schema = Yup.object().shape({
@@ -21,7 +22,11 @@ const schema = Yup.object().shape({
 
 const Login = () => {
   const router = useRouter();
-  const { login } = useAuth();
+  const { loggedIn, login } = useAuth();
+
+  useEffect(() => {
+    if (loggedIn) router.push('/');
+  }, [loggedIn]);
 
   const handleSubmit = async (values, { setSubmitting, setErrors }) => {
     await login(values, {
