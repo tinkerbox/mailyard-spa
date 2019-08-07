@@ -7,17 +7,8 @@ import * as Sentry from '@sentry/browser';
 
 import 'antd/dist/antd.min.css';
 
-import Connect from '../../config/apollo';
-import config from '../../config/runtime';
-
-import { makeStyles } from '../../utils/styles';
-
-import { Layout } from 'antd';
-
-import Main from '../../components/Main';
-
-import custom from './styles.css';
-const styles = makeStyles(custom);
+import Connect from '../config/apollo';
+import config from '../config/runtime';
 
 const RELEASE_NAME = `${config.HEROKU_SLUG_COMMIT}@mailyard-spa`;
 
@@ -57,10 +48,7 @@ class MailyardSPA extends App {
         </Head>
 
         <ApolloProvider client={apollo}>
-          <Layout className={styles.main}>
-            <Main.Navigation />
-            <Component {...pageProps} />
-          </Layout>
+          <Component {...pageProps} />
         </ApolloProvider>
 
       </React.Fragment>

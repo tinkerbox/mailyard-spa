@@ -7,25 +7,24 @@ import { Card, Divider, Button, Empty } from 'antd';
 import Layout from '../../components/Layout';
 import Wizard from '../../components/pages/register/Wizard';
 
-const Register = () => {
+const Step3 = () => {
   const router = useRouter();
 
   return (
     <Layout.SimpleWide>
       <Card title='Get started in 3 easy steps'>
 
-        <Wizard current={0} />
+        <Wizard current={2} />
 
         <Empty description='Coming soon' />
 
         <Divider />
 
-        <Button type='link' href='/login'><a>Already have an account?</a></Button>
-        <Button type='primary' size='large' onClick={() => router.push('/register/step-2')}>Next</Button>
+        <Button type='primary' size='large' onClick={() => router.push('/')}>Done</Button>
 
       </Card>
     </Layout.SimpleWide>
   );
 };
 
-export default Register;
+export default Step3;

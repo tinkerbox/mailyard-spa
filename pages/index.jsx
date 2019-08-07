@@ -19,7 +19,7 @@ const Index = () => {
   return (
     <Content>
       <Query query={HELLO}>
-        {({ loading, error, data}) => {
+        {({ loading, error, data }) => {
           if (loading) return <p>Loading...</p>;
           if (error) return <p>{`Error: ${error.message}`}</p>;
           return <p>{data.hello}</p>;
