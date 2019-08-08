@@ -12,7 +12,7 @@ const { Header, Footer } = NextLayout;
 
 const styles = makeStyles(custom);
 
-const COPYRIGHT_NOTICE = 'Mailyard, by Tinkerbox Studios Pte Ltd &copy; 2019';
+const COPYRIGHT_NOTICE = 'Mailyard, by Tinkerbox Studios Pte Ltd © 2019';
 
 const Simple = (props) => {
   return (
