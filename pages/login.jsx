@@ -30,7 +30,7 @@ const Login = () => {
 
   const handleSubmit = async (values, { setSubmitting, setErrors }) => {
     await login(values, {
-      success: () => { router.push('/') },
+      success: () => { router.push('/'); },
       failure: (error) => {
         setErrors(format(error));
         setSubmitting(false);
@@ -40,27 +40,27 @@ const Login = () => {
 
   return (
     <Layout.Simple>
-      <Card title='Login'>
+      <Card title="Login">
 
         <Formik onSubmit={handleSubmit} validationSchema={schema}>
-          <Form layout='vertical'>
+          <Form layout="vertical">
 
-            <Form.Item name='username' label='Username'>
-              <Input name='username' placeholder='Username' size='large' />
+            <Form.Item name="username" label="Username">
+              <Input name="username" placeholder="Username" size="large" />
             </Form.Item>
 
-            <Form.Item name='password' label='Password'>
-              <Input.Password name='password' placeholder='Password' size='large' />
+            <Form.Item name="password" label="Password">
+              <Input.Password name="password" placeholder="Password" size="large" />
             </Form.Item>
 
-            <SubmitButton type='primary' htmlType='submit' size='large'>Login</SubmitButton>
+            <SubmitButton type="primary" htmlType="submit" size="large">Login</SubmitButton>
 
           </Form>
         </Formik>
 
         <Divider />
 
-        <Link href='/register'><a>Don't have an account?</a></Link>
+        <Link href="/register"><a>Don't have an account?</a></Link>
 
       </Card>
     </Layout.Simple>

@@ -1,26 +1,24 @@
 import React from 'react';
 
-import { useGoogle } from '../../hooks/google-context';
-
 import { GoogleLogin, GoogleLogout } from 'react-google-login';
 
-const Login = () => {
-  const { clientId, scope, login, profile } = useGoogle();
+import { useGoogle } from '../../hooks/google-context';
 
-  const googleRenderlessDisplay = renderProps => <div {...renderProps} />;
+const Login = (props) => {
+  const { clientId, scope, login } = useGoogle();
 
   return (
     <GoogleLogin
       clientId={clientId}
-      buttonText='Sign in with Google'
+      buttonText="Sign in with Google"
       scope={scope}
       onSuccess={login}
       onFailure={login}
-      cookiePolicy={'single_host_origin'}
-      theme='dark'
-      prompt='consent'
-      isSignedIn={true}
-      render={profile ? googleRenderlessDisplay : null} // TODO: maybe this is not necesasry
+      cookiePolicy="single_host_origin"
+      theme="dark"
+      prompt="consent"
+      isSignedIn
+      {...props}
     />
   );
 };
@@ -31,7 +29,7 @@ const Logout = () => {
   return (
     <GoogleLogout
       clientId={clientId}
-      buttonText='Logout'
+      buttonText="Logout"
       onLogoutSuccess={logout}
     />
   );

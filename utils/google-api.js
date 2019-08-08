@@ -1,3 +1,5 @@
+/* eslint-disable arrow-body-style */
+
 const GOOGLE_API_BASE = 'https://www.googleapis.com/gmail/v1';
 
 function GoogleApi(client) {

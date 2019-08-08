@@ -1,11 +1,11 @@
 .layout {
 }
 
-.header {
+header.header {
   background-color: transparent;
   text-align: center;
 }
 
-.footer {
+footer.footer {
   text-align: center;
 }

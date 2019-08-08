@@ -3,14 +3,16 @@ import React from 'react';
 import Link from 'next/link';
 import { Divider, Row, Col, Layout as NextLayout } from 'antd';
 
-const { Header, Footer } = NextLayout;
-
 import config from '../../config/runtime';
 
 import { makeStyles } from '../../utils/styles';
 import custom from './styles.css';
 
+const { Header, Footer } = NextLayout;
+
 const styles = makeStyles(custom);
+
+const COPYRIGHT_NOTICE = 'Mailyard, by Tinkerbox Studios Pte Ltd &copy; 2019';
 
 const Simple = (props) => {
   return (
@@ -31,7 +33,7 @@ const Simple = (props) => {
 
         <Footer className={styles.footer}>
           <Divider />
-          <small>Mailyard, by Tinkerbox Studios Pte Ltd &copy; 2019</small>
+          <small>{COPYRIGHT_NOTICE}</small>
         </Footer>
 
       </div>
@@ -58,7 +60,7 @@ const SimpleWide = (props) => {
 
         <Footer className={styles.footer}>
           <Divider />
-          <small>Mailyard, by Tinkerbox Studios Pte Ltd &copy; 2019</small>
+          <small>{COPYRIGHT_NOTICE}</small>
         </Footer>
 
       </div>

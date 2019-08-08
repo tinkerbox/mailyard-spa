@@ -1,8 +1,6 @@
 import css from './common.css';
 
-const makeStyles = (component) => {
-  return { ...css, ...component }
-};
+const makeStyles = component => ({ ...css, ...component });
 
 export { makeStyles, css };
 

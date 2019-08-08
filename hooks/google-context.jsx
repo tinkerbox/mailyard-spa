@@ -82,4 +82,4 @@ const GoogleProvider = ({ clientId, scope, ...props }) => {
 
 const useGoogle = () => React.useContext(GoogleContext);
 
-export { GoogleProvider, useGoogle }
+export { GoogleProvider, useGoogle };

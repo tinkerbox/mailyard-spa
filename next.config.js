@@ -1,3 +1,5 @@
+/* eslint-disable */
+
 const path = require('path');
 
 var loaderUtils = require('loader-utils');

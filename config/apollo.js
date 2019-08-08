@@ -1,3 +1,5 @@
+/* global localStorage */
+
 import 'cross-fetch/polyfill';
 
 import { ApolloClient } from 'apollo-client';
@@ -10,7 +12,7 @@ import { setContext } from 'apollo-link-context';
 
 import { InMemoryCache } from 'apollo-cache-inmemory';
 
-import config from '../config/runtime';
+import config from './runtime';
 
 const withToken = setContext(() => {
   const token = localStorage.getItem('authToken');
@@ -18,18 +20,16 @@ const withToken = setContext(() => {
   return { headers: { authorization } };
 });
 
-const Connect = (release, errorHandler) => {
-  return new ApolloClient({
-    version: release,
-    link: ApolloLink.from([
-      withToken,
-      onError(errorHandler),
-      new RetryLink(),
-      new HttpLink({ uri: config.MAILYARD_API_URL }),
-    ]),
-    cache: new InMemoryCache(),
-    connectToDevTools: process.env.NODE_ENV === 'development',
-  });
-};
+const Connect = (release, errorHandler) => new ApolloClient({
+  version: release,
+  link: ApolloLink.from([
+    withToken,
+    onError(errorHandler),
+    new RetryLink(),
+    new HttpLink({ uri: config.MAILYARD_API_URL }),
+  ]),
+  cache: new InMemoryCache(),
+  connectToDevTools: process.env.NODE_ENV === 'development',
+});
 
 module.exports = Connect;

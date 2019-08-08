@@ -1,8 +1,7 @@
 import React, { useEffect } from 'react';
 
-import { useRouter } from 'next/router'
-
 import { Card, Divider } from 'antd';
+import { useRouter } from 'next/router';
 
 import { useAuth } from '../../hooks/auth-context';
 import { useGoogle } from '../../hooks/google-context';
