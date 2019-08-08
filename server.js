@@ -33,6 +33,8 @@ if (process.env.NODE_ENV !== 'development') {
   app.use(csp);
 }
 
+app.use(csp);
+
 if (process.env.CANONICAL_HOST) {
   app.use((req, res, _next) => {
     if (req.headers.host === process.env.CANONICAL_HOST) return _next();
