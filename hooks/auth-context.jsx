@@ -65,6 +65,7 @@ const AuthProvider = (props) => {
       const result = await client.mutate({
         mutation: AUTHENTICATE_MUTATION,
         variables: values,
+        fetchPolicy: 'no-cache',
       });
       setToken(result.data.authenticate.token);
       client.cache.reset();
@@ -85,6 +86,7 @@ const AuthProvider = (props) => {
       const result = await client.mutate({
         mutation: REGISTER_MUTATION,
         variables: values,
+        fetchPolicy: 'no-cache',
       });
       setToken(result.data.register.token);
       if (callbacks.success) callbacks.success(result.data.register);

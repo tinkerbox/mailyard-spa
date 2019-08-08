@@ -1,3 +1,5 @@
+/* global window */
+
 import React, { useState, useReducer, useEffect } from 'react';
 
 import GoogleApi from '../utils/google-api';
@@ -35,33 +37,30 @@ const reducer = (state, action) => {
 };
 
 const GoogleProvider = ({ clientId, scope, ...props }) => {
-  const gapi = (typeof window !== 'undefined') ? window.gapi : null;
-
   const [state, dispatch] = useReducer(reducer, initialState);
   const [api, setApi] = useState();
+  const [refreshCounter, setRefreshCounter] = useState(0);
 
   useEffect(() => {
     let didCancel = false;
-    if (!gapi) return;
-
     const onApiLoaded = () => {
       if (!didCancel) dispatch({ type: 'load' });
     };
-    gapi.load('client', onApiLoaded);
+    if (window.gapi) window.gapi.load('client', onApiLoaded);
     return () => { didCancel = true; };
-  }, [gapi]);
+  }, [refreshCounter]);
 
   useEffect(() => {
     let didCancel = false;
     if (state.token) {
-      if (!didCancel) setApi(new GoogleApi(gapi.client));
+      if (!didCancel) setApi(new GoogleApi(window.gapi.client));
     } else {
       setApi(null);
     }
     return () => { didCancel = true; };
-  }, [state.ready]);
+  }, [refreshCounter, state.ready, state.token]);
 
-  const login = (response) => dispatch({ type: 'login', payload: response });
+  const login = response => dispatch({ type: 'login', payload: response });
   const logout = () => dispatch({ type: 'logout' });
 
   const values = {
@@ -70,6 +69,7 @@ const GoogleProvider = ({ clientId, scope, ...props }) => {
     login,
     logout,
     api,
+    refresh: () => { setRefreshCounter(refreshCounter + 1); },
     ...state,
   };
 

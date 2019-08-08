@@ -22,3 +22,20 @@
 }
 
 /* TODO: add spacing utils based on Bootstrap */
+
+.spacedAvatar {
+  margin: 16px;
+}
+
+.cardRow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cardFooter {
+  display: flex;
+  justify-content: space-between;
+  flex-direction: row-reverse;
+  align-items: center;
+}

@@ -23,7 +23,7 @@ const Login = (props) => {
   );
 };
 
-const Logout = () => {
+const Logout = (props) => {
   const { clientId, logout } = useGoogle();
 
   return (
@@ -31,6 +31,7 @@ const Logout = () => {
       clientId={clientId}
       buttonText="Logout"
       onLogoutSuccess={logout}
+      {...props}
     />
   );
 };
