@@ -45,6 +45,7 @@
     "react-apollo": "^2.5.8",
     "react-dom": "^16.8.6",
     "react-google-login": "^5.0.5",
+    "sqreen": "^1.32.0",
     "yup": "^0.27.0"
   },
   "engines": {
