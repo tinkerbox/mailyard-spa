@@ -15,10 +15,12 @@ import { GoogleProvider } from '../hooks/google-context';
 
 const RELEASE_NAME = `${config.HEROKU_SLUG_COMMIT}@mailyard-spa`;
 
-Sentry.init({
-  dsn: config.SENTRY_FRONTEND_DSN,
-  release: RELEASE_NAME,
-});
+if (process.env.NODE_ENV !== 'development') {
+  Sentry.init({
+    dsn: config.SENTRY_FRONTEND_DSN,
+    release: RELEASE_NAME,
+  });
+}
 
 const errorHandler = (error) => {
   const { graphQLErrors, networkError } = error;
