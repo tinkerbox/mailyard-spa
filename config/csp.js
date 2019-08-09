@@ -6,7 +6,7 @@ module.exports = helmet.contentSecurityPolicy({
     defaultSrc: ["'none'"],
     formAction: ["'self'"],
     scriptSrc: ["'self'", 'apis.google.com'],
-    frameSrc: ['accounts.google.com'],
+    frameSrc: ['accounts.google.com', 'content.googleapis.com'],
     connectSrc: ["'self'", process.env.MAILYARD_API_HOST],
     styleSrc: ["'self'", "'unsafe-inline'"],
     imgSrc: ["'self'", 'lh5.googleusercontent.com'],
