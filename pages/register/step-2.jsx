@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useCallback } from 'react';
 
 import { useRouter } from 'next/router';
 import dynamic from 'next/dynamic';
@@ -10,6 +10,7 @@ import * as Yup from 'yup';
 
 import { useAuth } from '../../hooks/auth-context';
 import { useGoogle } from '../../hooks/google-context';
+import { useGoogleQuery } from '../../hooks/google-query';
 
 import Layout from '../../components/Layout';
 import Wizard from '../../components/pages/register/Wizard';
@@ -33,40 +34,35 @@ const schema = Yup.object().shape({
     .oneOf([Yup.ref('password'), null], 'Passwords must match'),
 });
 
+const paramsForRegistration = (values, name, email, labels) => {
+  return {
+    ...values,
+    mailbox: {
+      name,
+      email,
+      labels: labels.map(label => ({
+        name: label.name,
+        type: 'USER',
+      })),
+    },
+  };
+};
+
 const Step2 = () => {
   const router = useRouter();
   const { register } = useAuth();
   const { profile, api, ready, refresh } = useGoogle();
-  const [labels, setLabels] = useState();
+
+  const query = useCallback(() => api.getAllLabels(), [api]);
+  const { labels } = useGoogleQuery(api, query);
 
   useEffect(() => {
     if (!ready) refresh();
   }, [ready, refresh]);
 
-  useEffect(() => {
-    let didCancel = false;
-    (async () => {
-      if (ready && api) {
-        const { result } = await api.getAllLabels();
-        if (!didCancel) setLabels(result.labels);
-      }
-    })();
-    return () => { didCancel = true; };
-  }, [ready, api]);
-
   const handleSubmit = async (values, { setSubmitting, setErrors }) => {
     const { name, email } = profile;
-    const params = {
-      ...values,
-      mailbox: {
-        name,
-        email,
-        labels: labels.map(label => ({
-          name: label.name,
-          type: 'USER',
-        })),
-      },
-    };
+    const params = paramsForRegistration(values, name, email, labels);
     await register(params, {
       success: () => { router.push('/register/step-3'); },
       failure: (error) => {

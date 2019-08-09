@@ -52,7 +52,7 @@ const GoogleProvider = ({ clientId, scope, ...props }) => {
 
   useEffect(() => {
     let didCancel = false;
-    if (state.token) {
+    if (state.ready && state.token) {
       if (!didCancel) setApi(new GoogleApi(window.gapi.client));
     } else {
       setApi(null);

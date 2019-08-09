@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useCallback } from 'react';
 
 import { Card, Divider, Row, Col, Avatar, Statistic } from 'antd';
 import dynamic from 'next/dynamic';
 
 import { useGoogle } from '../../hooks/google-context';
+import { useGoogleQuery } from '../../hooks/google-query';
 
 import Layout from '../../components/Layout';
 import Wizard from '../../components/pages/register/Wizard';
@@ -18,22 +19,13 @@ const GoogleLogin = dynamic(
 
 const Step3 = () => {
   const { profile, ready, api, refresh } = useGoogle();
-  const [mailbox, setMailbox] = useState();
+
+  const query = useCallback(() => api.getProfile(), [api]);
+  const mailbox = useGoogleQuery(api, query);
 
   useEffect(() => {
     if (!ready) refresh();
   }, [ready, refresh]);
-
-  useEffect(() => {
-    let didCancel = false;
-    if (api) {
-      (async () => {
-        const { result } = await api.getProfile();
-        if (!didCancel) setMailbox(result);
-      })();
-    }
-    return () => { didCancel = true; };
-  }, [api]);
 
   return (
     <Layout.SimpleWide>
