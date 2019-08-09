@@ -17,7 +17,7 @@ const GoogleProfile = ({ profile }) => {
       <Col sm={24} md={16} lg={14}>
 
         <div className={styles.cardRow}>
-          <Avatar src={imageUrl} size={48} className={styles.spacedAvatar} />
+          <Avatar src={imageUrl} size={48} className={`${styles['mx-2']} ${styles['mx-md-3']} `} />
           <Statistic title={name} value={email} />
         </div>
 

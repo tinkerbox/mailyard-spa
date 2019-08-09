@@ -43,7 +43,7 @@ const Register = () => {
             <Col sm={24} md={16} lg={14}>
 
               <div className={styles.cardRow}>
-                <Avatar icon="user" className={styles.spacedAvatar} />
+                <Avatar icon="user" className={`${styles['mx-2']} ${styles['mx-md-3']} `} />
                 <Text>Connect to the Google account you with to back up</Text>
               </div>
 

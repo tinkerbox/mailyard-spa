@@ -47,8 +47,8 @@ const Step2 = () => {
     let didCancel = false;
     (async () => {
       if (ready && api) {
-        const results = await api.getAllLabels();
-        if (!didCancel) setLabels(results.result.labels);
+        const { result } = await api.getAllLabels();
+        if (!didCancel) setLabels(result.labels);
       }
     })();
     return () => { didCancel = true; };

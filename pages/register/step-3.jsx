@@ -1,10 +1,8 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 
-import { Card, Divider, Empty } from 'antd';
-import { useRouter } from 'next/router';
+import { Card, Divider, Row, Col, Avatar, Statistic } from 'antd';
 import dynamic from 'next/dynamic';
 
-import { useAuth } from '../../hooks/auth-context';
 import { useGoogle } from '../../hooks/google-context';
 
 import Layout from '../../components/Layout';
@@ -19,18 +17,23 @@ const GoogleLogin = dynamic(
 );
 
 const Step3 = () => {
-  const router = useRouter();
-  const { loggedIn } = useAuth();
-  const { profile, ready } = useGoogle();
+  const { profile, ready, api, refresh } = useGoogle();
+  const [mailbox, setMailbox] = useState();
 
   useEffect(() => {
-    if (!ready) return;
-    if (!profile) {
-      router.push('/register');
-    } else if (!loggedIn) {
-      router.push('/register/step-2');
-    } // TODO: else if already onboarded, redirect to /
-  }, [profile, loggedIn, ready, router]);
+    if (!ready) refresh();
+  }, [ready, refresh]);
+
+  useEffect(() => {
+    let didCancel = false;
+    if (api) {
+      (async () => {
+        const { result } = await api.getProfile();
+        if (!didCancel) setMailbox(result);
+      })();
+    }
+    return () => { didCancel = true; };
+  }, [api]);
 
   return (
     <Layout.SimpleWide>
@@ -38,9 +41,38 @@ const Step3 = () => {
 
         <Wizard current={2} />
 
-        <Empty description="Coming soon" />
-
         {!profile && <GoogleLogin render={() => null} />}
+        {profile && mailbox && (
+          <Row>
+            <Col sm={0} md={4} lg={5} />
+            <Col sm={24} md={16} lg={14}>
+
+              <div className={styles.cardRow}>
+                <Avatar src={profile.imageUrl} size={48} className={`${styles['mx-2']} ${styles['mx-md-3']} `} />
+                <Statistic title={profile.name} value={profile.email} />
+              </div>
+
+              <Divider />
+
+              <Row>
+                <Col span={12}>
+                  <Statistic title="Threads" value={mailbox.threadsTotal} />
+                </Col>
+                <Col span={12}>
+                  <Statistic title="Messages" value={mailbox.messagesTotal} />
+                </Col>
+              </Row>
+
+              <Divider />
+
+              <div className={styles.cardRow}>
+                <Button type="primary" size="large">Start Sync</Button>
+              </div>
+
+            </Col>
+            <Col xs={0} sm={2} md={4} lg={6} />
+          </Row>
+        )}
 
         <Divider />
 
