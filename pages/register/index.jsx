@@ -12,13 +12,20 @@ import Wizard from '../../components/pages/register/Wizard';
 import GoogleProfile from '../../components/pages/register/GoogleProfile';
 import Button from '../../components/Button';
 
-import styles from '../../utils/styles';
+import { makeStyles } from '../../utils/styles';
+
+import custom from '../../styles/pages/register/index.css';
+
+const styles = makeStyles(custom);
 
 const { Text } = Typography;
 
 const GoogleLogin = dynamic(
   () => import('../../components/Google').then(mod => mod.default.Login),
-  { ssr: false },
+  {
+    ssr: false,
+    loading: () => <Text className={styles.loading}>Please wait...</Text>,
+  },
 );
 
 const Register = () => {

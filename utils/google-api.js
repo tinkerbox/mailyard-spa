@@ -13,7 +13,7 @@ function GoogleApi(client) {
     return client.request({ path: `${GOOGLE_API_BASE}/users/me/profile` });
   };
 
-  this.getAllMessage = (token) => {
+  this.getAllMessages = (token) => {
     const params = token ? `pageToken=${token}` : '';
     return client.request({ path: `${GOOGLE_API_BASE}/users/me/messages?${params}` });
   };

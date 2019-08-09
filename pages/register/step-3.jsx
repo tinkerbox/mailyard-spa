@@ -21,7 +21,7 @@ const Step3 = () => {
   const { profile, ready, api, refresh } = useGoogle();
 
   const query = useCallback(() => api.getProfile(), [api]);
-  const mailbox = useGoogleQuery(api, query);
+  const [mailbox] = useGoogleQuery(api, query);
 
   useEffect(() => {
     if (!ready) refresh();

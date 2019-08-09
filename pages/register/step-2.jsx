@@ -54,7 +54,7 @@ const Step2 = () => {
   const { profile, api, ready, refresh } = useGoogle();
 
   const query = useCallback(() => api.getAllLabels(), [api]);
-  const { labels } = useGoogleQuery(api, query);
+  const [result] = useGoogleQuery(api, query);
 
   useEffect(() => {
     if (!ready) refresh();
@@ -62,7 +62,7 @@ const Step2 = () => {
 
   const handleSubmit = async (values, { setSubmitting, setErrors }) => {
     const { name, email } = profile;
-    const params = paramsForRegistration(values, name, email, labels);
+    const params = paramsForRegistration(values, name, email, result.labels);
     await register(params, {
       success: () => { router.push('/register/step-3'); },
       failure: (error) => {
@@ -99,7 +99,6 @@ const Step2 = () => {
               </Col>
               <Col sm={0} md={4} lg={5} />
             </Row>
-
 
             <Divider />
 
