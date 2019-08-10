@@ -1,6 +1,7 @@
+import { isEmpty } from 'lodash';
 import React, { useEffect, useCallback } from 'react';
 
-import { Card, Divider, Row, Col, Avatar, Statistic } from 'antd';
+import { Card, Divider, Row, Col, Avatar, Statistic, Typography } from 'antd';
 import dynamic from 'next/dynamic';
 
 import { useGoogle } from '../../hooks/google-context';
@@ -10,7 +11,13 @@ import Layout from '../../components/Layout';
 import Wizard from '../../components/pages/register/Wizard';
 import Button from '../../components/Button';
 
-import styles from '../../utils/styles';
+import { makeStyles } from '../../utils/styles';
+
+import custom from '../../styles/pages/register/step-3.css';
+
+const styles = makeStyles(custom);
+
+const { Text } = Typography;
 
 const GoogleLogin = dynamic(
   () => import('../../components/Google').then(mod => mod.default.Login),
@@ -34,7 +41,14 @@ const Step3 = () => {
         <Wizard current={2} />
 
         {!profile && <GoogleLogin render={() => null} />}
-        {profile && mailbox && (
+
+        {(!profile || isEmpty(mailbox)) && (
+          <div className={styles.loading}>
+            <Text>Please wait...</Text>
+          </div>
+        )}
+
+        {profile && !isEmpty(mailbox) && (
           <Row>
             <Col sm={0} md={4} lg={5} />
             <Col sm={24} md={16} lg={14}>

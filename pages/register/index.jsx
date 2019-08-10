@@ -24,7 +24,7 @@ const GoogleLogin = dynamic(
   () => import('../../components/Google').then(mod => mod.default.Login),
   {
     ssr: false,
-    loading: () => <Text className={styles.loading}>Please wait...</Text>,
+    loading: () => <Text>Please wait...</Text>,
   },
 );
 
@@ -44,6 +44,7 @@ const Register = () => {
         <Wizard current={0} />
 
         {profile && <GoogleProfile profile={profile} />}
+
         {!profile && (
           <Row>
             <Col sm={0} md={4} lg={5} />
@@ -56,7 +57,7 @@ const Register = () => {
 
               <Divider />
 
-              <div className={styles.cardRow}>
+              <div className={styles.loading}>
                 <GoogleLogin />
               </div>
 
