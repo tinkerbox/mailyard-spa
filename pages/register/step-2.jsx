@@ -40,9 +40,12 @@ const paramsForRegistration = (values, name, email, labels) => {
     mailbox: {
       name,
       email,
+      provider: 'GMAIL',
       labels: labels.map(label => ({
         name: label.name,
-        type: 'USER',
+        gmailPayload: {
+          id: label.id,
+        },
       })),
     },
   };
