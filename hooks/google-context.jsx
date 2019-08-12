@@ -1,6 +1,7 @@
 /* global window */
 
 import React, { useState, useReducer, useEffect } from 'react';
+import PropTypes from 'prop-types';
 
 import GoogleApi from '../utils/google-api';
 
@@ -36,7 +37,7 @@ const reducer = (state, action) => {
   }
 };
 
-const GoogleProvider = ({ clientId, scope, ...props }) => {
+const GoogleProvider = ({ clientId, scope, children, ...props }) => {
   const [state, dispatch] = useReducer(reducer, initialState);
   const [api, setApi] = useState();
   const [refreshCounter, setRefreshCounter] = useState(0);
@@ -75,9 +76,15 @@ const GoogleProvider = ({ clientId, scope, ...props }) => {
 
   return (
     <GoogleContext.Provider value={values} {...props}>
-      {props.children}
+      {children}
     </GoogleContext.Provider>
   );
+};
+
+GoogleProvider.propTypes = {
+  clientId: PropTypes.string.isRequired,
+  scope: PropTypes.string.isRequired,
+  children: PropTypes.arrayOf(PropTypes.element).isRequired,
 };
 
 const useGoogle = () => React.useContext(GoogleContext);

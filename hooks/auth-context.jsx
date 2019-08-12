@@ -57,7 +57,7 @@ const AuthProvider = (props) => {
       }
     })();
 
-    return () => { didCancel = true };
+    return () => { didCancel = true; };
   }, [token]);
 
   const login = async (values, callbacks) => {
@@ -105,9 +105,9 @@ const AuthProvider = (props) => {
     loggedIn,
   };
 
-  return <AuthContext.Provider value={values} {...props} />
+  return <AuthContext.Provider value={values} {...props} />;
 };
 
 const useAuth = () => React.useContext(AuthContext);
 
-export { AuthProvider, useAuth }
+export { AuthProvider, useAuth };

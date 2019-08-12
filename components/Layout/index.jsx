@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 
 import Link from 'next/link';
 import { Divider, Row, Col, Layout as NextLayout } from 'antd';
@@ -14,7 +15,7 @@ const styles = makeStyles(custom);
 
 const COPYRIGHT_NOTICE = 'Mailyard, by Tinkerbox Studios Pte Ltd © 2019';
 
-const Simple = (props) => {
+const Simple = ({ children }) => {
   return (
     <NextLayout className={styles.layout}>
       <div className={styles.container}>
@@ -26,7 +27,7 @@ const Simple = (props) => {
         <Row>
           <Col xs={0} sm={2} md={4} lg={6} />
           <Col xs={24} sm={20} md={16} lg={12}>
-            {props.children}
+            {children}
           </Col>
           <Col xs={0} sm={2} md={4} lg={6} />
         </Row>
@@ -41,7 +42,11 @@ const Simple = (props) => {
   );
 };
 
-const SimpleWide = (props) => {
+Simple.propTypes = {
+  children: PropTypes.arrayOf(PropTypes.element).isRequired,
+};
+
+const SimpleWide = ({ children }) => {
   return (
     <NextLayout className={styles.layout}>
       <div className={styles.container}>
@@ -53,7 +58,7 @@ const SimpleWide = (props) => {
         <Row>
           <Col lg={3} />
           <Col lg={18}>
-            {props.children}
+            {children}
           </Col>
           <Col lg={3} />
         </Row>
@@ -66,6 +71,10 @@ const SimpleWide = (props) => {
       </div>
     </NextLayout>
   );
+};
+
+SimpleWide.propTypes = {
+  children: PropTypes.arrayOf(PropTypes.element).isRequired,
 };
 
 const Layout = {};

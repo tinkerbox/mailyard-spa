@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 
 import { Typography, Divider, Row, Col, Avatar, Statistic } from 'antd';
 
@@ -32,6 +33,14 @@ const GoogleProfile = ({ profile }) => {
       <Col xs={0} sm={2} md={4} lg={6} />
     </Row>
   );
+};
+
+GoogleProfile.propTypes = {
+  profile: PropTypes.exact({
+    name: PropTypes.string.isRequired,
+    email: PropTypes.string.isRequired,
+    imageUrl: PropTypes.string.isRequired,
+  }).isRequired,
 };
 
 export default GoogleProfile;
