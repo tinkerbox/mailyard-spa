@@ -40,16 +40,25 @@ const reducer = (state, action) => {
 const GoogleProvider = ({ clientId, scope, children, ...props }) => {
   const [state, dispatch] = useReducer(reducer, initialState);
   const [api, setApi] = useState();
-  const [refreshCounter, setRefreshCounter] = useState(0);
 
   useEffect(() => {
     let didCancel = false;
-    const onApiLoaded = () => {
-      if (!didCancel) dispatch({ type: 'load' });
+
+    const timer = setInterval(() => {
+      if (didCancel) return;
+      if (window.gapi) {
+        window.gapi.load('client', () => {
+          clearInterval(timer);
+          dispatch({ type: 'load' });
+        });
+      }
+    }, 1000);
+
+    return () => {
+      clearInterval(timer);
+      didCancel = true;
     };
-    if (window.gapi) window.gapi.load('client', onApiLoaded);
-    return () => { didCancel = true; };
-  }, [refreshCounter]);
+  }, []);
 
   useEffect(() => {
     let didCancel = false;
@@ -61,8 +70,6 @@ const GoogleProvider = ({ clientId, scope, children, ...props }) => {
     return () => { didCancel = true; };
   }, [state.ready, state.token]);
 
-  const refresh = useCallback(() => { setRefreshCounter(refreshCounter + 1); }, [refreshCounter]);
-
   const login = useCallback(response => dispatch({ type: 'login', payload: response }), []);
   const logout = useCallback(() => dispatch({ type: 'logout' }), []);
 
@@ -72,7 +79,6 @@ const GoogleProvider = ({ clientId, scope, children, ...props }) => {
     login,
     logout,
     api,
-    refresh,
     ...state,
   };
 

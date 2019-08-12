@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback } from 'react';
+import React, { useCallback } from 'react';
 
 import { useRouter } from 'next/router';
 import dynamic from 'next/dynamic';
@@ -57,14 +57,10 @@ const paramsForRegistration = (values, name, email, labels) => {
 const Step2 = () => {
   const router = useRouter();
   const { register } = useAuth();
-  const { profile, api, ready, refresh } = useGoogle();
+  const { profile, api } = useGoogle();
 
   const query = useCallback(() => api.getAllLabels(), [api]);
   const [result] = useGoogleQuery(api, query);
-
-  useEffect(() => {
-    if (!ready) refresh();
-  }, [ready, refresh]);
 
   const handleSubmit = async (values, { setSubmitting, setErrors }) => {
     const { name, email } = profile;

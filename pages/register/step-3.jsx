@@ -1,5 +1,5 @@
 import { isEmpty } from 'lodash';
-import React, { useEffect, useCallback } from 'react';
+import React, { useCallback } from 'react';
 
 import { Card, Divider, Row, Col, Avatar, Statistic, Typography } from 'antd';
 import dynamic from 'next/dynamic';
@@ -25,14 +25,10 @@ const GoogleLogin = dynamic(
 );
 
 const Step3 = () => {
-  const { profile, ready, api, refresh } = useGoogle();
+  const { profile, api } = useGoogle();
 
   const query = useCallback(() => api.getProfile(), [api]);
   const [mailbox] = useGoogleQuery(api, query);
-
-  useEffect(() => {
-    if (!ready) refresh();
-  }, [ready, refresh]);
 
   return (
     <Layout.SimpleWide>
