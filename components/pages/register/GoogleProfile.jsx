@@ -36,7 +36,7 @@ const GoogleProfile = ({ profile }) => {
 };
 
 GoogleProfile.propTypes = {
-  profile: PropTypes.exact({
+  profile: PropTypes.shape({
     name: PropTypes.string.isRequired,
     email: PropTypes.string.isRequired,
     imageUrl: PropTypes.string.isRequired,

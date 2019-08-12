@@ -44,7 +44,6 @@ module.exports = withCSS({
   },
 
   publicRuntimeConfig: {
-    REPORT_URI: process.env.REPORT_URI,
     MAILYARD_WEB_URL: process.env.MAILYARD_WEB_URL,
     MAILYARD_API_URL: process.env.MAILYARD_API_URL,
     SENTRY_FRONTEND_DSN: process.env.SENTRY_FRONTEND_DSN,

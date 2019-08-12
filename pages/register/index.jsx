@@ -78,4 +78,6 @@ const Register = () => {
   );
 };
 
+Register.whyDidYouRender = true;
+
 export default Register;

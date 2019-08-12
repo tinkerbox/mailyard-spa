@@ -1,6 +1,6 @@
 /* global window */
 
-import React, { useState, useReducer, useEffect } from 'react';
+import React, { useState, useReducer, useEffect, useCallback } from 'react';
 import PropTypes from 'prop-types';
 
 import GoogleApi from '../utils/google-api';
@@ -59,10 +59,12 @@ const GoogleProvider = ({ clientId, scope, children, ...props }) => {
       setApi(null);
     }
     return () => { didCancel = true; };
-  }, [refreshCounter, state.ready, state.token]);
+  }, [state.ready, state.token]);
 
-  const login = response => dispatch({ type: 'login', payload: response });
-  const logout = () => dispatch({ type: 'logout' });
+  const refresh = useCallback(() => { setRefreshCounter(refreshCounter + 1); }, [refreshCounter]);
+
+  const login = useCallback(response => dispatch({ type: 'login', payload: response }), []);
+  const logout = useCallback(() => dispatch({ type: 'logout' }), []);
 
   const values = {
     clientId,
@@ -70,7 +72,7 @@ const GoogleProvider = ({ clientId, scope, children, ...props }) => {
     login,
     logout,
     api,
-    refresh: () => { setRefreshCounter(refreshCounter + 1); },
+    refresh,
     ...state,
   };
 
@@ -84,7 +86,10 @@ const GoogleProvider = ({ clientId, scope, children, ...props }) => {
 GoogleProvider.propTypes = {
   clientId: PropTypes.string.isRequired,
   scope: PropTypes.string.isRequired,
-  children: PropTypes.arrayOf(PropTypes.element).isRequired,
+  children: PropTypes.oneOfType([
+    PropTypes.arrayOf(PropTypes.node),
+    PropTypes.node,
+  ]).isRequired,
 };
 
 const useGoogle = () => React.useContext(GoogleContext);

@@ -121,4 +121,6 @@ const Step2 = () => {
   );
 };
 
+Step2.whyDidYouRender = true;
+
 export default Step2;

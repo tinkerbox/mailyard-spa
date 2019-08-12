@@ -43,7 +43,10 @@ const Simple = ({ children }) => {
 };
 
 Simple.propTypes = {
-  children: PropTypes.arrayOf(PropTypes.element).isRequired,
+  children: PropTypes.oneOfType([
+    PropTypes.arrayOf(PropTypes.node),
+    PropTypes.node,
+  ]).isRequired,
 };
 
 const SimpleWide = ({ children }) => {
@@ -74,7 +77,10 @@ const SimpleWide = ({ children }) => {
 };
 
 SimpleWide.propTypes = {
-  children: PropTypes.arrayOf(PropTypes.element).isRequired,
+  children: PropTypes.oneOfType([
+    PropTypes.arrayOf(PropTypes.node),
+    PropTypes.node,
+  ]).isRequired,
 };
 
 const Layout = {};

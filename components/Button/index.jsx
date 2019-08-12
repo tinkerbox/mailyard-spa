@@ -17,9 +17,16 @@ const Button = ({ href, children, ...props }) => {
   );
 };
 
+Button.defaultProps = {
+  href: '#',
+};
+
 Button.propTypes = {
-  href: PropTypes.string.isRequired,
-  children: PropTypes.arrayOf(PropTypes.element).isRequired,
+  href: PropTypes.string,
+  children: PropTypes.oneOfType([
+    PropTypes.arrayOf(PropTypes.node),
+    PropTypes.node,
+  ]).isRequired,
 };
 
 export default Button;

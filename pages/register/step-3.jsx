@@ -91,4 +91,6 @@ const Step3 = () => {
   );
 };
 
+Step3.whyDidYouRender = true;
+
 export default Step3;

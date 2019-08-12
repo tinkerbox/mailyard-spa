@@ -2,6 +2,8 @@ import React from 'react';
 import App from 'next/app';
 import Head from 'next/head';
 
+import whyDidYouRender from '@welldone-software/why-did-you-render';
+
 import { ApolloProvider } from 'react-apollo';
 import * as Sentry from '@sentry/browser';
 
@@ -14,6 +16,7 @@ import { AuthProvider } from '../hooks/auth-context';
 import { GoogleProvider } from '../hooks/google-context';
 
 const RELEASE_NAME = `${config.HEROKU_SLUG_COMMIT}@mailyard-spa`;
+if (process.env.NODE_ENV !== 'production') whyDidYouRender(React);
 
 if (process.env.NODE_ENV !== 'development') {
   Sentry.init({
