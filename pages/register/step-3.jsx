@@ -1,11 +1,12 @@
 import { isEmpty } from 'lodash';
 import React, { useCallback } from 'react';
 
-import { Card, Divider, Row, Col, Avatar, Statistic, Typography } from 'antd';
+import { Card, Divider, Row, Col, Avatar, Statistic, Typography, Progress } from 'antd';
 import dynamic from 'next/dynamic';
 
 import { useGoogle } from '../../hooks/google-context';
 import { useGoogleQuery } from '../../hooks/google-query';
+import { useMessageSynchronizer } from '../../hooks/message-synchronizer';
 
 import Layout from '../../components/Layout';
 import Wizard from '../../components/pages/register/Wizard';
@@ -29,6 +30,9 @@ const Step3 = () => {
 
   const query = useCallback(() => api.getProfile(), [api]);
   const [mailbox] = useGoogleQuery(api, query);
+
+  const { status, count, start } = useMessageSynchronizer(mailbox);
+  const progress = Math.round(count / mailbox.messagesTotal * 100);
 
   return (
     <Layout.SimpleWide>
@@ -68,8 +72,22 @@ const Step3 = () => {
               <Divider />
 
               <div className={styles.cardRow}>
-                <Button type="primary" size="large">Start Sync</Button>
+                {status === 'waiting' && (
+                  <Button type="primary" size="large" onClick={() => start()}>Start Sync</Button>
+                )}
               </div>
+
+              {status === 'running' && (
+                <React.Fragment>
+                  <Progress percent={progress} status="active" />
+                  <br />
+                  <Text>{`${count.toLocaleString()} of ${mailbox.messagesTotal.toLocaleString()} messages.`}</Text>
+                </React.Fragment>
+              )}
+
+              {status === 'finished' && (
+                <Progress percent={progress} />
+              )}
 
             </Col>
             <Col xs={0} sm={2} md={4} lg={6} />
@@ -79,7 +97,7 @@ const Step3 = () => {
         <Divider />
 
         <div className={styles.cardFooter}>
-          <Button type="primary" size="large" href="/">Done</Button>
+          <Button type="primary" size="large" href="/" disabled={status !== 'finished'}>Done</Button>
         </div>
 
       </Card>
