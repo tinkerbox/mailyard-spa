@@ -45,6 +45,9 @@ const paramsForRegistration = (values, name, email, labels) => {
         name: label.name,
         gmailPayload: {
           id: label.id,
+          type: label.type,
+          labelListVisibility: label.labelListVisibility,
+          messageListVisibility: label.messageListVisibility,
         },
       })),
     },
