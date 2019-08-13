@@ -1,36 +1,50 @@
-import { useReducer, useContext } from 'react';
+import { map, chunk } from 'lodash';
+
+import { useReducer, useContext, useRef, useEffect } from 'react';
 
 import { ApolloContext } from 'react-apollo';
 
 import { useGoogle } from './google-context';
 
-const sync = async (token, dispatch, api, client, mailbox) => {
-  const { result: batchQuery } = await api.getAllMessages(token);
+import EmailUploader from '../lib/email-uploader';
+import EmailExtractor from '../lib/email-extractor';
+
+const sync = async (token, dispatch, api, uploader) => {
+  const params = token ? { pageToken: token } : {};
+  const { result: batchQuery } = await api.getAllMessages(params);
   const { messages, nextPageToken } = batchQuery;
 
-  const batch = messages.map(async ({ id }) => {
-    const { result: detailQuery } = await api.getMessage(id);
-    // console.log(detailQuery);
+  const perform = (id) => {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const { result: detailQuery } = await api.getMessage(id);
+        const extractor = new EmailExtractor(detailQuery.raw);
+        const { data } = await uploader.sync(extractor);
 
-    dispatch({
-      type: 'tick',
-      payload: { messages: 1 },
+        dispatch({
+          type: 'tick',
+          payload: { messages: 1 },
+        });
+
+        resolve();
+      } catch (error) {
+        console.log(error);
+        reject(error);
+      }
     });
+  };
 
-    return detailQuery.sizeEstimate;
-  });
-
-  const results = await Promise.all(batch);
-
-  dispatch({
-    type: 'next',
-    payload: { nextPageToken },
-  });
+  const promises = map(messages, ({ id }) => perform(id));
+  const batches = chunk(promises, 8); // limit concurrent sync jobs
+  await map(batches, batch => Promise.all(batch));
 
   if (!nextPageToken) {
     dispatch({ type: 'stop' });
   } else {
-    sync(nextPageToken, dispatch, api, client, mailbox);
+    dispatch({
+      type: 'next',
+      payload: { nextPageToken },
+    });
   }
 };
 
@@ -75,14 +89,30 @@ const initialState = {
   status: 'waiting',
 };
 
-const useMessageSynchronizer = (mailbox) => {
+const useMessageSynchronizer = (mailboxId) => {
   const [status, dispatch] = useReducer(reducer, initialState);
   const { client } = useContext(ApolloContext);
   const { api } = useGoogle();
 
+  const uploader = useRef();
+  useEffect(() => {
+    if (!uploader.current && mailboxId) uploader.current = new EmailUploader(mailboxId, client);
+    return () => { uploader.current = undefined; };
+  }, [client, mailboxId]);
+
+  useEffect(() => {
+    let didCancel = false;
+
+    if (status.nextPageToken && status.status === 'running' && !didCancel) {
+      sync(status.nextPageToken, dispatch, api, uploader.current);
+    }
+
+    return () => { didCancel = true; };
+  }, [api, status.nextPageToken, status.status]);
+
   const start = () => {
     dispatch({ type: 'start' });
-    sync(null, dispatch, api, client, mailbox);
+    sync(null, dispatch, api, uploader.current);
   };
 
   return {

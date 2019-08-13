@@ -5,6 +5,7 @@ import { Card, Divider, Row, Col, Avatar, Statistic, Typography, Progress } from
 import dynamic from 'next/dynamic';
 
 import { useGoogle } from '../../hooks/google-context';
+import { useAuth } from '../../hooks/auth-context';
 import { useGoogleQuery } from '../../hooks/google-query';
 import { useMessageSynchronizer } from '../../hooks/message-synchronizer';
 
@@ -31,7 +32,11 @@ const Step3 = () => {
   const query = useCallback(() => api.getProfile(), [api]);
   const [mailbox] = useGoogleQuery(api, query);
 
-  const { status, count, start } = useMessageSynchronizer(mailbox);
+  const { account } = useAuth();
+
+  const mailboxId = account ? account.defaultMailboxId : null;
+
+  const { status, count, start } = useMessageSynchronizer(mailboxId);
   const progress = Math.round(count / mailbox.messagesTotal * 100);
 
   return (

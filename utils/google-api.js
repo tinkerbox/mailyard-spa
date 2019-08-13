@@ -7,12 +7,12 @@ const GOOGLE_API_BASE = 'https://www.googleapis.com/gmail/v1';
 function GoogleApi(client) {
   // private interface
 
-  const defaultParams = {
+  const baseParams = {
     prettyPrint: false,
   };
 
   const formatParams = (params = {}) => {
-    const combined = { ...defaultParams, ...params };
+    const combined = { ...baseParams, ...params };
     const parts = map(combined, (val, id) => { return `${id}=${val}` });
     return join(parts, '&');
   };
@@ -29,9 +29,9 @@ function GoogleApi(client) {
     return client.request({ path: `${GOOGLE_API_BASE}/users/me/profile?${formatParams()}` });
   };
 
-  this.getAllMessages = (pageToken) => {
-    const params = pageToken ? { pageToken } : {};
-    return client.request({ path: `${GOOGLE_API_BASE}/users/me/messages?${formatParams(params)}` });
+  this.getAllMessages = (params) => {
+    const defaultParams = { maxResults: 32 };
+    return client.request({ path: `${GOOGLE_API_BASE}/users/me/messages?${formatParams({ ...defaultParams, ...params })}` });
   };
 
   this.getMessage = (id) => {

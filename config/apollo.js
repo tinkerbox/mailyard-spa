@@ -6,7 +6,7 @@ import { ApolloClient } from 'apollo-client';
 import { ApolloLink } from 'apollo-link';
 
 import { RetryLink } from 'apollo-link-retry';
-import { HttpLink } from 'apollo-link-http';
+import { BatchHttpLink } from 'apollo-link-batch-http';
 import { onError } from 'apollo-link-error';
 import { setContext } from 'apollo-link-context';
 
@@ -26,7 +26,7 @@ const Connect = (release, errorHandler) => new ApolloClient({
     withToken,
     onError(errorHandler),
     new RetryLink(),
-    new HttpLink({ uri: config.MAILYARD_API_URL }),
+    new BatchHttpLink({ uri: config.MAILYARD_API_URL }),
   ]),
   cache: new InMemoryCache(),
   connectToDevTools: process.env.NODE_ENV === 'development',
