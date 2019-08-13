@@ -14,7 +14,7 @@
     "url": "git+https://github.com/tinkerbox/mailyard-spa.git"
   },
   "author": "Jaryl Sim",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/tinkerbox/mailyard-spa/issues"
   },
