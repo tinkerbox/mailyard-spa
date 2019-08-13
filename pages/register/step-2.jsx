@@ -14,10 +14,10 @@ import { useGoogleQuery } from '../../hooks/google-query';
 
 import Layout from '../../components/Layout';
 import Wizard from '../../components/pages/register/Wizard';
-import format from '../../utils/error-formatter';
+import format from '../../lib/error-formatter';
 import Button from '../../components/Button';
 
-import styles from '../../utils/styles';
+import styles from '../../styles';
 
 const GoogleLogin = dynamic(
   () => import('../../components/Google').then(mod => mod.default.Login),

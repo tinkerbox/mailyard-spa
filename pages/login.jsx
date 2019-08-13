@@ -11,7 +11,7 @@ import * as Yup from 'yup';
 
 import { useAuth } from '../hooks/auth-context';
 import Layout from '../components/Layout';
-import format from '../utils/error-formatter';
+import format from '../lib/error-formatter';
 
 const schema = Yup.object().shape({
   username: Yup.string()
@@ -26,7 +26,7 @@ const Login = () => {
 
   useEffect(() => {
     if (loggedIn) router.push('/');
-  }, [loggedIn]);
+  }, [router, loggedIn]);
 
   const handleSubmit = async (values, { setSubmitting, setErrors }) => {
     await login(values, {

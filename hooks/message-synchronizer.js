@@ -21,6 +21,11 @@ const sync = async (token, dispatch, api, uploader) => {
         const extractor = new EmailExtractor(detailQuery.raw);
         const { data } = await uploader.sync(extractor);
 
+        const { preSignedUrl } = data;
+        console.log(preSignedUrl);
+
+        // TODO: use pre-signed url to upload payload
+
         dispatch({
           type: 'tick',
           payload: { messages: 1 },

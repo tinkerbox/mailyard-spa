@@ -12,7 +12,7 @@ import Wizard from '../../components/pages/register/Wizard';
 import GoogleProfile from '../../components/pages/register/GoogleProfile';
 import Button from '../../components/Button';
 
-import { makeStyles } from '../../utils/styles';
+import { makeStyles } from '../../styles';
 
 import custom from '../../styles/pages/register/index.css';
 

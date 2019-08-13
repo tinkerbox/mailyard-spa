@@ -3,7 +3,7 @@
 import React, { useState, useReducer, useEffect, useCallback } from 'react';
 import PropTypes from 'prop-types';
 
-import GoogleApi from '../utils/google-api';
+import GoogleApi from '../lib/google-api';
 
 const GoogleContext = React.createContext();
 

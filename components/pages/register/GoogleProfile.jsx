@@ -5,7 +5,7 @@ import { Typography, Divider, Row, Col, Avatar, Statistic } from 'antd';
 
 import Google from '../../Google';
 
-import styles from '../../../utils/styles';
+import styles from '../../../styles';
 
 const { Text } = Typography;
 

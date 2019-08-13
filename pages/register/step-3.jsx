@@ -13,7 +13,7 @@ import Layout from '../../components/Layout';
 import Wizard from '../../components/pages/register/Wizard';
 import Button from '../../components/Button';
 
-import { makeStyles } from '../../utils/styles';
+import { makeStyles } from '../../styles';
 
 import custom from '../../styles/pages/register/step-3.css';
 

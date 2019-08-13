@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Menu, Avatar, Layout } from 'antd';
 import Link from 'next/link';
 
-import { makeStyles } from '../../utils/styles';
+import { makeStyles } from '../../styles';
 import custom from './styles.css';
 
 const { Sider } = Layout;

@@ -6,7 +6,7 @@ import { Divider, Row, Col, Layout as NextLayout } from 'antd';
 
 import config from '../../config/runtime';
 
-import { makeStyles } from '../../utils/styles';
+import { makeStyles } from '../../styles';
 import custom from './styles.css';
 
 const { Header, Footer } = NextLayout;
