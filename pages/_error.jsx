@@ -53,7 +53,7 @@ Error.defaultProps = {
 };
 
 Error.propTypes = {
-  statusCode: PropTypes.string,
+  statusCode: PropTypes.number,
 };
 
 export default Error;

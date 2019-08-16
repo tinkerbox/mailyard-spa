@@ -6,10 +6,11 @@ import { ApolloContext } from 'react-apollo';
 
 import { useGoogle } from './google-context';
 
+import { retry } from '../lib/promise-retry';
 import EmailUploader from '../lib/email-uploader';
-import EmailExtractor from '../lib/email-extractor';
+import { useEmailExtractor } from './email-extractor';
 
-const sync = async (token, dispatch, api, uploader) => {
+const sync = async (token, dispatch, api, extract, uploader) => {
   const params = token ? { pageToken: token } : {};
   const { result: batchQuery } = await api.getAllMessages(params);
   const { messages, nextPageToken } = batchQuery;
@@ -17,12 +18,13 @@ const sync = async (token, dispatch, api, uploader) => {
   const perform = (id) => {
     return new Promise(async (resolve, reject) => {
       try {
-        const { result: detailQuery } = await api.getMessage(id);
-        const extractor = new EmailExtractor(detailQuery.raw);
-        const { data } = await uploader.sync(extractor);
+        const { result: detailQuery } = await retry(() => api.getMessage(id));
+        const parsed = await extract(detailQuery.raw);
 
-        const { preSignedUrl } = data;
-        console.log(preSignedUrl);
+        // const { data } = await uploader.sync(extractor);
+
+        // const { preSignedUrl } = data;
+        // console.log(preSignedUrl);
 
         // TODO: use pre-signed url to upload payload
 
@@ -40,8 +42,12 @@ const sync = async (token, dispatch, api, uploader) => {
   };
 
   const promises = map(messages, ({ id }) => perform(id));
-  const batches = chunk(promises, 8); // limit concurrent sync jobs
-  await map(batches, batch => Promise.all(batch));
+
+  // const batches = chunk(promises, 25); // limit concurrent sync jobs
+  // const batchOfPromises = map(batches, async batch => Promise.all(batch));
+  // await Promise.all(batchOfPromises);
+
+  await Promise.all(promises);
 
   if (!nextPageToken) {
     dispatch({ type: 'stop' });
@@ -97,6 +103,7 @@ const initialState = {
 const useMessageSynchronizer = (mailboxId) => {
   const [status, dispatch] = useReducer(reducer, initialState);
   const { client } = useContext(ApolloContext);
+  const { extract } = useEmailExtractor();
   const { api } = useGoogle();
 
   const uploader = useRef();
@@ -109,15 +116,15 @@ const useMessageSynchronizer = (mailboxId) => {
     let didCancel = false;
 
     if (status.nextPageToken && status.status === 'running' && !didCancel) {
-      sync(status.nextPageToken, dispatch, api, uploader.current);
+      sync(status.nextPageToken, dispatch, api, extract, uploader.current);
     }
 
     return () => { didCancel = true; };
-  }, [api, status.nextPageToken, status.status]);
+  }, [api, extract, status.nextPageToken, status.status]);
 
   const start = () => {
     dispatch({ type: 'start' });
-    sync(null, dispatch, api, uploader.current);
+    sync(null, dispatch, api, extract, uploader.current);
   };
 
   return {

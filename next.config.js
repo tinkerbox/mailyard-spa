@@ -4,6 +4,7 @@ const path = require('path');
 
 var loaderUtils = require('loader-utils');
 
+const withWorkers = require('@zeit/next-workers');
 const withCSS = require('@zeit/next-css');
 
 // TODO: find out if there is a better way
@@ -25,7 +26,7 @@ const _getLocalIdent = (loaderContext, localIdentName, localName, options) => {
   return hash.replace(new RegExp("[^a-zA-Z0-9\\-_\u00A0-\uFFFF]", "g"), "-").replace(/^((-?[0-9])|--)/, "_$1");
 };
 
-module.exports = withCSS({
+module.exports = withWorkers(withCSS({
   distDir: './dist',
   poweredByHeader: false,
 
@@ -43,6 +44,11 @@ module.exports = withCSS({
     },
   },
 
+  webpack: (config, options) => {
+    config.output.globalObject = 'this';
+    return config;
+  },
+
   publicRuntimeConfig: {
     MAILYARD_WEB_URL: process.env.MAILYARD_WEB_URL,
     MAILYARD_API_URL: process.env.MAILYARD_API_URL,
@@ -51,4 +57,4 @@ module.exports = withCSS({
     GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
     GOOGLE_SCOPE: process.env.GOOGLE_SCOPE,
   },
-});
+}));
