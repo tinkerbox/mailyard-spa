@@ -1,5 +1,7 @@
+/* global window */
+
 import { isEmpty } from 'lodash';
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 
 import { Card, Divider, Row, Col, Avatar, Statistic, Typography } from 'antd';
 import dynamic from 'next/dynamic';
@@ -35,6 +37,11 @@ const Step3 = () => {
 
   const { account } = useAuth();
   const mailboxId = account ? account.defaultMailboxId : null;
+
+  useEffect(() => {
+    if (!finished) window.onbeforeunload = () => 'Are you sure you want to stop the sync?';
+    return () => { window.onbeforeunload = null; };
+  }, [finished]);
 
   return (
     <Layout.SimpleWide>
