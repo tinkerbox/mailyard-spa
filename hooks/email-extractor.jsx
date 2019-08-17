@@ -3,9 +3,6 @@ import uuid from 'uuid/v4';
 
 import EmailExtractor from '../lib/email-extractor.worker';
 
-const encoder = new TextEncoder();
-const decoder = new TextDecoder();
-
 const reducer = (state, { type, payload }) => {
   switch (type) {
     case 'start': {
@@ -20,7 +17,7 @@ const reducer = (state, { type, payload }) => {
 
     case 'resolve': {
       const { id, email } = payload;
-      state[id].resolve(decoder.decode(email));
+      state[id].resolve(email);
       const newState = { ...state };
       delete newState[id];
       return newState;
@@ -39,12 +36,8 @@ const reducer = (state, { type, payload }) => {
   }
 };
 
-const initialState = {
-  jobs: {},
-};
-
 function useEmailExtractor() {
-  const [state, dispatch] = useReducer(reducer, initialState);
+  const [state, dispatch] = useReducer(reducer, {});
 
   const worker = useRef();
   useEffect(() => {
@@ -81,17 +74,13 @@ function useEmailExtractor() {
 
   const extract = useCallback((raw) => {
     return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        const id = uuid();
-        const utf8 = new Uint8Array(raw.length);
-        encoder.encodeInto(raw, utf8);
-        const message = { id, raw: utf8.buffer };
-        worker.current.postMessage(message, [message.raw]);
-        dispatch({
-          type: 'start',
-          payload: { id, raw, resolve, reject },
-        });
-      }, 0);
+      const id = uuid();
+      const message = { id, raw };
+      worker.current.postMessage(message);
+      dispatch({
+        type: 'start',
+        payload: { id, raw, resolve, reject },
+      });
     });
   }, []);
 

@@ -1,17 +1,17 @@
 import { isEmpty } from 'lodash';
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 
-import { Card, Divider, Row, Col, Avatar, Statistic, Typography, Progress } from 'antd';
+import { Card, Divider, Row, Col, Avatar, Statistic, Typography } from 'antd';
 import dynamic from 'next/dynamic';
 
 import { useGoogle } from '../../hooks/google-context';
 import { useAuth } from '../../hooks/auth-context';
 import { useGoogleQuery } from '../../hooks/google-query';
-import { useMessageSynchronizer } from '../../hooks/message-synchronizer';
 
 import Layout from '../../components/Layout';
-import Wizard from '../../components/pages/register/Wizard';
 import Button from '../../components/Button';
+import SyncProgress from '../../components/pages/register/SyncProgress';
+import Wizard from '../../components/pages/register/Wizard';
 
 import { makeStyles } from '../../styles';
 
@@ -27,17 +27,14 @@ const GoogleLogin = dynamic(
 );
 
 const Step3 = () => {
+  const { finished, setFinished } = useState(false);
   const { profile, api } = useGoogle();
 
   const query = useCallback(() => api.getProfile(), [api]);
   const [mailbox] = useGoogleQuery(api, query);
 
   const { account } = useAuth();
-
   const mailboxId = account ? account.defaultMailboxId : null;
-
-  const { status, count, start } = useMessageSynchronizer(mailboxId);
-  const progress = Math.round(count / mailbox.messagesTotal * 100);
 
   return (
     <Layout.SimpleWide>
@@ -76,23 +73,7 @@ const Step3 = () => {
 
               <Divider />
 
-              <div className={styles.cardRow}>
-                {status === 'waiting' && (
-                  <Button type="primary" size="large" onClick={() => start()}>Start Sync</Button>
-                )}
-              </div>
-
-              {status === 'running' && (
-                <React.Fragment>
-                  <Progress percent={progress} status="active" />
-                  <br />
-                  <Text>{`${count.toLocaleString()} of ${mailbox.messagesTotal.toLocaleString()} messages.`}</Text>
-                </React.Fragment>
-              )}
-
-              {status === 'finished' && (
-                <Progress percent={progress} />
-              )}
+              <SyncProgress mailboxId={mailboxId} messagesTotal={mailbox.messagesTotal} onFinish={() => setFinished(true)} />
 
             </Col>
             <Col xs={0} sm={2} md={4} lg={6} />
@@ -102,7 +83,7 @@ const Step3 = () => {
         <Divider />
 
         <div className={styles.cardFooter}>
-          <Button type="primary" size="large" href="/" disabled={status !== 'finished'}>Done</Button>
+          <Button type="primary" size="large" href="/" disabled={!finished}>Done</Button>
         </div>
 
       </Card>

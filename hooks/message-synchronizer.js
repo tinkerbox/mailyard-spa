@@ -41,13 +41,7 @@ const sync = async (token, dispatch, api, extract, uploader) => {
     });
   };
 
-  const promises = map(messages, ({ id }) => perform(id));
-
-  // const batches = chunk(promises, 25); // limit concurrent sync jobs
-  // const batchOfPromises = map(batches, async batch => Promise.all(batch));
-  // await Promise.all(batchOfPromises);
-
-  await Promise.all(promises);
+  await Promise.all(map(messages, ({ id }) => perform(id)));
 
   if (!nextPageToken) {
     dispatch({ type: 'stop' });
