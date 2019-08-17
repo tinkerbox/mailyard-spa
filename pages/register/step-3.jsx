@@ -1,5 +1,5 @@
 import { isEmpty } from 'lodash';
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 
 import { Card, Divider, Row, Col, Avatar, Statistic, Typography } from 'antd';
 import dynamic from 'next/dynamic';
@@ -35,6 +35,16 @@ const Step3 = () => {
 
   const { account } = useAuth();
   const mailboxId = account ? account.defaultMailboxId : null;
+
+  const syncProgress = useMemo(() => {
+    return (
+      <SyncProgress
+        mailboxId={mailboxId}
+        messagesTotal={mailbox.messagesTotal}
+        onFinish={() => setFinished(true)}
+      />
+    );
+  }, [mailboxId, mailbox.messagesTotal]);
 
   return (
     <Layout.SimpleWide>
@@ -73,7 +83,7 @@ const Step3 = () => {
 
               <Divider />
 
-              <SyncProgress mailboxId={mailboxId} messagesTotal={mailbox.messagesTotal} onFinish={() => setFinished(true)} />
+              {syncProgress}
 
             </Col>
             <Col xs={0} sm={2} md={4} lg={6} />
