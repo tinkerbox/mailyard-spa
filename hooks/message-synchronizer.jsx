@@ -23,7 +23,7 @@ const sync = async (token, dispatch, api, parse, uploader) => {
         const parsed = await parse(detailQuery.raw);
         const extractor = new EmailExtractor(parsed);
 
-        const { data } = await uploader.sync(extractor);
+        const { data } = await uploader.sync(detailQuery, extractor);
         const { preSignedUrl } = data.sync;
         console.log(preSignedUrl);
 
