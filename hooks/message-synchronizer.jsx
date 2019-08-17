@@ -1,16 +1,17 @@
-import { map, chunk } from 'lodash';
+import { map } from 'lodash';
 
 import { useReducer, useContext, useRef, useEffect } from 'react';
 
 import { ApolloContext } from 'react-apollo';
 
 import { useGoogle } from './google-context';
+import { useEmailParser } from './email-parser';
 
 import { retry } from '../lib/promise-retry';
 import EmailUploader from '../lib/email-uploader';
-import { useEmailExtractor } from './email-extractor';
+import EmailExtractor from '../lib/email-extractor';
 
-const sync = async (token, dispatch, api, extract, uploader) => {
+const sync = async (token, dispatch, api, parse, uploader) => {
   const params = token ? { pageToken: token } : {};
   const { result: batchQuery } = await api.getAllMessages(params);
   const { messages, nextPageToken } = batchQuery;
@@ -19,12 +20,12 @@ const sync = async (token, dispatch, api, extract, uploader) => {
     return new Promise(async (resolve, reject) => {
       try {
         const { result: detailQuery } = await retry(() => api.getMessage(id));
-        const parsed = await extract(detailQuery.raw);
+        const parsed = await parse(detailQuery.raw);
+        const extractor = new EmailExtractor(parsed);
 
-        // const { data } = await uploader.sync(extractor);
-
-        // const { preSignedUrl } = data;
-        // console.log(preSignedUrl);
+        const { data } = await uploader.sync(extractor);
+        const { preSignedUrl } = data.sync;
+        console.log(preSignedUrl);
 
         // TODO: use pre-signed url to upload payload
 
@@ -97,7 +98,7 @@ const initialState = {
 const useMessageSynchronizer = (mailboxId) => {
   const [status, dispatch] = useReducer(reducer, initialState);
   const { client } = useContext(ApolloContext);
-  const { extract } = useEmailExtractor();
+  const { parse } = useEmailParser();
   const { api } = useGoogle();
 
   const uploader = useRef();
@@ -110,15 +111,15 @@ const useMessageSynchronizer = (mailboxId) => {
     let didCancel = false;
 
     if (status.nextPageToken && status.status === 'running' && !didCancel) {
-      sync(status.nextPageToken, dispatch, api, extract, uploader.current);
+      sync(status.nextPageToken, dispatch, api, parse, uploader.current);
     }
 
     return () => { didCancel = true; };
-  }, [api, extract, status.nextPageToken, status.status]);
+  }, [api, parse, status.nextPageToken, status.status]);
 
   const start = () => {
     dispatch({ type: 'start' });
-    sync(null, dispatch, api, extract, uploader.current);
+    sync(null, dispatch, api, parse, uploader.current);
   };
 
   return {

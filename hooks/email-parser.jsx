@@ -1,7 +1,7 @@
 import { useRef, useReducer, useEffect, useCallback } from 'react';
 import uuid from 'uuid/v4';
 
-import EmailExtractor from '../lib/email-extractor.worker';
+import EmailParser from '../lib/email-parser.worker';
 
 const reducer = (state, { type, payload }) => {
   switch (type) {
@@ -36,13 +36,13 @@ const reducer = (state, { type, payload }) => {
   }
 };
 
-function useEmailExtractor() {
+function useEmailParser() {
   const [state, dispatch] = useReducer(reducer, {});
 
   const worker = useRef();
   useEffect(() => {
     let didCancel = false;
-    worker.current = new EmailExtractor();
+    worker.current = new EmailParser();
 
     worker.current.onmessage = (e) => {
       if (didCancel) return;
@@ -72,7 +72,7 @@ function useEmailExtractor() {
     };
   }, []);
 
-  const extract = useCallback((raw) => {
+  const parse = useCallback((raw) => {
     return new Promise((resolve, reject) => {
       const id = uuid();
       const message = { id, raw };
@@ -85,11 +85,11 @@ function useEmailExtractor() {
   }, []);
 
   return {
-    extract,
+    parse,
     outstanding: Object.keys(state).length,
   };
 }
 
-export { useEmailExtractor };
+export { useEmailParser };
 
-export default useEmailExtractor;
+export default useEmailParser;
