@@ -34,13 +34,16 @@ const schema = Yup.object().shape({
     .oneOf([Yup.ref('password'), null], 'Passwords must match'),
 });
 
-const paramsForRegistration = (values, name, email, labels) => {
+const paramsForRegistration = (values, profile, labels) => {
+  const { googleId: providerId, name, email } = profile;
+
   return {
     ...values,
     mailbox: {
       name,
       email,
       provider: 'GMAIL',
+      providerId,
       labels: labels.map(label => ({
         name: label.name,
         gmailPayload: {
@@ -63,8 +66,7 @@ const Step2 = () => {
   const [result] = useGoogleQuery(api, query);
 
   const handleSubmit = async (values, { setSubmitting, setErrors }) => {
-    const { name, email } = profile;
-    const params = paramsForRegistration(values, name, email, result.labels);
+    const params = paramsForRegistration(values, profile, result.labels);
     await register(params, {
       success: () => { router.push('/register/step-3'); },
       failure: (error) => {

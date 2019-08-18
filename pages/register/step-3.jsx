@@ -29,7 +29,7 @@ const GoogleLogin = dynamic(
 );
 
 const Step3 = () => {
-  const { finished, setFinished } = useState(false);
+  const [status, setStatus] = useState('pending');
   const { profile, api } = useGoogle();
 
   const query = useCallback(() => api.getProfile(), [api]);
@@ -39,9 +39,9 @@ const Step3 = () => {
   const mailboxId = account ? account.defaultMailboxId : null;
 
   useEffect(() => {
-    if (!finished) window.onbeforeunload = () => 'Are you sure you want to stop the sync?';
+    if (status === 'running') window.onbeforeunload = () => 'Are you sure you want to stop the sync?';
     return () => { window.onbeforeunload = null; };
-  }, [finished]);
+  }, [status]);
 
   return (
     <Layout.SimpleWide>
@@ -83,7 +83,7 @@ const Step3 = () => {
               <SyncProgress
                 mailboxId={mailboxId}
                 messagesTotal={mailbox.messagesTotal}
-                onFinish={() => setFinished(true)}
+                updateStatus={setStatus}
               />
 
             </Col>
@@ -94,7 +94,7 @@ const Step3 = () => {
         <Divider />
 
         <div className={styles.cardFooter}>
-          <Button type="primary" size="large" href="/" disabled={!finished}>Done</Button>
+          <Button type="primary" size="large" href="/" disabled={status !== 'finished'}>Done</Button>
         </div>
 
       </Card>

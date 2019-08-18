@@ -10,23 +10,28 @@ import { useMessageSynchronizer } from '../../../hooks/message-synchronizer';
 
 const { Text } = Typography;
 
-const SyncProgress = ({ mailboxId, messagesTotal, onFinish }) => {
+const SyncProgress = ({ mailboxId, messagesTotal, updateStatus }) => {
   const { status, count, start } = useMessageSynchronizer(mailboxId);
 
   const progress = Math.round(count / messagesTotal * 100);
 
   useEffect(() => {
-    let didCancel = true;
-    if (status === 'finished' && !didCancel) onFinish();
+    let didCancel = false;
+    if (status === 'finished' && !didCancel) updateStatus('finished');
     return () => { didCancel = true; };
-  }, [status, onFinish]);
+  }, [status, updateStatus]);
+
+  const startSync = () => {
+    updateStatus('running');
+    start();
+  };
 
   return (
     <React.Fragment>
 
       { status === 'waiting' && (
         <div className={styles.cardRow}>
-          <Button type="primary" size="large" onClick={() => start()}>Start Sync</Button>
+          <Button type="primary" size="large" onClick={startSync}>Start Sync</Button>
         </div>
       )}
 
@@ -39,7 +44,11 @@ const SyncProgress = ({ mailboxId, messagesTotal, onFinish }) => {
       )}
 
       {status === 'finished' && (
-        <Progress percent={progress} />
+        <React.Fragment>
+          <Progress percent={progress} />
+          <br />
+          <Text>Sync complete!</Text>
+        </React.Fragment>
       )}
 
     </React.Fragment>
@@ -49,7 +58,7 @@ const SyncProgress = ({ mailboxId, messagesTotal, onFinish }) => {
 SyncProgress.propTypes = {
   mailboxId: PropTypes.string.isRequired,
   messagesTotal: PropTypes.number.isRequired,
-  onFinish: PropTypes.func.isRequired,
+  updateStatus: PropTypes.func.isRequired,
 };
 
 SyncProgress.whyDidYouRender = true;
