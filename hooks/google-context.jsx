@@ -1,6 +1,6 @@
 /* global window */
 
-import React, { useState, useReducer, useEffect, useCallback } from 'react';
+import React, { useState, useReducer, useEffect, useCallback, useMemo } from 'react';
 import PropTypes from 'prop-types';
 
 import GoogleApi from '../lib/google-api';
@@ -73,14 +73,14 @@ const GoogleProvider = ({ clientId, scope, children, ...props }) => {
   const login = useCallback(response => dispatch({ type: 'login', payload: response }), []);
   const logout = useCallback(() => dispatch({ type: 'logout' }), []);
 
-  const values = {
+  const values = useMemo(() => ({
     clientId,
     scope,
     login,
     logout,
     api,
     ...state,
-  };
+  }), [api, clientId, login, logout, scope, state]);
 
   return (
     <GoogleContext.Provider value={values} {...props}>

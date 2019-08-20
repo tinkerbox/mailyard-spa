@@ -9,7 +9,9 @@ const helmet = require('helmet');
 
 const csp = require('./config/csp');
 
-if (process.env.NODE_ENV !== 'development') {
+const dev = process.env.NODE_ENV === 'development';
+
+if (!dev) {
   Sentry.init({
     dsn: process.env.SENTRY_BACKEND_DSN,
     release: `${process.env.HEROKU_SLUG_COMMIT}@mailyard-spa`,
@@ -25,7 +27,7 @@ app.use(helmet({
   },
 }));
 
-if (process.env.NODE_ENV !== 'development') {
+if (!dev) {
   app.use((req, res, _next) => {
     if (req.headers['x-forwarded-proto'] === 'https') return _next();
     return res.redirect(`https://${req.headers.host}${req.url}`);
@@ -41,9 +43,7 @@ if (process.env.CANONICAL_HOST) {
   });
 }
 
-const nextApp = next({
-  dev: (process.env.NODE_ENV !== 'production' && process.env.NODE_ENV !== 'staging'),
-});
+const nextApp = next({ dev });
 const handler = nextApp.getRequestHandler();
 
 nextApp.prepare()

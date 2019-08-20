@@ -1,3 +1,7 @@
+/* globals localStorage */
+
+import { find } from 'lodash';
+
 import React from 'react';
 import App from 'next/app';
 import Head from 'next/head';
@@ -29,6 +33,12 @@ const errorHandler = (error) => {
   const { graphQLErrors, networkError } = error;
 
   if (graphQLErrors) {
+    const forbidden = find(graphQLErrors, (e) => { return e.extensions.exception.name === 'ForbiddenError' });
+    if (forbidden) {
+      localStorage.removeItem('authToken');
+      localStorage.removeItem('account');
+    }
+
     graphQLErrors.map(({ message, locations, path }) => {
       // TODO: filter out errors that can be ignored, track the rest
       console.log(`[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}`);

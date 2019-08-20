@@ -1,6 +1,6 @@
-/* globals localStorage */
+/* globals window, localStorage */
 
-import React, { useState, useContext, useEffect } from 'react';
+import React, { useState, useContext, useEffect, useCallback, useMemo } from 'react';
 
 import gql from 'graphql-tag';
 import { ApolloContext } from 'react-apollo';
@@ -26,6 +26,15 @@ const ACCOUNT_QUERY = gql`
     account {
       username
       defaultMailboxId
+      defaultMailbox {
+        id
+        position
+        defaultLabelId
+        defaultLabel {
+          id
+          name
+        }
+      }
     }
   }
 `;
@@ -34,36 +43,34 @@ const AuthContext = React.createContext();
 
 const AuthProvider = (props) => {
   const existingToken = (typeof window !== 'undefined') ? localStorage.getItem('authToken') : null;
+  const existingAccount = (typeof window !== 'undefined') ? localStorage.getItem('account') : null;
 
   const { client } = useContext(ApolloContext);
-  const [account, setAccount] = useState();
   const [token, setToken] = useState(existingToken);
+  const [account, setAccount] = useState(existingAccount ? JSON.parse(existingAccount) : null);
 
   useEffect(() => {
-    if (token) {
-      localStorage.setItem('authToken', token);
-    } else {
-      localStorage.removeItem('authToken');
-    }
+    if (token) localStorage.setItem('authToken', token);
+    else localStorage.removeItem('authToken');
   }, [token]);
+
+  useEffect(() => {
+    if (account) localStorage.setItem('account', JSON.stringify(account));
+    else localStorage.removeItem('account');
+  }, [account]);
 
   useEffect(() => {
     let didCancel = false;
-
-    (async () => {
-      if (!token) return;
-      try {
+    if (!account) {
+      (async () => {
         const result = await client.query({ query: ACCOUNT_QUERY });
         if (!didCancel) setAccount(result.data.account);
-      } catch (error) {
-        setToken(null);
-      }
-    })();
-
+      })();
+    }
     return () => { didCancel = true; };
-  }, [token]);
+  });
 
-  const login = async (values, callbacks) => {
+  const login = useCallback(async (values, callbacks) => {
     try {
       const result = await client.mutate({
         mutation: AUTHENTICATE_MUTATION,
@@ -76,15 +83,15 @@ const AuthProvider = (props) => {
     } catch (error) {
       if (callbacks.failure) callbacks.failure(error);
     }
-  };
+  }, [client]);
 
-  const logout = () => {
+  const logout = useCallback(() => {
     setToken(null);
-    setAccount(null);
+    localStorage.removeItem('account');
     client.cache.reset();
-  };
+  }, [client.cache]);
 
-  const register = async (values, callbacks) => {
+  const register = useCallback(async (values, callbacks) => {
     try {
       const result = await client.mutate({
         mutation: REGISTER_MUTATION,
@@ -96,17 +103,17 @@ const AuthProvider = (props) => {
     } catch (error) {
       if (callbacks.failure) callbacks.failure(error);
     }
-  };
+  }, [client]);
 
   const loggedIn = !!token;
 
-  const values = {
+  const values = useMemo(() => ({
     login,
     logout,
     register,
     account,
     loggedIn,
-  };
+  }), [account, loggedIn, login, logout, register]);
 
   return <AuthContext.Provider value={values} {...props} />;
 };
