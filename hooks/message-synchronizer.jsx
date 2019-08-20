@@ -8,6 +8,7 @@ import { useGoogle } from './google-context';
 import { useEmailParser } from './email-parser';
 
 import { retry } from '../lib/promise-retry';
+import { uploadFile } from '../lib/file-uploader';
 import EmailUploader from '../lib/email-uploader';
 import EmailExtractor from '../lib/email-extractor';
 
@@ -24,10 +25,13 @@ const sync = async (token, dispatch, api, parse, uploader) => {
         const extractor = new EmailExtractor(parsed);
 
         const { data } = await uploader.sync(detailQuery, extractor);
-        const { preSignedUrl } = data.sync;
-        console.log(preSignedUrl);
+        const { putRequest } = data.sync;
 
-        // TODO: use pre-signed url to upload payload
+        const response = await uploadFile(putRequest, detailQuery.raw);
+        if (!response.ok) {
+          // TODO: error handling, retries, etc
+          console.log(detailQuery);
+        }
 
         dispatch({
           type: 'tick',

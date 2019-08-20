@@ -1,3 +1,5 @@
+/* globals localStorage */
+
 import React, { useState, useContext, useEffect } from 'react';
 
 import gql from 'graphql-tag';
@@ -22,6 +24,7 @@ const REGISTER_MUTATION = gql`
 const ACCOUNT_QUERY = gql`
   query {
     account {
+      username
       defaultMailboxId
     }
   }
