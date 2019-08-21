@@ -2,13 +2,11 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import { useRouter } from 'next/router';
-
-import { Menu, Icon } from 'antd';
+import { Menu, Icon, Popconfirm, message } from 'antd';
 
 import { useAuth } from '../../../../hooks/auth-context';
 
 import { makeStyles } from '../../../../styles';
-
 import custom from './styles.css';
 
 const styles = makeStyles(custom);
@@ -31,7 +29,7 @@ const Navigation = ({ query }) => {
   return (
     <div className={styles.menus}>
 
-      <Menu theme="dark" onClick={onMenuSelect}>
+      <Menu theme="dark" onClick={onMenuSelect} selectable={false}>
 
         {!labelId && (
           <Menu.Item key="0">
@@ -49,11 +47,18 @@ const Navigation = ({ query }) => {
 
       </Menu>
 
-      <Menu theme="dark">
+      <Menu theme="dark" selectable={false}>
 
-        <Menu.Item key="1" onClick={onLogout}>
-          <Icon type="logout" />
-          <span>Logout</span>
+        <Menu.Item key="1">
+          <Popconfirm
+            title="Confirm logout?"
+            onConfirm={onLogout}
+            okText="Yes"
+            cancelText="No"
+          >
+            <Icon type="logout" />
+            <span>Logout</span>
+          </Popconfirm>
         </Menu.Item>
 
         <Menu.Item key="2">

@@ -4,12 +4,11 @@ import { useRouter } from 'next/router';
 import { Layout } from 'antd';
 
 import { makeStyles } from '../../../styles';
-
 import custom from '../../../styles/pages/mail/index.css';
 
 import Navigation from '../../../components/pages/mail/Navigation';
+import Message from '../../../components/pages/mail/Message';
 import Thread from '../../../components/pages/mail/Thread';
-import Conversation from '../../../components/pages/mail/Conversation';
 
 const styles = makeStyles(custom);
 
@@ -31,11 +30,11 @@ const MailView = () => {
         <Layout className={styles.main} hasSider>
 
           <Sider theme="light" width={320} className={styles.use('listing', 'scrollpane')}>
-            <Thread.Container query={query} />
+            <Message.Container query={query} />
           </Sider>
 
           <Content className={styles.scrollpane}>
-            <Conversation.Container query={query} />
+            <Thread.Container query={query} />
           </Content>
 
         </Layout>

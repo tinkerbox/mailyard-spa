@@ -2,7 +2,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import { times } from 'lodash';
-import { List, Icon, Empty } from 'antd';
+
+import { List, Empty, Icon } from 'antd';
 
 import { makeStyles } from '../../../../styles';
 
@@ -11,11 +12,9 @@ import custom from './styles.css';
 const styles = makeStyles(custom);
 
 const Container = ({ query }) => {
-  // TODO: perform query, and get threads
-
-
+  // TODO: perform query, and get conversation
   return (
-    <React.Fragment>
+    <div className={styles.use('p-4', 'centralize')}>
 
       {!query.mailboxPos && ( // if loading
         <div className={styles.use('centralize')}>
@@ -23,15 +22,15 @@ const Container = ({ query }) => {
         </div>
       )}
 
-      {query.mailboxPos && false && ( // if empty
+      {query.mailboxPos && false && ( // empty
         <Empty />
       )}
 
-      {query.mailboxPos && true && ( // if not empty
+      {query.mailboxPos && true && ( // empty
         <Listing />
       )}
 
-    </React.Fragment>
+    </div>
   );
 };
 
@@ -43,21 +42,23 @@ Container.propTypes = {
 };
 
 const Listing = () => {
-  const threads = times(30, i => <Detail key={i} content="Hello" />);
+  const mesages = times(30, i => <Message key={i} content="Hello" />);
   return (
-    <List>
-      {threads}
-    </List>
+    <React.Fragment>
+      <List>
+        {mesages}
+      </List>
+    </React.Fragment>
   );
 };
 
-const Detail = ({ content }) => {
+const Message = ({ content }) => {
   return (
     <List.Item>{content}</List.Item>
   );
 };
 
-Detail.propTypes = {
+Message.propTypes = {
   content: PropTypes.string.isRequired,
 };
 
@@ -65,6 +66,6 @@ const Thread = {};
 
 Thread.Container = Container;
 Thread.Listing = Listing;
-Thread.Detail = Detail;
+Thread.Message = Message;
 
 export default Thread;
