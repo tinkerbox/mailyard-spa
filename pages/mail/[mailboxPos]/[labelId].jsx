@@ -1,31 +1,47 @@
-import React from 'react';
+import React, { useState } from 'react';
 
-import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { Layout, Button } from 'antd';
+import { Layout } from 'antd';
 
-import { useAuth } from '../../../hooks/auth-context';
+import { makeStyles } from '../../../styles';
 
-const { Content } = Layout;
+import custom from '../../../styles/pages/mail/index.css';
+
+import Navigation from '../../../components/pages/mail/Navigation';
+import Thread from '../../../components/pages/mail/Thread';
+import Conversation from '../../../components/pages/mail/Conversation';
+
+const styles = makeStyles(custom);
+
+const { Content, Sider } = Layout;
 
 const MailView = () => {
-  const { logout } = useAuth();
+  const [collapsed, setCollapsed] = useState(true);
 
-  const router = useRouter();
-  const { mailboxPos, labelId } = router.query;
-
-  const onLogout = () => {
-    logout();
-    router.push('/login');
-  };
+  const { query } = useRouter();
 
   return (
-    <Content>
-      <p>{labelId}</p>
-      <Link href={`/mail/${mailboxPos}/${labelId}`}><a>All</a></Link>
-      <Button type='link' onClick={onLogout}>Logout</Button>
-      <Button onClick={() => router.push('/login')}>Login</Button>
-    </Content>
+    <Layout className={styles.layout} hasSider>
+
+      <Sider collapsible className={styles.sider} collapsed={collapsed} onCollapse={() => { setCollapsed(!collapsed); }}>
+        <Navigation query={query} />
+      </Sider>
+
+      <Content>
+        <Layout className={styles.main} hasSider>
+
+          <Sider theme="light" width={320} className={styles.use('listing', 'scrollpane')}>
+            <Thread.Container query={query} />
+          </Sider>
+
+          <Content className={styles.scrollpane}>
+            <Conversation.Container query={query} />
+          </Content>
+
+        </Layout>
+      </Content>
+
+    </Layout>
   );
 };
 
