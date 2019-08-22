@@ -1,9 +1,13 @@
-import React, { useContext, useEffect, useState } from 'react';
+/* globals window */
+
+import React, { useContext, useEffect, useState, useMemo } from 'react';
 import PropTypes from 'prop-types';
 
 import gql from 'graphql-tag';
 import { ApolloContext } from 'react-apollo';
 import { List, Icon, Empty } from 'antd';
+
+import { useMailSelector } from '../../../../hooks/mail-selector-context';
 
 import { makeStyles } from '../../../../styles';
 import custom from './styles.css';
@@ -16,26 +20,28 @@ const MESSAGES_QUERY = gql`
       id
       messages {
         id
+        threadId
         receivedAt
       }
     }
   }
 `;
 
-const Container = ({ query }) => {
+const Container = () => {
+  const { selectedMailboxPos, selectThreadById } = useMailSelector();
   const { client } = useContext(ApolloContext);
   const [messages, setMessages] = useState();
+
+  if (typeof window !== 'undefined' && window.location.hash.length > 0) selectThreadById(window.location.hash.split('#')[1]);
 
   useEffect(() => {
     let didCancel = false;
 
     (async () => {
-      if (!query.mailboxPos) return;
-
       const results = await client.query({
         query: MESSAGES_QUERY,
         variables: {
-          position: parseInt(query.mailboxPos, 10),
+          position: selectedMailboxPos,
         },
       });
 
@@ -43,66 +49,77 @@ const Container = ({ query }) => {
     })();
 
     return () => { didCancel = true; };
-  }, [client, query.mailboxPos]);
+  }, [client, selectedMailboxPos]);
+
+  const items = useMemo(() => {
+    if (!messages) return [];
+    return messages.map(message => <Message.Item key={message.id} message={message} />);
+  }, [messages]);
 
   return (
     <React.Fragment>
 
-      {(!query.mailboxPos) && ( // if loading
+      {!messages && ( // if loading
         <div className={styles.use('centralize')}>
           <Icon type="loading" />
         </div>
       )}
 
-      {query.mailboxPos && false && ( // if empty
+      {messages && messages.length === 0 && ( // if empty
         <Empty />
       )}
 
-      {query.mailboxPos && messages && ( // if not empty
-        <Listing messages={messages} />
+      {messages && messages.length !== 0 && ( // if not empty
+        <Message.Listing>
+          {items}
+        </Message.Listing>
       )}
 
     </React.Fragment>
   );
 };
 
-Container.propTypes = {
-  query: PropTypes.shape({
-    mailboxPos: PropTypes.string,
-    labelId: PropTypes.string,
-  }).isRequired,
-};
-
-const Listing = ({ messages }) => {
-  const items = messages.map(({ id, receivedAt }) => <Detail key={id} content={receivedAt} />);
+const Listing = ({ children }) => {
   return (
-    <List>
-      {items}
-    </List>
+    <List>{children}</List>
   );
 };
 
 Listing.propTypes = {
-  messages: PropTypes.arrayOf(PropTypes.shape({
-    id: PropTypes.string.isRequired,
-  })).isRequired,
+  children: PropTypes.arrayOf(PropTypes.node).isRequired,
 };
 
-const Detail = ({ content }) => {
-  const receivedAt = new Date(content);
+const Item = ({ message }) => {
+  const { selectThreadById } = useMailSelector();
+  const { id, threadId, receivedAt } = message;
+  const displayDate = new Date(receivedAt).toDateString();
+
+  const clickHandler = () => {
+    selectThreadById(threadId);
+    window.location.hash = threadId;
+  };
+
   return (
-    <List.Item onClick={() => alert('asd')}>{receivedAt.toDateString()}</List.Item>
+    <List.Item key={id} onClick={clickHandler}>{displayDate}</List.Item>
   );
 };
 
-Detail.propTypes = {
-  content: PropTypes.string.isRequired,
+Item.propTypes = {
+  message: PropTypes.shape({
+    id: PropTypes.string.isRequired,
+    threadId: PropTypes.string.isRequired,
+    receivedAt: PropTypes.string.isRequired,
+  }).isRequired,
 };
 
 const Message = {};
 
-Message.Container = Container;
-Message.Listing = Listing;
-Message.Detail = Detail;
+Message.Container = React.memo(Container);
+Message.Listing = React.memo(Listing);
+Message.Item = React.memo(Item);
+
+Container.whyDidYouRender = true;
+Listing.whyDidYouRender = true;
+Item.whyDidYouRender = true;
 
 export default Message;

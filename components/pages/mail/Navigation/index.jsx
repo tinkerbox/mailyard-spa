@@ -1,24 +1,23 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 
 import { useRouter } from 'next/router';
-import { Menu, Icon, Popconfirm, message } from 'antd';
+import { Menu, Icon, Popconfirm } from 'antd';
 
 import { useAuth } from '../../../../hooks/auth-context';
+import { useMailSelector } from '../../../../hooks/mail-selector-context';
 
 import { makeStyles } from '../../../../styles';
 import custom from './styles.css';
 
 const styles = makeStyles(custom);
 
-const Navigation = ({ query }) => {
+const Navigation = () => {
   const { logout } = useAuth();
   const router = useRouter();
-
-  const { mailboxPos, labelId } = query;
+  const { selectedMailboxPos, selectedLabelId } = useMailSelector();
 
   const onMenuSelect = (target) => {
-    router.push(`/mail/${mailboxPos}/${target.key}`);
+    router.push(`/mail/${target.key}/${selectedLabelId}`);
   };
 
   const onLogout = () => {
@@ -31,19 +30,10 @@ const Navigation = ({ query }) => {
 
       <Menu theme="dark" onClick={onMenuSelect} selectable={false}>
 
-        {!labelId && (
-          <Menu.Item key="0">
-            <Icon type="loading" />
-            <span>Please wait...</span>
-          </Menu.Item>
-        )}
-
-        {labelId && (
-          <Menu.Item key={labelId}>
-            <Icon type="user" />
-            <span>Account</span>
-          </Menu.Item>
-        )}
+        <Menu.Item key={selectedMailboxPos}>
+          <Icon type="user" />
+          <span>Account</span>
+        </Menu.Item>
 
       </Menu>
 
@@ -72,11 +62,6 @@ const Navigation = ({ query }) => {
   );
 };
 
-Navigation.propTypes = {
-  query: PropTypes.shape({
-    mailboxPos: PropTypes.string,
-    labelId: PropTypes.string,
-  }).isRequired,
-};
+Navigation.whyDidYouRender = true;
 
 export default Navigation;
