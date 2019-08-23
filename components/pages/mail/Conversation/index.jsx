@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 
 import gql from 'graphql-tag';
 import { ApolloContext } from 'react-apollo';
-import { List, Empty, Icon, PageHeader } from 'antd';
+import { List, Empty, Icon, PageHeader, Tag } from 'antd';
 
 import { useMailSelector } from '../../../../hooks/mail-selector-context';
 
@@ -19,10 +19,17 @@ const THREAD_QUERY = gql`
       id
       thread(id: $id) {
         id
+        subject
         messages {
           id
           threadId
           receivedAt
+          headers
+          labels {
+            id
+            name
+            slug
+          }
         }
       }
     }
@@ -62,19 +69,19 @@ const Container = () => {
   return (
     <React.Fragment>
 
-      {selectedThreadId && !thread && ( // if loading
+      {selectedThreadId && !thread && (
         <div className={styles.use('centralize')}>
           <Icon type="loading" />
         </div>
       )}
 
-      {!selectedThreadId && !thread && ( // empty
+      {!selectedThreadId && !thread && (
         <div className={styles.use('centralize')}>
           <Empty description="" />
         </div>
       )}
 
-      {thread && ( // empty
+      {thread && (
         <Conversation.Listing thread={thread}>{items}</Conversation.Listing>
       )}
 
@@ -83,9 +90,12 @@ const Container = () => {
 };
 
 const Listing = ({ thread, children }) => {
+  // TODO: labels should be aggregated at the thread level, not messages
+  const { labels } = thread.messages[0];
+  const tags = labels.map(label => <Tag>{label.name}</Tag>);
   return (
     <div className={styles.thread}>
-      <PageHeader>{thread.id}</PageHeader>
+      <PageHeader title={thread.subject} tags={tags} />
       <List className={styles.use('p-3')}>{children}</List>
     </div>
   );
@@ -94,8 +104,12 @@ const Listing = ({ thread, children }) => {
 Listing.propTypes = {
   thread: PropTypes.shape({
     id: PropTypes.string.isRequired,
+    subject: PropTypes.string.isRequired,
     messages: PropTypes.arrayOf(PropTypes.shape({
       id: PropTypes.string.isRequired,
+      labels: PropTypes.arrayOf(PropTypes.shape({
+        name: PropTypes.string.isRequired,
+      })).isRequired,
     })).isRequired,
   }).isRequired,
   children: PropTypes.arrayOf(PropTypes.node).isRequired,
