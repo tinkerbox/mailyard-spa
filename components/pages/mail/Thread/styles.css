@@ -1,10 +1,3 @@
-.centralize {
-  justify-content: center;
-  align-items: center;
-  height: 100%;
-  display: flex;
-}
-
 .thread {
   display: flex;
   flex-direction: column;

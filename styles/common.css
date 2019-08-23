@@ -10,3 +10,14 @@
   flex-direction: row-reverse;
   align-items: center;
 }
+
+.centralize {
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  display: flex;
+}
+
+.full {
+  height: 100vh;
+}

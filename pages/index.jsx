@@ -1,9 +1,10 @@
 import React, { useEffect } from 'react';
 
-import { Layout } from 'antd';
+import { Layout, Icon } from 'antd';
 import { useRouter } from 'next/router';
 
 import { useAuth } from '../hooks/auth-context';
+import styles from '../styles';
 
 const { Content } = Layout;
 
@@ -22,9 +23,11 @@ const Index = () => {
   }, [loggedIn, account, router]);
 
   return (
-    <Content>
-      <p>Please wait...</p>
-    </Content>
+    <Layout className={styles.full}>
+      <Content className={styles.centralize}>
+        <Icon type="loading" />
+      </Content>
+    </Layout>
   );
 };
 
