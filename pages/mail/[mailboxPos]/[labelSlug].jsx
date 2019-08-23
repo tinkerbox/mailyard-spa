@@ -9,7 +9,7 @@ import custom from '../../../styles/pages/mail/index.css';
 import { MailSelectorProvider } from '../../../hooks/mail-selector-context';
 import Navigation from '../../../components/pages/mail/Navigation';
 import Message from '../../../components/pages/mail/Message';
-import Thread from '../../../components/pages/mail/Thread';
+import Conversation from '../../../components/pages/mail/Conversation';
 
 const styles = makeStyles(custom);
 
@@ -34,7 +34,7 @@ const MailView = ({ query }) => {
             </Sider>
 
             <Content className={styles.scrollpane}>
-              <Thread.Container />
+              <Conversation.Container />
             </Content>
 
           </Layout>

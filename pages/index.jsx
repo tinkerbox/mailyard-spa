@@ -13,10 +13,9 @@ const Index = () => {
   const router = useRouter();
 
   useEffect(() => {
-    if (!account) return;
     if (!loggedIn) {
       router.push('/login');
-    } else {
+    } else if (account) {
       const defaultMailViewPath = `/mail/${account.defaultMailbox.position}/${account.defaultMailbox.defaultLabel.slug}`;
       router.push(defaultMailViewPath);
     }

@@ -56,7 +56,7 @@ const Container = () => {
 
   const items = useMemo(() => {
     if (!thread) return [];
-    return thread.messages.map(m => <Thread.Item key={m.id} message={m} />);
+    return thread.messages.map(m => <Conversation.Item key={m.id} message={m} />);
   }, [thread]);
 
   return (
@@ -75,7 +75,7 @@ const Container = () => {
       )}
 
       {thread && ( // empty
-        <Thread.Listing thread={thread}>{items}</Thread.Listing>
+        <Conversation.Listing thread={thread}>{items}</Conversation.Listing>
       )}
 
     </React.Fragment>
@@ -117,14 +117,14 @@ Item.propTypes = {
   }).isRequired,
 };
 
-const Thread = {};
+const Conversation = {};
 
-Thread.Container = React.memo(Container);
-Thread.Listing = React.memo(Listing);
-Thread.Item = React.memo(Item);
+Conversation.Container = React.memo(Container);
+Conversation.Listing = React.memo(Listing);
+Conversation.Item = React.memo(Item);
 
 Container.whyDidYouRender = true;
 Listing.whyDidYouRender = true;
 Item.whyDidYouRender = true;
 
-export default Thread;
+export default Conversation;
