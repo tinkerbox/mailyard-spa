@@ -5,12 +5,16 @@ import PropTypes from 'prop-types';
 
 import gql from 'graphql-tag';
 import { ApolloContext } from 'react-apollo';
-import { List, Icon, Empty } from 'antd';
+import { List, Icon, Empty, Typography, Row, Col } from 'antd';
+
+import { parseOneAddress } from 'email-addresses';
 
 import { useMailSelector } from '../../../../hooks/mail-selector-context';
 
 import { makeStyles } from '../../../../styles';
 import custom from './styles.css';
+
+const { Text } = Typography;
 
 const styles = makeStyles(custom);
 
@@ -22,17 +26,16 @@ const MESSAGES_QUERY = gql`
         id
         threadId
         receivedAt
+        headers
       }
     }
   }
 `;
 
 const Container = () => {
-  const { selectedMailboxPos, selectThreadById } = useMailSelector();
+  const { selectedMailboxPos, selectThreadById, selectedThreadId } = useMailSelector();
   const { client } = useContext(ApolloContext);
   const [messages, setMessages] = useState();
-
-  if (typeof window !== 'undefined' && window.location.hash.length > 0) selectThreadById(window.location.hash.split('#')[1]);
 
   useEffect(() => {
     let didCancel = false;
@@ -53,8 +56,10 @@ const Container = () => {
 
   const items = useMemo(() => {
     if (!messages) return [];
-    return messages.map(message => <Message.Item key={message.id} message={message} />);
-  }, [messages]);
+    return messages.map(message => <Message.Item key={message.id} message={message} selected={selectedThreadId === message.threadId} />);
+  }, [messages, selectedThreadId]);
+
+  if (typeof window !== 'undefined' && window.location.hash.length > 0) selectThreadById(window.location.hash.split('#')[1]);
 
   return (
     <React.Fragment>
@@ -89,9 +94,9 @@ Listing.propTypes = {
   children: PropTypes.arrayOf(PropTypes.node).isRequired,
 };
 
-const Item = ({ message }) => {
+const Item = ({ message, selected }) => {
   const { selectThreadById } = useMailSelector();
-  const { id, threadId, receivedAt } = message;
+  const { id, threadId, receivedAt, headers } = message;
   const displayDate = new Date(receivedAt).toDateString();
 
   const clickHandler = () => {
@@ -99,17 +104,43 @@ const Item = ({ message }) => {
     window.location.hash = threadId;
   };
 
+  const from = parseOneAddress(headers.From);
+  const subject = headers.Subject;
+
   return (
-    <List.Item key={id} onClick={clickHandler}>{displayDate}</List.Item>
+    <List.Item key={id} onClick={clickHandler} className={styles.use('item', `${selected ? 'selected' : ''}`)}>
+
+      <Row type="flex" justify="space-between" align="top" className={styles.use('mb-1')}>
+        <Col>
+          <Text strong ellipsis>{from.name || from.address}</Text>
+        </Col>
+        <Col align="right">
+          <Text ellipsis type="secondary">{displayDate}</Text>
+        </Col>
+      </Row>
+
+      <Text ellipsis>{subject}</Text>
+      <Text ellipsis type="secondary">Lorem ipsum...</Text>
+
+    </List.Item>
   );
 };
 
 Item.propTypes = {
+  selected: PropTypes.bool,
   message: PropTypes.shape({
     id: PropTypes.string.isRequired,
     threadId: PropTypes.string.isRequired,
     receivedAt: PropTypes.string.isRequired,
+    headers: PropTypes.shape({
+      From: PropTypes.string.isRequired,
+      Subject: PropTypes.string.isRequired,
+    }).isRequired,
   }).isRequired,
+};
+
+Item.defaultProps = {
+  selected: false,
 };
 
 const Message = {};

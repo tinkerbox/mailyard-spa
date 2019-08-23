@@ -39,6 +39,7 @@
     "base64url": "^3.0.1",
     "cross-fetch": "^3.0.4",
     "dotenv": "^8.0.0",
+    "email-addresses": "^3.0.3",
     "emailjs-mime-parser": "^2.0.7",
     "express": "^4.17.1",
     "formik": "^1.5.8",
