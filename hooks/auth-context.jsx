@@ -33,6 +33,7 @@ const ACCOUNT_QUERY = gql`
         defaultLabel {
           id
           name
+          slug
         }
       }
     }
@@ -87,7 +88,7 @@ const AuthProvider = (props) => {
 
   const logout = useCallback(() => {
     setToken(null);
-    localStorage.removeItem('account');
+    setAccount(null);
     client.cache.reset();
   }, [client.cache]);
 

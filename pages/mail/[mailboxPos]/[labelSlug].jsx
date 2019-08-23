@@ -20,7 +20,7 @@ const MailView = ({ query }) => {
 
   return (
     <Layout className={styles.layout} hasSider>
-      <MailSelectorProvider initialMailboxPos={query.mailboxPos} initialLabelId={query.labelId} initialThreadId={null}>
+      <MailSelectorProvider initialMailboxPos={query.mailboxPos} initialLabelSlug={query.labelSlug} initialThreadId={null}>
 
         <Sider collapsible className={styles.sider} collapsed={collapsed} onCollapse={() => { setCollapsed(!collapsed); }}>
           <Navigation />
@@ -46,12 +46,12 @@ const MailView = ({ query }) => {
 };
 
 MailView.getInitialProps = ({ query }) => {
-  const { mailboxPos, labelId } = query;
+  const { mailboxPos, labelSlug } = query;
 
   return {
     query: {
       mailboxPos: parseInt(mailboxPos, 10),
-      labelId,
+      labelSlug,
     },
   };
 };
@@ -59,7 +59,7 @@ MailView.getInitialProps = ({ query }) => {
 MailView.propTypes = {
   query: PropTypes.shape({
     mailboxPos: PropTypes.number.isRequired,
-    labelId: PropTypes.string.isRequired,
+    labelSlug: PropTypes.string.isRequired,
   }).isRequired,
 };
 

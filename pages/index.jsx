@@ -16,7 +16,7 @@ const Index = () => {
     if (!loggedIn) {
       router.push('/login');
     } else {
-      const defaultMailViewPath = `/mail/${account.defaultMailbox.position}/${account.defaultMailbox.defaultLabelId}`;
+      const defaultMailViewPath = `/mail/${account.defaultMailbox.position}/${account.defaultMailbox.defaultLabel.slug}`;
       router.push(defaultMailViewPath);
     }
   }, [loggedIn, account, router]);

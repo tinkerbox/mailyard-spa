@@ -3,16 +3,16 @@ import PropTypes from 'prop-types';
 
 const MailSelectorContext = React.createContext();
 
-const MailSelectorProvider = ({ initialMailboxPos, initialLabelId, initialThreadId, ...props }) => {
+const MailSelectorProvider = ({ initialMailboxPos, initialLabelSlug, initialThreadId, ...props }) => {
   const [selectedMailboxPos, selectMailboxByPos] = useState(initialMailboxPos);
-  const [selectedLabelId, selectLabelById] = useState(initialLabelId);
+  const [selectedLabelSlug, selectLabelBySlug] = useState(initialLabelSlug);
   const [selectedThreadId, selectThreadById] = useState(initialThreadId);
 
   const values = {
     selectedMailboxPos,
     selectMailboxByPos,
-    selectedLabelId,
-    selectLabelById,
+    selectedLabelSlug,
+    selectLabelBySlug,
     selectedThreadId,
     selectThreadById,
   };
@@ -22,7 +22,7 @@ const MailSelectorProvider = ({ initialMailboxPos, initialLabelId, initialThread
 
 MailSelectorProvider.propTypes = {
   initialMailboxPos: PropTypes.number.isRequired,
-  initialLabelId: PropTypes.string.isRequired,
+  initialLabelSlug: PropTypes.string.isRequired,
   initialThreadId: PropTypes.string,
 };
 

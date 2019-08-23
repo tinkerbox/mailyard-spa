@@ -14,10 +14,10 @@ const styles = makeStyles(custom);
 const Navigation = () => {
   const { logout } = useAuth();
   const router = useRouter();
-  const { selectedMailboxPos, selectedLabelId } = useMailSelector();
+  const { selectedMailboxPos, selectedLabelSlug } = useMailSelector();
 
   const onMenuSelect = (target) => {
-    router.push(`/mail/${target.key}/${selectedLabelId}`);
+    router.push(`/mail/${target.key}/${selectedLabelSlug}`);
   };
 
   const onLogout = () => {
