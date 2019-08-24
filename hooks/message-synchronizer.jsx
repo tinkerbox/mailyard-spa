@@ -8,7 +8,7 @@ import { useGoogle } from './google-context';
 import { useEmailParser } from './email-parser';
 
 import { retry } from '../lib/promise-retry';
-import { uploadFile } from '../lib/file-uploader';
+import { uploadFile } from '../lib/file-manager';
 import EmailUploader from '../lib/email-uploader';
 import EmailExtractor from '../lib/email-extractor';
 

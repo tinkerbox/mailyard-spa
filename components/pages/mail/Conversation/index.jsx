@@ -3,15 +3,17 @@ import PropTypes from 'prop-types';
 
 import gql from 'graphql-tag';
 import { ApolloContext } from 'react-apollo';
-import { List, Empty, Icon, PageHeader, Tag } from 'antd';
+import { Empty, Icon, PageHeader, Tag, Card, Avatar, Typography } from 'antd';
+import { parseOneAddress } from 'email-addresses';
 
 import { useMailSelector } from '../../../../hooks/mail-selector-context';
-
 import { makeStyles } from '../../../../styles';
-
+import { downloadPayload } from '../../../../lib/file-manager';
 import custom from './styles.css';
+import Viewer from './viewer';
 
 const styles = makeStyles(custom);
+const { Text } = Typography;
 
 const THREAD_QUERY = gql`
   query ($position: Int!, $id: ID!) {
@@ -25,6 +27,7 @@ const THREAD_QUERY = gql`
           threadId
           receivedAt
           headers
+          getRequest
           labels {
             id
             name
@@ -92,11 +95,11 @@ const Container = () => {
 const Listing = ({ thread, children }) => {
   // TODO: labels should be aggregated at the thread level, not messages
   const { labels } = thread.messages[0];
-  const tags = labels.map(label => <Tag>{label.name}</Tag>);
+  const tags = labels.map(label => <Tag key={label.id}>{label.name}</Tag>);
   return (
     <div className={styles.thread}>
       <PageHeader title={thread.subject} tags={tags} />
-      <List className={styles.use('p-3')}>{children}</List>
+      <div className={styles.use('p-3')}>{children}</div>
     </div>
   );
 };
@@ -116,11 +119,42 @@ Listing.propTypes = {
 };
 
 const Item = ({ message }) => {
-  const { id, receivedAt } = message;
+  const [payload, setPayload] = useState();
+  const { receivedAt, headers, getRequest } = message;
+  const from = parseOneAddress(headers.From);
+
+  useEffect(() => {
+    let didCancel = false;
+    (async () => {
+      const file = await downloadPayload(getRequest);
+      if (!didCancel) setPayload(file);
+    })();
+    return () => { didCancel = true; };
+  }, [getRequest]);
+
+
+  const title = (
+    <React.Fragment>
+      <Avatar size="small" className={styles.use('mr-2')}>{from.name[0]}</Avatar>
+
+      {from.name && (
+        <span>
+          <Text strong>{from.name}</Text>
+          <Text type="secondary">{` <${from.address}>`}</Text>
+        </span>
+      )}
+
+      {!from.name && <Text>{from.address}</Text>}
+
+    </React.Fragment>
+  );
+
+  const extra = <Text type="secondary">{receivedAt}</Text>;
+
   return (
-    <List.Item>
-      <strong>{`${id} => ${receivedAt}`}</strong>
-    </List.Item>
+    <Card size="small" className={styles.use('mb-3', 'item')} title={title} extra={extra} loading={!payload}>
+      {payload && <Viewer payload={payload} />}
+    </Card>
   );
 };
 
@@ -128,6 +162,10 @@ Item.propTypes = {
   message: PropTypes.shape({
     id: PropTypes.string.isRequired,
     receivedAt: PropTypes.string.isRequired,
+    getRequest: PropTypes.string.isRequired,
+    headers: PropTypes.shape({
+      From: PropTypes.string,
+    }).isRequired,
   }).isRequired,
 };
 
