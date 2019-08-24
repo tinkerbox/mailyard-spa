@@ -149,7 +149,7 @@ const Item = ({ message }) => {
     </React.Fragment>
   );
 
-  const extra = <Text type="secondary">{receivedAt}</Text>;
+  const extra = <Text type="secondary">{new Date(receivedAt).toString()}</Text>;
 
   return (
     <Card size="small" className={styles.use('mb-3', 'item')} title={title} extra={extra} loading={!payload}>

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 
 import { Typography } from 'antd';
+import DOMPurify from 'dompurify';
 
 import { useEmailParser } from '../../../../hooks/email-parser';
 import EmailExtractor from '../../../../lib/email-extractor';
@@ -31,10 +32,10 @@ const Viewer = ({ payload }) => {
 
   return (
     <div className={styles.use('p-1')}>
-      {htmlContent && <div dangerouslySetInnerHTML={{ __html: htmlContent }} />}
+      {htmlContent && <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(htmlContent) }} />}
       {!htmlContent && textContent && (
         <Text className={styles.plain}>
-          <div dangerouslySetInnerHTML={{ __html: textContent }} />
+          <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(textContent) }} />
         </Text>
       )}
     </div>
