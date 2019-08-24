@@ -26,6 +26,7 @@ const MESSAGES_QUERY = gql`
         id
         threadId
         receivedAt
+        snippet
         headers
       }
     }
@@ -96,7 +97,7 @@ Listing.propTypes = {
 
 const Item = ({ message, selected }) => {
   const { selectThreadById } = useMailSelector();
-  const { id, threadId, receivedAt, headers } = message;
+  const { id, threadId, receivedAt, snippet, headers } = message;
   const displayDate = new Date(receivedAt).toDateString();
 
   const clickHandler = () => {
@@ -120,7 +121,7 @@ const Item = ({ message, selected }) => {
       </Row>
 
       <Text ellipsis>{subject}</Text>
-      <Text ellipsis type="secondary">Lorem ipsum...</Text>
+      <Text ellipsis type="secondary">{snippet}</Text>
 
     </List.Item>
   );

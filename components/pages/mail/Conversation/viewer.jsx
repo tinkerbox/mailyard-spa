@@ -1,7 +1,9 @@
+/* eslint-disable react/no-danger */
+
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 
-import { Typography } from 'antd';
+import { Typography, Divider } from 'antd';
 import DOMPurify from 'dompurify';
 
 import { useEmailParser } from '../../../../hooks/email-parser';
@@ -31,13 +33,14 @@ const Viewer = ({ payload }) => {
   const textContent = email && email['text/plain'] ? email['text/plain'][0].content : null;
 
   return (
-    <div className={styles.use('p-1')}>
+    <div className={styles.use('p-2')}>
       {htmlContent && <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(htmlContent) }} />}
       {!htmlContent && textContent && (
         <Text className={styles.plain}>
           <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(textContent) }} />
         </Text>
       )}
+      <Divider dashed />
     </div>
   );
 };
