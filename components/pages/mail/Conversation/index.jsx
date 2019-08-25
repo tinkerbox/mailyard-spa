@@ -28,11 +28,11 @@ const THREAD_QUERY = gql`
           receivedAt
           headers
           getRequest
-          labels {
-            id
-            name
-            slug
-          }
+        }
+        labels {
+          id
+          name
+          slug
         }
       }
     }
@@ -94,7 +94,7 @@ const Container = () => {
 
 const Listing = ({ thread, children }) => {
   // TODO: labels should be aggregated at the thread level, not messages
-  const { labels } = thread.messages[0];
+  const { labels } = thread;
   const tags = labels.map(label => <Tag key={label.id}>{label.name}</Tag>);
   return (
     <div className={styles.thread}>
@@ -110,9 +110,9 @@ Listing.propTypes = {
     subject: PropTypes.string.isRequired,
     messages: PropTypes.arrayOf(PropTypes.shape({
       id: PropTypes.string.isRequired,
-      labels: PropTypes.arrayOf(PropTypes.shape({
-        name: PropTypes.string.isRequired,
-      })).isRequired,
+    })).isRequired,
+    labels: PropTypes.arrayOf(PropTypes.shape({
+      name: PropTypes.string.isRequired,
     })).isRequired,
   }).isRequired,
   children: PropTypes.arrayOf(PropTypes.node).isRequired,
