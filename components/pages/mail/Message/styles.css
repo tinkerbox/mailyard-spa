@@ -16,3 +16,7 @@
 .selected {
   background-color: rgba(24, 144, 255, 0.05);
 }
+
+.text {
+  width: 100%;
+}

@@ -120,8 +120,8 @@ const Item = ({ message, selected }) => {
         </Col>
       </Row>
 
-      <Text ellipsis>{subject}</Text>
-      <Text ellipsis type="secondary">{snippet}</Text>
+      <Text className={styles.text} ellipsis>{subject}</Text>
+      <Text className={styles.text} ellipsis type="secondary">{snippet}</Text>
 
     </List.Item>
   );
