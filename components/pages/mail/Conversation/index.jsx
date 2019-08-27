@@ -1,12 +1,13 @@
-import React, { useEffect, useState, useContext, useMemo } from 'react';
+import { some } from 'lodash';
+import React, { useEffect, useState, useCallback } from 'react';
 import PropTypes from 'prop-types';
-
+import { useRouter } from 'next/router';
 import gql from 'graphql-tag';
-import { ApolloContext } from 'react-apollo';
 import { Empty, Icon, PageHeader, Tag, Card, Avatar, Typography } from 'antd';
 import { parseOneAddress } from 'email-addresses';
 
 import { useMailSelector } from '../../../../hooks/mail-selector-context';
+import { useGraphQLQuery } from '../../../../hooks/graphql-query';
 import { makeStyles } from '../../../../styles';
 import { downloadPayload } from '../../../../lib/file-manager';
 import custom from './styles.css';
@@ -41,59 +42,45 @@ const THREAD_QUERY = gql`
 
 const Container = () => {
   const { selectedMailboxPos, selectedThreadId } = useMailSelector();
-  const { client } = useContext(ApolloContext);
-  const [thread, setThread] = useState(undefined);
+  const router = useRouter();
 
-  useEffect(() => {
-    let didCancel = false;
+  const { loading, data, errors } = useGraphQLQuery(
+    THREAD_QUERY,
+    {
+      variables: {
+        position: selectedMailboxPos,
+        id: selectedThreadId,
+      },
+    },
+    useCallback(() => !!selectedThreadId, [selectedThreadId]),
+  );
 
-    (async () => {
-      if (selectedThreadId === null) return;
+  if (errors.length > 0 && some(errors, ['name', 'ForbiddenError'])) router.push('/login');
 
-      const results = await client.query({
-        query: THREAD_QUERY,
-        variables: {
-          position: selectedMailboxPos,
-          id: selectedThreadId,
-        },
-      });
-
-      if (!didCancel) setThread(results.data.mailbox.thread);
-    })();
-
-    return () => { didCancel = true; };
-  }, [client, selectedMailboxPos, selectedThreadId]);
-
-  const items = useMemo(() => {
-    if (!thread) return [];
-    return thread.messages.map(m => <Conversation.Item key={m.id} message={m} />);
-  }, [thread]);
+  const items = data ? data.mailbox.thread.messages.map(m => <Conversation.Item key={m.id} message={m} />) : [];
 
   return (
     <React.Fragment>
 
-      {selectedThreadId && !thread && (
+      {selectedThreadId && loading && (
         <div className={styles.use('centralize')}>
           <Icon type="loading" />
         </div>
       )}
 
-      {!selectedThreadId && !thread && (
+      {!selectedThreadId && (
         <div className={styles.use('centralize')}>
           <Empty description="" />
         </div>
       )}
 
-      {thread && (
-        <Conversation.Listing thread={thread}>{items}</Conversation.Listing>
-      )}
+      {items.length > 0 && <Conversation.Listing thread={data.mailbox.thread}>{items}</Conversation.Listing>}
 
     </React.Fragment>
   );
 };
 
 const Listing = ({ thread, children }) => {
-  // TODO: labels should be aggregated at the thread level, not messages
   const { labels } = thread;
   const tags = labels.map(label => <Tag key={label.id}>{label.name}</Tag>);
   return (

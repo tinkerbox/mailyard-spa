@@ -1,16 +1,12 @@
-import { orderBy } from 'lodash';
-
-import React, { useState, useEffect, useContext } from 'react';
-
+import { orderBy, some } from 'lodash';
+import React from 'react';
 import { useRouter } from 'next/router';
 import { Menu, Icon, Popconfirm, Avatar } from 'antd';
-
 import gql from 'graphql-tag';
-import { ApolloContext } from 'react-apollo';
 
 import { useAuth } from '../../../../hooks/auth-context';
+import { useGraphQLQuery } from '../../../../hooks/graphql-query';
 import { useMailSelector } from '../../../../hooks/mail-selector-context';
-
 import { makeStyles } from '../../../../styles';
 import custom from './styles.css';
 
@@ -28,22 +24,14 @@ const MAILBOXES_QUERY = gql`
 `;
 
 const Navigation = () => {
-  const [mailboxes, setMailboxes] = useState([]);
   const { logout } = useAuth();
   const router = useRouter();
-  const { client } = useContext(ApolloContext);
   const { selectedMailboxPos, selectedLabelSlug } = useMailSelector();
 
-  useEffect(() => {
-    let didCancel = false;
+  const { loading, data, errors } = useGraphQLQuery(MAILBOXES_QUERY);
 
-    (async () => {
-      const results = await client.query({ query: MAILBOXES_QUERY });
-      if (!didCancel) setMailboxes(results.data.mailboxes);
-    })();
-
-    return () => { didCancel = true; };
-  }, [client]);
+  if (errors.length > 0 && some(errors, ['name', 'ForbiddenError'])) router.push('/login');
+  const mailboxes = data ? data.mailboxes : [];
 
   const onLogout = () => {
     logout();
@@ -51,16 +39,10 @@ const Navigation = () => {
   };
 
   const onMailboxSelect = ({ key }) => {
-    switch (key) {
-      case 'new':
-        alert('Adding of mailboxes is not supported yet.');
-        break;
-
-      case 'loading':
-        break;
-
-      default:
-        if (selectedMailboxPos.toString() !== key) router.push(`/mail/${key}/${selectedLabelSlug}`);
+    if (key === 'new') {
+      alert('Adding of mailboxes is not supported yet.');
+    } else if (key !== 'loading') {
+      if (selectedMailboxPos.toString() !== key) router.push(`/mail/${key}/${selectedLabelSlug}`);
     }
   };
 
@@ -78,13 +60,13 @@ const Navigation = () => {
 
       <Menu theme="dark" onClick={onMailboxSelect} selectable={false}>
 
-        {mailboxSelectors.length === 0 && (
+        {loading && (
           <Menu.Item key="loading">
             <Icon type="loading" />
           </Menu.Item>
         )}
 
-        {mailboxSelectors.length > 0 && mailboxSelectors}
+        {mailboxSelectors}
 
         <Menu.Item key="new">
           <Icon type="plus" />

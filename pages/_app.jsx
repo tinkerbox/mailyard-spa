@@ -37,12 +37,12 @@ const errorHandler = (error) => {
     if (forbidden) {
       localStorage.removeItem('authToken');
       localStorage.removeItem('account');
+    } else {
+      graphQLErrors.map(({ message, locations, path }) => {
+        // TODO: filter out errors that can be ignored, track the rest
+        console.log(`[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}`);
+      });
     }
-
-    graphQLErrors.map(({ message, locations, path }) => {
-      // TODO: filter out errors that can be ignored, track the rest
-      console.log(`[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}`);
-    });
   }
 
   if (networkError) {

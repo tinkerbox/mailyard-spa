@@ -1,21 +1,19 @@
 /* globals window */
 
-import React, { useContext, useEffect, useState, useMemo } from 'react';
+import { some } from 'lodash';
+import React from 'react';
 import PropTypes from 'prop-types';
-
+import { useRouter } from 'next/router';
 import gql from 'graphql-tag';
-import { ApolloContext } from 'react-apollo';
 import { List, Icon, Empty, Typography, Row, Col } from 'antd';
-
 import { parseOneAddress } from 'email-addresses';
 
 import { useMailSelector } from '../../../../hooks/mail-selector-context';
-
+import { useGraphQLQuery } from '../../../../hooks/graphql-query';
 import { makeStyles } from '../../../../styles';
 import custom from './styles.css';
 
 const { Text } = Typography;
-
 const styles = makeStyles(custom);
 
 const MESSAGES_QUERY = gql`
@@ -35,47 +33,32 @@ const MESSAGES_QUERY = gql`
 
 const Container = () => {
   const { selectedMailboxPos, selectThreadById, selectedThreadId } = useMailSelector();
-  const { client } = useContext(ApolloContext);
-  const [messages, setMessages] = useState();
+  const router = useRouter();
 
-  useEffect(() => {
-    let didCancel = false;
+  const { loading, data, errors } = useGraphQLQuery(MESSAGES_QUERY, {
+    variables: {
+      position: selectedMailboxPos,
+    },
+  });
 
-    (async () => {
-      const results = await client.query({
-        query: MESSAGES_QUERY,
-        variables: {
-          position: selectedMailboxPos,
-        },
-      });
+  if (errors.length > 0 && some(errors, ['name', 'ForbiddenError'])) router.push('/login');
 
-      if (!didCancel) setMessages(results.data.mailbox.messages);
-    })();
-
-    return () => { didCancel = true; };
-  }, [client, selectedMailboxPos]);
-
-  const items = useMemo(() => {
-    if (!messages) return [];
-    return messages.map(message => <Message.Item key={message.id} message={message} selected={selectedThreadId === message.threadId} />);
-  }, [messages, selectedThreadId]);
+  const items = data ? data.mailbox.messages.map(message => <Message.Item key={message.id} message={message} selected={selectedThreadId === message.threadId} />) : [];
 
   if (typeof window !== 'undefined' && window.location.hash.length > 0) selectThreadById(window.location.hash.split('#')[1]);
 
   return (
     <React.Fragment>
 
-      {!messages && ( // if loading
+      {loading && (
         <div className={styles.use('centralize')}>
           <Icon type="loading" />
         </div>
       )}
 
-      {messages && messages.length === 0 && ( // if empty
-        <Empty />
-      )}
+      {!loading && items.length === 0 && <Empty />}
 
-      {messages && messages.length !== 0 && ( // if not empty
+      {!loading && items.length > 0 && (
         <Message.Listing>
           {items}
         </Message.Listing>
@@ -133,6 +116,7 @@ Item.propTypes = {
     id: PropTypes.string.isRequired,
     threadId: PropTypes.string.isRequired,
     receivedAt: PropTypes.string.isRequired,
+    snippet: PropTypes.string.isRequired,
     headers: PropTypes.shape({
       From: PropTypes.string.isRequired,
       Subject: PropTypes.string.isRequired,
