@@ -3,10 +3,9 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 
-import { Typography, Divider } from 'antd';
+import { Typography, Divider, Icon } from 'antd';
 import DOMPurify from 'dompurify';
 
-import { useEmailParser } from '../../../../hooks/email-parser';
 import EmailExtractor from '../../../../lib/email-extractor';
 import { makeStyles } from '../../../../styles';
 import custom from './styles.css';
@@ -15,16 +14,19 @@ const styles = makeStyles(custom);
 
 const { Text } = Typography;
 
-const Viewer = ({ payload }) => {
+const Viewer = ({ payload, parse }) => {
   const [email, setEmail] = useState();
-  const { parse } = useEmailParser();
+  const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
     let didCancel = false;
     (async () => {
       const parsed = await parse(payload);
       const extractor = new EmailExtractor(parsed);
-      if (!didCancel) setEmail(extractor.content());
+      if (!didCancel) {
+        setEmail(extractor.content());
+        setLoaded(true);
+      }
     })();
     return () => { didCancel = true; };
   }, [parse, payload]);
@@ -34,19 +36,27 @@ const Viewer = ({ payload }) => {
 
   return (
     <div className={styles.use('p-2')}>
-      {htmlContent && <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(htmlContent) }} />}
-      {!htmlContent && textContent && (
+
+      {loaded && htmlContent && <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(htmlContent) }} />}
+
+      {loaded && !htmlContent && textContent && (
         <Text className={styles.plain}>
           <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(textContent) }} />
         </Text>
       )}
+
+      {loaded && !htmlContent && !textContent && <Text disabled>No content</Text>}
+      {!loaded && <Icon type="loading" />}
+
       <Divider dashed />
+
     </div>
   );
 };
 
 Viewer.propTypes = {
   payload: PropTypes.string.isRequired,
+  parse: PropTypes.func.isRequired,
 };
 
 export default Viewer;

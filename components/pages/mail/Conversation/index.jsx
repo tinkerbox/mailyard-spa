@@ -8,6 +8,7 @@ import { parseOneAddress } from 'email-addresses';
 
 import { useMailSelector } from '../../../../hooks/mail-selector-context';
 import { useGraphQLQuery } from '../../../../hooks/graphql-query';
+import { useEmailParser } from '../../../../hooks/email-parser';
 import { makeStyles } from '../../../../styles';
 import { downloadPayload } from '../../../../lib/file-manager';
 import custom from './styles.css';
@@ -43,6 +44,7 @@ const THREAD_QUERY = gql`
 const Container = () => {
   const { selectedMailboxPos, selectedThreadId } = useMailSelector();
   const router = useRouter();
+  const { parse } = useEmailParser();
 
   const { loading, data, errors } = useGraphQLQuery(
     THREAD_QUERY,
@@ -57,7 +59,7 @@ const Container = () => {
 
   if (errors.length > 0 && some(errors, ['name', 'ForbiddenError'])) router.push('/login');
 
-  const items = data ? data.mailbox.thread.messages.map(m => <Conversation.Item key={m.id} message={m} />) : [];
+  const items = data ? data.mailbox.thread.messages.map(m => <Conversation.Item key={m.id} message={m} parse={parse} />) : [];
 
   return (
     <React.Fragment>
@@ -105,7 +107,7 @@ Listing.propTypes = {
   children: PropTypes.arrayOf(PropTypes.node).isRequired,
 };
 
-const Item = ({ message }) => {
+const Item = ({ message, parse }) => {
   const [payload, setPayload] = useState();
   const { receivedAt, headers, getRequest } = message;
   const from = parseOneAddress(headers.From);
@@ -140,12 +142,13 @@ const Item = ({ message }) => {
 
   return (
     <Card size="small" className={styles.use('mb-3', 'item')} title={title} extra={extra} loading={!payload}>
-      {payload && <Viewer payload={payload} />}
+      {payload && <Viewer payload={payload} parse={parse} />}
     </Card>
   );
 };
 
 Item.propTypes = {
+  parse: PropTypes.func.isRequired,
   message: PropTypes.shape({
     id: PropTypes.string.isRequired,
     receivedAt: PropTypes.string.isRequired,

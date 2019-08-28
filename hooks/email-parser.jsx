@@ -54,15 +54,11 @@ function useEmailParser() {
 
     worker.current.onerror = (error) => {
       if (didCancel) return;
-      const { id, original } = error;
-      if (id) {
-        dispatch({
-          type: 'reject',
-          payload: { id, error: original },
-        });
-      } else {
-        console.log(error);
-      }
+      console.log(error);
+      dispatch({
+        type: 'reject',
+        payload: error,
+      });
     };
 
     return () => {
