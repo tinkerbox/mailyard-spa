@@ -1,5 +1,5 @@
-import { orderBy, some } from 'lodash';
-import React from 'react';
+import { orderBy } from 'lodash';
+import React, { useCallback, useMemo } from 'react';
 import { useRouter } from 'next/router';
 import { Menu, Icon, Popconfirm, Avatar } from 'antd';
 import gql from 'graphql-tag';
@@ -27,46 +27,43 @@ const Navigation = () => {
   const { logout } = useAuth();
   const router = useRouter();
   const { selectedMailboxPos, selectedLabelSlug } = useMailSelector();
+  const { data } = useGraphQLQuery(MAILBOXES_QUERY);
 
-  const { loading, data, errors } = useGraphQLQuery(MAILBOXES_QUERY);
-
-  if (errors.length > 0 && some(errors, ['name', 'ForbiddenError'])) router.push('/login');
-  const mailboxes = data ? data.mailboxes : [];
-
-  const onLogout = () => {
+  const onLogout = useCallback(() => {
     logout();
     router.push('/login');
-  };
+  }, [logout, router]);
 
-  const onMailboxSelect = ({ key }) => {
+  const onMailboxSelect = useCallback(({ key }) => {
     if (key === 'new') {
+      // TOOD: replace with a modal
       alert('Adding of mailboxes is not supported yet.');
     } else if (key !== 'loading') {
       if (selectedMailboxPos.toString() !== key) router.push(`/mail/${key}/${selectedLabelSlug}`);
     }
-  };
+  }, [router, selectedLabelSlug, selectedMailboxPos]);
 
-  const mailboxSelectors = orderBy(mailboxes, ['position']).map(mailbox => (
+  const mailboxSelectors = data ? orderBy(data.mailboxes, ['position']).map(mailbox => (
     <Menu.Item key={mailbox.position} selected={selectedMailboxPos === mailbox.id} title={mailbox.email}>
       <i className="anticon">
         <Avatar size="small">{mailbox.name[0]}</Avatar>
       </i>
       <span>{mailbox.name}</span>
     </Menu.Item>
-  ));
+  )) : [];
 
   return (
     <div className={styles.menus}>
 
       <Menu theme="dark" onClick={onMailboxSelect} selectable={false}>
 
-        {loading && (
+        {!data && (
           <Menu.Item key="loading">
             <Icon type="loading" />
           </Menu.Item>
         )}
 
-        {mailboxSelectors}
+        {data && mailboxSelectors}
 
         <Menu.Item key="new">
           <Icon type="plus" />

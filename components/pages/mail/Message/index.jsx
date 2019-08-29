@@ -1,9 +1,7 @@
 /* globals window */
 
-import { some } from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
-import { useRouter } from 'next/router';
 import gql from 'graphql-tag';
 import { List, Icon, Empty, Typography, Row, Col } from 'antd';
 import { parseOneAddress } from 'email-addresses';
@@ -33,19 +31,19 @@ const MESSAGES_QUERY = gql`
 
 const Container = () => {
   const { selectedMailboxPos, selectThreadById, selectedThreadId } = useMailSelector();
-  const router = useRouter();
 
-  const { loading, data, errors } = useGraphQLQuery(MESSAGES_QUERY, {
+  const { loading, data } = useGraphQLQuery(MESSAGES_QUERY, {
     variables: {
       position: selectedMailboxPos,
     },
   });
 
-  if (errors.length > 0 && some(errors, ['name', 'ForbiddenError'])) router.push('/login');
-
   const items = data ? data.mailbox.messages.map(message => <Message.Item key={message.id} message={message} selected={selectedThreadId === message.threadId} />) : [];
 
-  if (typeof window !== 'undefined' && window.location.hash.length > 0) selectThreadById(window.location.hash.split('#')[1]);
+  if (typeof window !== 'undefined' && window.location.hash.length > 0) {
+    const newThreadId = window.location.hash.split('#')[1];
+    if (newThreadId !== selectedThreadId) selectThreadById(newThreadId);
+  }
 
   return (
     <React.Fragment>

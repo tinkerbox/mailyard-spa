@@ -1,16 +1,15 @@
-import { some } from 'lodash';
 import React, { useEffect, useState, useCallback } from 'react';
 import PropTypes from 'prop-types';
-import { useRouter } from 'next/router';
 import gql from 'graphql-tag';
 import { Empty, Icon, PageHeader, Tag, Card, Avatar, Typography } from 'antd';
 import { parseOneAddress } from 'email-addresses';
 
+import ErrorBoundary from '../../../error-boundary';
 import { useMailSelector } from '../../../../hooks/mail-selector-context';
 import { useGraphQLQuery } from '../../../../hooks/graphql-query';
 import { useEmailParser } from '../../../../hooks/email-parser';
 import { makeStyles } from '../../../../styles';
-import { downloadPayload } from '../../../../lib/file-manager';
+import { downloadFile } from '../../../../lib/file-manager';
 import custom from './styles.css';
 import Viewer from './viewer';
 
@@ -43,10 +42,9 @@ const THREAD_QUERY = gql`
 
 const Container = () => {
   const { selectedMailboxPos, selectedThreadId } = useMailSelector();
-  const router = useRouter();
   const { parse } = useEmailParser();
 
-  const { loading, data, errors } = useGraphQLQuery(
+  const { loading, data } = useGraphQLQuery(
     THREAD_QUERY,
     {
       variables: {
@@ -54,10 +52,10 @@ const Container = () => {
         id: selectedThreadId,
       },
     },
-    useCallback(() => !!selectedThreadId, [selectedThreadId]),
+    {
+      validate: useCallback(() => !!selectedThreadId, [selectedThreadId]),
+    },
   );
-
-  if (errors.length > 0 && some(errors, ['name', 'ForbiddenError'])) router.push('/login');
 
   const items = data ? data.mailbox.thread.messages.map(m => <Conversation.Item key={m.id} message={m} parse={parse} />) : [];
 
@@ -108,6 +106,7 @@ Listing.propTypes = {
 };
 
 const Item = ({ message, parse }) => {
+  const [loading, setLoading] = useState(true);
   const [payload, setPayload] = useState();
   const { receivedAt, headers, getRequest } = message;
   const from = parseOneAddress(headers.From);
@@ -115,12 +114,14 @@ const Item = ({ message, parse }) => {
   useEffect(() => {
     let didCancel = false;
     (async () => {
-      const file = await downloadPayload(getRequest);
-      if (!didCancel) setPayload(file);
+      const file = await downloadFile(getRequest);
+      if (!didCancel) {
+        setPayload(file);
+        setLoading(false);
+      }
     })();
     return () => { didCancel = true; };
   }, [getRequest]);
-
 
   const title = (
     <React.Fragment>
@@ -141,8 +142,11 @@ const Item = ({ message, parse }) => {
   const extra = <Text type="secondary">{new Date(receivedAt).toString()}</Text>;
 
   return (
-    <Card size="small" className={styles.use('mb-3', 'item')} title={title} extra={extra} loading={!payload}>
-      {payload && <Viewer payload={payload} parse={parse} />}
+    <Card size="small" className={styles.use('mb-3', 'item')} title={title} extra={extra} loading={loading}>
+      <ErrorBoundary>
+        {loading && <Icon type="loading" />}
+        {!loading && <Viewer payload={payload} parse={parse} />}
+      </ErrorBoundary>
     </Card>
   );
 };

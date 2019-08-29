@@ -45,21 +45,18 @@ function useEmailParser() {
     worker.current = new EmailParser();
 
     worker.current.onmessage = (e) => {
-      if (didCancel) return;
-      dispatch({
-        type: 'resolve',
-        payload: e.data,
-      });
+      const { data } = e;
+      const { error = false } = data;
+
+      if (!didCancel) {
+        dispatch({
+          type: error ? 'reject' : 'resolve',
+          payload: data,
+        });
+      }
     };
 
-    worker.current.onerror = (error) => {
-      if (didCancel) return;
-      console.log(error);
-      dispatch({
-        type: 'reject',
-        payload: error,
-      });
-    };
+    worker.current.onerror = console.log;
 
     return () => {
       worker.current.terminate();
