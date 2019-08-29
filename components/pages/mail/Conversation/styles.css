@@ -9,3 +9,9 @@
 .plain {
   white-space: pre-wrap;
 }
+
+.divider span {
+  color: lightgray;
+  font-weight: 200;
+  font-size: 10pt;
+}
