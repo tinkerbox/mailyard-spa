@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 
 import Link from 'next/link';
-import { useRouter } from 'next/router'
+import { useRouter } from 'next/router';
 
 import { Card, Divider } from 'antd';
 import { Form, Input, SubmitButton } from '@jbuschke/formik-antd';

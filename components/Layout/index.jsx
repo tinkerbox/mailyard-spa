@@ -1,7 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import Link from 'next/link';
 import { Divider, Row, Col, Layout as NextLayout } from 'antd';
 
 import config from '../../config/runtime';
@@ -21,7 +20,7 @@ const Simple = ({ children }) => {
       <div className={styles.container}>
 
         <Header className={styles.header}>
-          <Link href={config.MAILYARD_WEB_URL}><a>Mailyard</a></Link>
+          <a href={config.MAILYARD_WEB_URL}>Mailyard</a>
         </Header>
 
         <Row>
@@ -55,7 +54,7 @@ const SimpleWide = ({ children }) => {
       <div className={styles.container}>
 
         <Header className={styles.header}>
-          <Link href={config.MAILYARD_WEB_URL}><a>Mailyard</a></Link>
+          <a href={config.MAILYARD_WEB_URL}>Mailyard</a>
         </Header>
 
         <Row>
