@@ -1,12 +1,13 @@
 /* globals window */
 
-import React from 'react';
+import React, { useRef, forwardRef, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import gql from 'graphql-tag';
 import { List, Icon, Empty, Typography, Row, Col } from 'antd';
 import { parseOneAddress } from 'email-addresses';
 
 import { useMailSelector } from '../../../../hooks/mail-selector-context';
+import { useScrollObserver } from '../../../../hooks/scroll-observer';
 import { useGraphQLQuery } from '../../../../hooks/graphql-query';
 import { makeStyles } from '../../../../styles';
 import custom from './styles.css';
@@ -31,6 +32,9 @@ const MESSAGES_QUERY = gql`
 
 const Container = () => {
   const { selectedMailboxPos, selectThreadById, selectedThreadId } = useMailSelector();
+  const { register, observe } = useScrollObserver();
+  const firstElement = useRef(null);
+  const lastElement = useRef(null);
 
   const { loading, data } = useGraphQLQuery(MESSAGES_QUERY, {
     variables: {
@@ -38,7 +42,31 @@ const Container = () => {
     },
   });
 
-  const items = data ? data.mailbox.messages.map(message => <Message.Item key={message.id} message={message} selected={selectedThreadId === message.threadId} />) : [];
+  const items = data ? data.mailbox.messages.map((message, index) => {
+    let ref = null;
+
+    if (index === 0) {
+      ref = firstElement;
+    } else if (index === data.mailbox.messages.length - 1) {
+      ref = lastElement;
+    }
+
+    return (
+      <Message.Item
+        key={message.id}
+        message={message}
+        selected={selectedThreadId === message.threadId}
+        ref={ref}
+      />
+    );
+  }) : [];
+
+  useEffect(() => {
+    if (firstElement.current) observe(firstElement);
+    if (lastElement.current) observe(lastElement);
+
+    register(entry => console.log(entry.target.dataset.cursor));
+  }, [items, observe, register]);
 
   if (typeof window !== 'undefined' && window.location.hash.length > 0) {
     const newThreadId = window.location.hash.split('#')[1];
@@ -66,17 +94,13 @@ const Container = () => {
   );
 };
 
-const Listing = ({ children }) => {
-  return (
-    <List>{children}</List>
-  );
-};
+const Listing = ({ children }) => <List>{children}</List>;
 
 Listing.propTypes = {
   children: PropTypes.arrayOf(PropTypes.node).isRequired,
 };
 
-const Item = ({ message, selected }) => {
+const Item = forwardRef(({ message, selected }, ref) => {
   const { selectThreadById } = useMailSelector();
   const { id, threadId, receivedAt, snippet, headers } = message;
   const displayDate = new Date(receivedAt).toDateString();
@@ -104,9 +128,11 @@ const Item = ({ message, selected }) => {
       <Text className={styles.text} ellipsis>{subject}</Text>
       <Text className={styles.text} ellipsis type="secondary">{snippet}</Text>
 
+      <div ref={ref} data-cursor={'cursor-goes-here'}/>
+
     </List.Item>
   );
-};
+});
 
 Item.propTypes = {
   selected: PropTypes.bool,

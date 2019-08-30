@@ -1,15 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import PropTypes from 'prop-types';
-
 import { Layout } from 'antd';
 
-import { makeStyles } from '../../../styles';
-import custom from '../../../styles/pages/mail/index.css';
-
+import { ScrollProvider } from '../../../hooks/scroll-observer';
 import { MailSelectorProvider } from '../../../hooks/mail-selector-context';
 import Navigation from '../../../components/pages/mail/Navigation';
 import Message from '../../../components/pages/mail/Message';
 import Conversation from '../../../components/pages/mail/Conversation';
+import { makeStyles } from '../../../styles';
+import custom from '../../../styles/pages/mail/index.css';
 
 const styles = makeStyles(custom);
 
@@ -17,6 +16,7 @@ const { Content, Sider } = Layout;
 
 const MailView = ({ query }) => {
   const [collapsed, setCollapsed] = useState(true);
+  const messagesListingRef = useRef(null);
 
   return (
     <Layout className={styles.layout} hasSider>
@@ -29,9 +29,13 @@ const MailView = ({ query }) => {
         <Content>
           <Layout className={styles.main} hasSider>
 
-            <Sider theme="light" width={320} className={styles.use('listing', 'scrollpane')}>
-              <Message.Container />
-            </Sider>
+            <ScrollProvider targetRef={messagesListingRef}>
+              <div ref={messagesListingRef} className={styles.use('scrollpane')}>
+                <Sider theme="light" width={320} className={styles.use('listing')}>
+                  <Message.Container />
+                </Sider>
+              </div>
+            </ScrollProvider>
 
             <Content className={styles.scrollpane}>
               <Conversation.Container />
