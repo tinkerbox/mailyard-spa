@@ -30,11 +30,11 @@ const MailView = ({ query }) => {
           <Layout className={styles.main} hasSider>
 
             <ScrollProvider targetRef={messagesListingRef}>
-              <div ref={messagesListingRef} className={styles.use('scrollpane')}>
-                <Sider theme="light" width={320} className={styles.use('listing')}>
+              <Sider theme="light" width={320} className={styles.use('listing')}>
+                <div ref={messagesListingRef} className={styles.use('scrollpane')}>
                   <Message.Container />
-                </Sider>
-              </div>
+                </div>
+              </Sider>
             </ScrollProvider>
 
             <Content className={styles.scrollpane}>
