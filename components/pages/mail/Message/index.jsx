@@ -1,5 +1,6 @@
 /* globals window */
 
+import { find } from 'lodash';
 import React, { useRef, forwardRef, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import gql from 'graphql-tag';
@@ -16,38 +17,59 @@ const { Text } = Typography;
 const styles = makeStyles(custom);
 
 const MESSAGES_QUERY = gql`
-  query ($position: Int!) {
+  query ($position: Int!, $labelId: ID!) {
     mailbox(position: $position) {
       id
-      messages {
+      label(id: $labelId) {
         id
-        threadId
-        receivedAt
-        snippet
-        headers
+        threads {
+          page {
+            hasNextPage
+            hasPreviousPage
+            cursorStart
+            cursorEnd
+          }
+          edges {
+            cursor
+            node {
+              id
+              message {
+                id
+                threadId
+                receivedAt
+                snippet
+                headers
+              }
+            }
+          }
+        }
       }
     }
   }
 `;
 
 const Container = () => {
-  const { selectedMailboxPos, selectThreadById, selectedThreadId } = useMailSelector();
+  const { labels, selectedMailboxPos, selectedLabelSlug, selectThreadById, selectedThreadId } = useMailSelector();
   const { register, observe } = useScrollObserver();
   const firstElement = useRef(null);
   const lastElement = useRef(null);
 
+  const labelId = find(labels, { slug: selectedLabelSlug }).id;
+
   const { loading, data } = useGraphQLQuery(MESSAGES_QUERY, {
     variables: {
       position: selectedMailboxPos,
+      labelId,
     },
   });
 
-  const items = data ? data.mailbox.messages.map((message, index) => {
+  const items = data ? data.mailbox.label.threads.edges.map(({ cursor, node }, index) => {
     let ref = null;
+    const { id, message } = node;
 
     if (index === 0) {
       ref = firstElement;
-    } else if (index === data.mailbox.messages.length - 1) {
+    } else if (index === data.mailbox.label.threads.edges.length - 1) {
       ref = lastElement;
     }
 
@@ -55,7 +77,7 @@ const Container = () => {
       <Message.Item
         key={message.id}
         message={message}
-        selected={selectedThreadId === message.threadId}
+        selected={selectedThreadId === id}
         ref={ref}
       />
     );
@@ -65,7 +87,14 @@ const Container = () => {
     if (firstElement.current) observe(firstElement);
     if (lastElement.current) observe(lastElement);
 
-    register(entry => console.log(entry.target.dataset.cursor));
+    register((entry) => {
+      if (firstElement.current.dataset.cursor === entry.target.dataset.cursor) {
+        console.log('get more from top');
+      }
+      if (lastElement.current.dataset.cursor === entry.target.dataset.cursor) {
+        console.log('get more from bottom');
+      }
+    });
   }, [items, observe, register]);
 
   if (typeof window !== 'undefined' && window.location.hash.length > 0) {
