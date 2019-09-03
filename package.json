@@ -50,6 +50,7 @@
     "heroku-logger": "^0.3.3",
     "lodash": "^4.17.15",
     "next": "^9.0.5",
+    "next-offline": "^4.0.5",
     "prop-types": "^15.7.2",
     "react": "^16.9.0",
     "react-apollo": "^2.5.8",

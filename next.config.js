@@ -1,9 +1,8 @@
 /* eslint-disable */
 
 const path = require('path');
-
 var loaderUtils = require('loader-utils');
-
+const withOffline = require('next-offline');
 const withWorkers = require('@zeit/next-workers');
 const withCSS = require('@zeit/next-css');
 
@@ -26,7 +25,7 @@ const _getLocalIdent = (loaderContext, localIdentName, localName, options) => {
   return hash.replace(new RegExp("[^a-zA-Z0-9\\-_\u00A0-\uFFFF]", "g"), "-").replace(/^((-?[0-9])|--)/, "_$1");
 };
 
-module.exports = withWorkers(withCSS({
+module.exports = withOffline(withWorkers(withCSS({
   distDir: './dist',
   poweredByHeader: false,
 
@@ -57,4 +56,7 @@ module.exports = withWorkers(withCSS({
     GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
     GOOGLE_SCOPE: process.env.GOOGLE_SCOPE,
   },
-}));
+
+  devSwSrc: path.join(__dirname, 'service-worker.js'),
+  dontAutoRegisterSw: true,
+})));

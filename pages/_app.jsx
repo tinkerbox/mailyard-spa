@@ -1,10 +1,11 @@
-/* globals localStorage */
+/* globals localStorage, navigator, window */
 /* eslint-disable no-console */
 
 import { find } from 'lodash';
 import React from 'react';
 import App from 'next/app';
 import Head from 'next/head';
+import { register, unregister } from 'next-offline/runtime';
 import whyDidYouRender from '@welldone-software/why-did-you-render';
 import { ApolloProvider } from 'react-apollo';
 import * as Sentry from '@sentry/browser';
@@ -52,6 +53,14 @@ const errorHandler = (error) => {
 const apollo = Connect(RELEASE_NAME, errorHandler);
 
 class MailyardSPA extends App {
+  componentDidMount() {
+    register();
+  }
+
+  componentWillUnmount() {
+    unregister();
+  }
+
   render() {
     const { Component, pageProps } = this.props;
 

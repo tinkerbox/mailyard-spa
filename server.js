@@ -1,6 +1,7 @@
 require('dotenv').config();
 require('sqreen');
 
+const path = require('path');
 const Sentry = require('@sentry/node');
 const express = require('express');
 const next = require('next');
@@ -48,6 +49,11 @@ const handler = nextApp.getRequestHandler();
 
 nextApp.prepare()
   .then(() => {
+    app.get('/service-worker.js', (req, res) => {
+      res.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+      res.set('Content-Type', 'application/javascript');
+      nextApp.serveStatic(req, res, path.resolve('./dist/service-worker.js'));
+    });
     app.get('*', handler);
     app.listen(port, () => logger.info(`Mailyard SPA listening on port ${port}!`));
   })
