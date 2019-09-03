@@ -1,5 +1,6 @@
-import { useRef, useReducer, useEffect, useCallback } from 'react';
 import uuid from 'uuid/v4';
+import * as Sentry from '@sentry/browser';
+import { useRef, useReducer, useEffect, useCallback } from 'react';
 
 import EmailParser from '../lib/email-parser.worker';
 
@@ -56,7 +57,7 @@ function useEmailParser() {
       }
     };
 
-    worker.current.onerror = console.log;
+    worker.current.onerror = Sentry.captureException;
 
     return () => {
       worker.current.terminate();

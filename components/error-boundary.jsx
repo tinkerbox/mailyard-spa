@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import * as Sentry from '@sentry/browser';
 
 class ErrorBoundary extends React.Component {
   constructor(props) {
@@ -12,8 +13,10 @@ class ErrorBoundary extends React.Component {
   }
 
   componentDidCatch(error, errorInfo) {
-    // You can also log the error to an error reporting service
-    console.log(error, errorInfo);
+    Sentry.withScope((scope) => {
+      scope.setExtras(errorInfo);
+      Sentry.captureException(error);
+    });
   }
 
   render() {
@@ -21,7 +24,7 @@ class ErrorBoundary extends React.Component {
     const { children } = this.props;
 
     if (hasError) {
-      // You can render any custom fallback UI
+      // TODO: improve UI/UX
       return <h1>Something went wrong.</h1>;
     }
 

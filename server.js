@@ -2,11 +2,11 @@ require('dotenv').config();
 require('sqreen');
 
 const Sentry = require('@sentry/node');
-
 const express = require('express');
 const next = require('next');
 const helmet = require('helmet');
 
+const { logger } = require('./lib/logger');
 const csp = require('./config/csp');
 
 const dev = process.env.NODE_ENV === 'development';
@@ -49,9 +49,9 @@ const handler = nextApp.getRequestHandler();
 nextApp.prepare()
   .then(() => {
     app.get('*', handler);
-    app.listen(port, () => console.log(`Mailyard SPA listening on port ${port}!`));
+    app.listen(port, () => logger.info(`Mailyard SPA listening on port ${port}!`));
   })
   .catch((error) => {
-    console.error(error.stack);
+    logger.error(error.stack);
     process.exit(1);
   });

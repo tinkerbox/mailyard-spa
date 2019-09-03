@@ -47,6 +47,7 @@
     "graphql": "^14.5.4",
     "graphql-tag": "^2.10.1",
     "helmet": "^3.20.1",
+    "heroku-logger": "^0.3.3",
     "lodash": "^4.17.15",
     "next": "^9.0.5",
     "prop-types": "^15.7.2",

@@ -1,13 +1,11 @@
 /* globals localStorage */
+/* eslint-disable no-console */
 
 import { find } from 'lodash';
-
 import React from 'react';
 import App from 'next/app';
 import Head from 'next/head';
-
 import whyDidYouRender from '@welldone-software/why-did-you-render';
-
 import { ApolloProvider } from 'react-apollo';
 import * as Sentry from '@sentry/browser';
 
@@ -15,7 +13,6 @@ import 'antd/dist/antd.min.css';
 
 import Connect from '../config/apollo';
 import config from '../config/runtime';
-
 import { AuthProvider } from '../hooks/auth-context';
 import { GoogleProvider } from '../hooks/google-context';
 
@@ -33,7 +30,7 @@ const errorHandler = (error) => {
   const { graphQLErrors, networkError } = error;
 
   if (graphQLErrors) {
-    const forbidden = find(graphQLErrors, (e) => { return e.extensions.exception.name === 'ForbiddenError' });
+    const forbidden = find(graphQLErrors, (e) => { return e.extensions.exception.name === 'ForbiddenError'; });
     if (forbidden) {
       localStorage.removeItem('authToken');
       localStorage.removeItem('account');
@@ -42,12 +39,12 @@ const errorHandler = (error) => {
         // TODO: filter out errors that can be ignored, track the rest
         console.log(`[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}`);
       });
+      Sentry.captureException(error);
     }
   }
 
   if (networkError) {
     // TODO: track authentication failures, and remove JWT
-    console.log(error);
     console.error(`[Network error]: ${networkError}`);
   }
 };
