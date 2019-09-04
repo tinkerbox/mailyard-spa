@@ -1,101 +1,21 @@
 /* globals window */
 
-import { find } from 'lodash';
 import React, { useRef, forwardRef, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import gql from 'graphql-tag';
-import { List, Icon, Empty, Typography, Row, Col } from 'antd';
+import { List, Empty, Typography, Row, Col } from 'antd';
 import { parseOneAddress } from 'email-addresses';
 
 import { useMailSelector } from '../../../../hooks/mail-selector-context';
+import { useScrollWindow } from '../../../../hooks/scroll-window';
 import { useScrollObserver } from '../../../../hooks/scroll-observer';
-import { useGraphQLQuery } from '../../../../hooks/graphql-query';
 import { makeStyles } from '../../../../styles';
 import custom from './styles.css';
 
 const { Text } = Typography;
 const styles = makeStyles(custom);
 
-const MESSAGES_QUERY = gql`
-  query ($position: Int!, $labelId: ID!) {
-    mailbox(position: $position) {
-      id
-      label(id: $labelId) {
-        id
-        threads {
-          page {
-            hasNextPage
-            hasPreviousPage
-            cursorStart
-            cursorEnd
-          }
-          edges {
-            cursor
-            node {
-              id
-              message {
-                id
-                threadId
-                receivedAt
-                snippet
-                headers
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-`;
-
 const Container = () => {
-  const { labels, selectedMailboxPos, selectedLabelSlug, selectThreadById, selectedThreadId } = useMailSelector();
-  const { register, observe } = useScrollObserver();
-  const firstElement = useRef(null);
-  const lastElement = useRef(null);
-
-  const labelId = find(labels, { slug: selectedLabelSlug }).id;
-
-  const { loading, data } = useGraphQLQuery(MESSAGES_QUERY, {
-    variables: {
-      position: selectedMailboxPos,
-      labelId,
-    },
-  });
-
-  const items = data ? data.mailbox.label.threads.edges.map(({ cursor, node }, index) => {
-    let ref = null;
-    const { id, message } = node;
-
-    if (index === 0) {
-      ref = firstElement;
-    } else if (index === data.mailbox.label.threads.edges.length - 1) {
-      ref = lastElement;
-    }
-
-    return (
-      <Message.Item
-        key={message.id}
-        message={message}
-        selected={selectedThreadId === id}
-        ref={ref}
-      />
-    );
-  }) : [];
-
-  useEffect(() => {
-    if (firstElement.current) observe(firstElement);
-    if (lastElement.current) observe(lastElement);
-
-    register((entry) => {
-      if (firstElement.current.dataset.cursor === entry.target.dataset.cursor) {
-        console.log('get more from top');
-      }
-      if (lastElement.current.dataset.cursor === entry.target.dataset.cursor) {
-        console.log('get more from bottom');
-      }
-    });
-  }, [items, observe, register]);
+  const { selectThreadById, selectedThreadId } = useMailSelector();
 
   if (typeof window !== 'undefined' && window.location.hash.length > 0) {
     const newThreadId = window.location.hash.split('#')[1];
@@ -104,32 +24,69 @@ const Container = () => {
 
   return (
     <React.Fragment>
-
-      {loading && (
-        <div className={styles.use('centralize')}>
-          <Icon type="loading" />
-        </div>
-      )}
-
-      {!loading && items.length === 0 && <Empty />}
-
-      {!loading && items.length > 0 && (
-        <Message.Listing>
-          {items}
-        </Message.Listing>
-      )}
-
+      <Message.Listing />
     </React.Fragment>
   );
 };
 
-const Listing = ({ children }) => <List>{children}</List>;
+const Listing = () => {
+  const { register, observe } = useScrollObserver();
+  const { selectedThreadId } = useMailSelector();
+  const { loading, page, edges, before, after } = useScrollWindow();
 
-Listing.propTypes = {
-  children: PropTypes.arrayOf(PropTypes.node).isRequired,
+  const firstElement = useRef(null);
+  const lastElement = useRef(null);
+
+  const items = edges.map(({ cursor, node }, index) => {
+    let ref = null;
+    const { id, message } = node;
+
+    if (index === 0) {
+      ref = firstElement;
+    } else if (index === edges.length - 1) {
+      ref = lastElement;
+    }
+
+    return (
+      <Message.Item
+        key={message.id}
+        cursor={cursor}
+        message={message}
+        selected={selectedThreadId === id}
+        ref={ref}
+      />
+    );
+  });
+
+  useEffect(() => {
+    if (firstElement.current && lastElement.current) observe([firstElement, lastElement]);
+
+    register((entry) => {
+      if (loading) return;
+
+      if (firstElement.current.dataset.cursor === entry.target.dataset.cursor && page.hasPreviousPage) {
+        after(entry.target.dataset.cursor);
+      }
+
+      if (lastElement.current.dataset.cursor === entry.target.dataset.cursor && page.hasNextPage) {
+        before(entry.target.dataset.cursor);
+      }
+    });
+  }, [after, before, items, loading, observe, page, register]);
+
+  return (
+    <List>
+      {items.length > 0 && items}
+      {items.length === 0 && (
+        <div className={styles.use('centralize')}>
+          <Empty />
+        </div>
+      )}
+    </List>
+  );
 };
 
-const Item = forwardRef(({ message, selected }, ref) => {
+const Item = forwardRef(({ cursor, message, selected }, ref) => {
   const { selectThreadById } = useMailSelector();
   const { id, threadId, receivedAt, snippet, headers } = message;
   const displayDate = new Date(receivedAt).toDateString();
@@ -157,7 +114,7 @@ const Item = forwardRef(({ message, selected }, ref) => {
       <Text className={styles.text} ellipsis>{subject}</Text>
       <Text className={styles.text} ellipsis type="secondary">{snippet}</Text>
 
-      <div ref={ref} data-cursor={'cursor-goes-here'}/>
+      <div ref={ref} data-cursor={cursor} />
 
     </List.Item>
   );
@@ -165,6 +122,7 @@ const Item = forwardRef(({ message, selected }, ref) => {
 
 Item.propTypes = {
   selected: PropTypes.bool,
+  cursor: PropTypes.string.isRequired,
   message: PropTypes.shape({
     id: PropTypes.string.isRequired,
     threadId: PropTypes.string.isRequired,

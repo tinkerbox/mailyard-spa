@@ -33,7 +33,7 @@ const MailSelectorProvider = (props) => {
   });
 
   const values = {
-    labels: loading ? [] : data.mailbox.labels,
+    labels: (!loading && data) ? data.mailbox.labels : [],
     selectedMailboxPos,
     selectMailboxByPos,
     selectedLabelSlug,
