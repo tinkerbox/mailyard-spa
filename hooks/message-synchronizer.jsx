@@ -1,8 +1,7 @@
 import { map } from 'lodash';
-
 import { useReducer, useContext, useRef, useEffect } from 'react';
-
 import { ApolloContext } from 'react-apollo';
+import PromiseThrottle from 'promise-throttle';
 
 import { useGoogle } from './google-context';
 import { useEmailParser } from './email-parser';
@@ -11,6 +10,8 @@ import { retry } from '../lib/promise-retry';
 import { uploadFile } from '../lib/file-manager';
 import EmailUploader from '../lib/email-uploader';
 import EmailExtractor from '../lib/email-extractor';
+
+const THROTTLE_LIMIT = 5;
 
 const sync = async (token, dispatch, api, parse, uploader) => {
   const params = token ? { pageToken: token } : {};
@@ -46,7 +47,12 @@ const sync = async (token, dispatch, api, parse, uploader) => {
     });
   };
 
-  await Promise.all(map(messages, ({ id }) => perform(id)));
+  const throttle = new PromiseThrottle({
+    requestsPerSecond: THROTTLE_LIMIT,
+    promiseImplementation: Promise,
+  });
+
+  await Promise.all(map(messages, ({ id }) => throttle.add(perform.bind(this, id))));
 
   if (!nextPageToken) {
     dispatch({ type: 'stop' });
