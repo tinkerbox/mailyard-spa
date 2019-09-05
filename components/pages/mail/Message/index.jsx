@@ -37,6 +37,8 @@ const Listing = () => {
   const firstElement = useRef(null);
   const lastElement = useRef(null);
 
+  const existingIds = new Set();
+
   const items = edges.map(({ cursor, node }, index) => {
     let ref = null;
     const { id, message } = node;
@@ -47,8 +49,12 @@ const Listing = () => {
       ref = lastElement;
     }
 
+    const type = existingIds.has(message.id) ? 'danger' : null;
+    existingIds.add(message.id);
+
     return (
       <Message.Item
+        type={type}
         key={message.id}
         cursor={cursor}
         message={message}
@@ -86,9 +92,9 @@ const Listing = () => {
   );
 };
 
-const Item = forwardRef(({ cursor, message, selected }, ref) => {
+const Item = forwardRef(({ type, cursor, message, selected }, ref) => {
   const { selectThreadById } = useMailSelector();
-  const { id, threadId, receivedAt, snippet, headers } = message;
+  const { threadId, receivedAt, snippet, headers } = message;
   const displayDate = new Date(receivedAt).toDateString();
 
   const clickHandler = () => {
@@ -100,7 +106,7 @@ const Item = forwardRef(({ cursor, message, selected }, ref) => {
   const subject = headers.Subject;
 
   return (
-    <List.Item key={id} onClick={clickHandler} className={styles.use('item', `${selected ? 'selected' : ''}`)}>
+    <List.Item onClick={clickHandler} className={styles.use('item', `${selected ? 'selected' : ''}`)}>
 
       <Row type="flex" justify="space-between" align="top" className={styles.use('mb-1')}>
         <Col>
@@ -111,7 +117,7 @@ const Item = forwardRef(({ cursor, message, selected }, ref) => {
         </Col>
       </Row>
 
-      <Text className={styles.text} ellipsis>{subject}</Text>
+      <Text type={type} className={styles.text} ellipsis>{subject}</Text>
       <Text className={styles.text} ellipsis type="secondary">{snippet}</Text>
 
       <div ref={ref} data-cursor={cursor} />
