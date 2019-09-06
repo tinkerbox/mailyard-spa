@@ -5,8 +5,8 @@ import { ApolloContext } from 'react-apollo';
 
 import { useMailSelector } from './mail-selector-context';
 
-const PER_PAGE = 25;
-const WINDOW_SIZE = 100;
+const PER_PAGE = 50;
+const WINDOW_SIZE = 200;
 
 const MESSAGES_QUERY = gql`
   query ($position: Int!, $labelId: ID!, $before: String, $after: String, $first: Int, $last: Int) {
@@ -53,8 +53,6 @@ function useScrollWindow() {
     let didCancel = false;
 
     (async () => {
-      setLoading(true);
-
       const variables =  {
         position: selectedMailboxPos,
         labelId,
@@ -64,6 +62,7 @@ function useScrollWindow() {
       const results = await client.query({
         query: MESSAGES_QUERY,
         variables,
+        fetchPolicy: 'no-cache',
       });
 
       if (!didCancel) {
@@ -118,8 +117,16 @@ function useScrollWindow() {
     loading,
     edges,
     page,
-    before: useCallback((cursor) => { setQuery({ before: cursor, first: PER_PAGE }); }, []),
-    after: useCallback((cursor) => { setQuery({ after: cursor, last: PER_PAGE }); }, []),
+    before: useCallback((cursor) => {
+      if (loading) return;
+      setLoading(true);
+      setQuery({ before: cursor, first: PER_PAGE });
+    }, [loading]),
+    after: useCallback((cursor) => {
+      if (loading) return;
+      setLoading(true);
+      setQuery({ after: cursor, last: PER_PAGE });
+    }, [loading]),
   };
 }
 

@@ -3,7 +3,7 @@
 import React, { useEffect, useRef, useState, useCallback, useMemo } from 'react';
 import PropTypes from 'prop-types';
 
-const THRESHOLD = 1.0;
+const THRESHOLD = 0;
 
 const ScrollObserver = React.createContext();
 
@@ -42,7 +42,8 @@ const ScrollProvider = ({ targetRef, children, ...props }) => {
   const values = useMemo(() => ({
     observe,
     register,
-  }), [observe, register]);
+    root: targetRef,
+  }), [observe, register, targetRef]);
 
   return (
     <ScrollObserver.Provider value={values} {...props}>

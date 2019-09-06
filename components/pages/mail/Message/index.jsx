@@ -1,6 +1,6 @@
 /* globals window */
 
-import React, { useRef, forwardRef, useEffect } from 'react';
+import React, { useRef, useMemo, forwardRef, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { List, Empty, Typography, Row, Col } from 'antd';
 import { parseOneAddress } from 'email-addresses';
@@ -30,14 +30,12 @@ const Container = () => {
 };
 
 const Listing = () => {
-  const { register, observe } = useScrollObserver();
   const { selectedThreadId } = useMailSelector();
+  const { register, observe, root } = useScrollObserver();
   const { loading, page, edges, before, after } = useScrollWindow();
 
   const firstElement = useRef(null);
   const lastElement = useRef(null);
-
-  const existingIds = new Set();
 
   const items = edges.map(({ cursor, node }, index) => {
     let ref = null;
@@ -49,13 +47,9 @@ const Listing = () => {
       ref = lastElement;
     }
 
-    const type = existingIds.has(message.id) ? 'danger' : null;
-    existingIds.add(message.id);
-
     return (
       <Message.Item
-        type={type}
-        key={message.id}
+        key={cursor}
         cursor={cursor}
         message={message}
         selected={selectedThreadId === id}
@@ -65,20 +59,27 @@ const Listing = () => {
   });
 
   useEffect(() => {
+    let didCancel = false;
+
     if (firstElement.current && lastElement.current) observe([firstElement, lastElement]);
 
     register((entry) => {
-      if (loading) return;
+      if (loading || didCancel) return;
 
-      if (firstElement.current.dataset.cursor === entry.target.dataset.cursor && page.hasPreviousPage) {
-        after(entry.target.dataset.cursor);
-      }
+      const { cursor } = entry.target.dataset;
+      const { cursor: firstCursor } = firstElement.current.dataset;
+      const { cursor: lastCursor } = lastElement.current.dataset;
 
-      if (lastElement.current.dataset.cursor === entry.target.dataset.cursor && page.hasNextPage) {
-        before(entry.target.dataset.cursor);
+      if (firstCursor === cursor && page.hasPreviousPage) {
+        after(cursor);
+        root.current.scrollTop = 100;
+      } else if (lastCursor === cursor && page.hasNextPage) {
+        before(cursor);
       }
     });
-  }, [after, before, items, loading, observe, page, register]);
+
+    return () => { didCancel = true; };
+  }, [after, before, items, loading, observe, page, register, root]);
 
   return (
     <List>
@@ -92,7 +93,7 @@ const Listing = () => {
   );
 };
 
-const Item = forwardRef(({ type, cursor, message, selected }, ref) => {
+const Item = forwardRef(({ cursor, message, selected }, ref) => {
   const { selectThreadById } = useMailSelector();
   const { threadId, receivedAt, snippet, headers } = message;
   const displayDate = new Date(receivedAt).toDateString();
@@ -102,7 +103,7 @@ const Item = forwardRef(({ type, cursor, message, selected }, ref) => {
     window.location.hash = threadId;
   };
 
-  const from = parseOneAddress(headers.From);
+  const from = useMemo(() => parseOneAddress(headers.From), [headers.From]);
   const subject = headers.Subject;
 
   return (
@@ -117,7 +118,7 @@ const Item = forwardRef(({ type, cursor, message, selected }, ref) => {
         </Col>
       </Row>
 
-      <Text type={type} className={styles.text} ellipsis>{subject}</Text>
+      <Text className={styles.text} ellipsis>{subject}</Text>
       <Text className={styles.text} ellipsis type="secondary">{snippet}</Text>
 
       <div ref={ref} data-cursor={cursor} />
@@ -149,7 +150,7 @@ const Message = {};
 
 Message.Container = React.memo(Container);
 Message.Listing = React.memo(Listing);
-Message.Item = React.memo(Item);
+Message.Item = React.memo(Item, (prevProps, nextProps) => prevProps.cursor === nextProps.cursor);
 
 Container.whyDidYouRender = true;
 Listing.whyDidYouRender = true;
