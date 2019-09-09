@@ -1,5 +1,5 @@
-import { find, reverse } from 'lodash';
-import { useState, useEffect, useContext, useCallback } from 'react';
+import { find, reverse, isEqual } from 'lodash';
+import { useReducer, useEffect, useContext, useCallback, useRef } from 'react';
 import gql from 'graphql-tag';
 import { ApolloContext } from 'react-apollo';
 
@@ -40,12 +40,62 @@ const MESSAGES_QUERY = gql`
   }
 `;
 
+const initialState = {
+  loading: true,
+  query: {},
+  edges: [],
+  page: {},
+};
+
+const processResults = (state, action) => {
+  const { threads, reset } = action.payload;
+  let { hasNextPage, hasPreviousPage } = state.page;
+
+  if (reset || (!state.query.before && !state.query.after)) return threads;
+  if (threads.edges.length === 0) return { ...state, page: threads.page };
+
+  if (state.query.before) {
+    state.edges.push(...threads.edges);
+    state.edges.splice(0, state.edges.length - WINDOW_SIZE);
+    hasPreviousPage = true;
+  } else if (state.query.after) {
+    state.edges.unshift(...reverse(threads.edges));
+    state.edges.splice(-PER_PAGE, state.edges.length - WINDOW_SIZE);
+    hasNextPage = true;
+  }
+
+  return {
+    edges: state.edges,
+    page: {
+      hasNextPage,
+      hasPreviousPage,
+      cursorStart: state.edges.length > 0 ? state.edges[0].cursor : null,
+      cursorEnd: state.edges.length > 0 ? state.edges[state.edges.length - 1].cursor : null,
+    },
+  };
+};
+
+const reducer = (state, action) => {
+  switch (action.type) {
+    case 'query': {
+      const next = { ...state, loading: true };
+      if (isEqual(action.payload, state.query)) return { ...next, query: state.query };
+      return { ...next, query: action.payload };
+    }
+
+    case 'process':
+      return { ...state, loading: false, ...processResults(state, action) };
+
+    default:
+      throw new Error('Action not supported');
+  }
+};
+
 function useScrollWindow() {
   const { labels, selectedMailboxPos, selectedLabelSlug } = useMailSelector();
   const { client } = useContext(ApolloContext);
-  const [query, setQuery] = useState({});
-  const [loading, setLoading] = useState(true);
-  const [data, setData] = useState({ edges: [], page: { cursorStart: null, cursorEnd: null } });
+  const lastLabelId = useRef(null);
+  const [state, dispatch] = useReducer(reducer, initialState);
 
   const labelId = labels.length > 0 ? find(labels, { slug: selectedLabelSlug }).id : null;
 
@@ -53,10 +103,17 @@ function useScrollWindow() {
     let didCancel = false;
 
     (async () => {
-      const variables =  {
+      if (!didCancel && labelId && lastLabelId.current !== labelId && !state.loading) {
+        dispatch({ type: 'query', payload: {} });
+        return;
+      }
+
+      if (!state.loading || !labelId) return;
+
+      const variables = {
         position: selectedMailboxPos,
         labelId,
-        ...query,
+        ...state.query,
       };
 
       const results = await client.query({
@@ -66,67 +123,30 @@ function useScrollWindow() {
       });
 
       if (!didCancel) {
-        const next = results.data.mailbox.label.threads;
+        const payload = {
+          threads: results.data.mailbox.label.threads,
+          reset: lastLabelId.current !== labelId,
+        };
 
-        if (next.edges.length !== 0) {
-          if (query.before) {
-            setData((prev) => {
-              prev.edges.push(...next.edges);
-              prev.edges.splice(0, prev.edges.length - WINDOW_SIZE);
-              const { hasNextPage } = next.page;
-              const page = {
-                ...prev.page,
-                hasNextPage,
-                hasPreviousPage: true,
-                cursorStart: prev.edges.length > 0 ? prev.edges[0].cursor : null,
-                cursorEnd: prev.edges.length > 0 ? prev.edges[prev.edges.length - 1].cursor : null,
-              };
-              return { ...prev, page };
-            });
-          } else if (query.after) {
-            setData((prev) => {
-              prev.edges.unshift(...reverse(next.edges));
-              prev.edges.splice(-PER_PAGE, prev.edges.length - WINDOW_SIZE);
-              const { hasPreviousPage } = next.page;
-              const page = {
-                ...prev.page,
-                hasNextPage: true,
-                hasPreviousPage,
-                cursorStart: prev.edges.length > 0 ? prev.edges[0].cursor : null,
-                cursorEnd: prev.edges.length > 0 ? prev.edges[prev.edges.length - 1].cursor : null,
-              };
-              return { ...prev, page };
-            });
-          } else {
-            setData(next);
-          }
-        } else {
-          setData(prev => ({ ...prev, page: next.page }));
-        }
-
-        setLoading(false);
+        dispatch({ type: 'process', payload });
+        lastLabelId.current = labelId;
       }
     })();
 
     return () => { didCancel = true; };
-  }, [client, labelId, query, selectedMailboxPos]);
+  }, [client, labelId, labels, selectedLabelSlug, selectedMailboxPos, state.loading, state.query]);
 
-  const { edges, page } = data;
+  const before = useCallback(cursor => dispatch({ type: 'query', payload: { before: cursor, first: PER_PAGE } }), []);
+  const after = useCallback(cursor => dispatch({ type: 'query', payload: { after: cursor, last: PER_PAGE } }), []);
+
+  const { loading, edges, page } = state;
 
   return {
     loading,
     edges,
     page,
-    before: useCallback((cursor) => {
-      if (loading) return;
-      setLoading(true);
-      setQuery({ before: cursor, first: PER_PAGE });
-    }, [loading]),
-    after: useCallback((cursor) => {
-      if (loading) return;
-      setLoading(true);
-      setQuery({ after: cursor, last: PER_PAGE });
-    }, [loading]),
+    before,
+    after,
   };
 }
 

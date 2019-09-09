@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import gql from 'graphql-tag';
 
@@ -22,27 +22,33 @@ const MailSelectorContext = React.createContext();
 const MailSelectorProvider = (props) => {
   const { initialMailboxPos, initialLabelSlug, initialThreadId, ...rest } = props;
 
-  const [selectedMailboxPos, selectMailboxByPos] = useState(initialMailboxPos);
-  const [selectedLabelSlug, selectLabelBySlug] = useState(initialLabelSlug);
-  const [selectedThreadId, selectThreadById] = useState(initialThreadId);
+  const [selectedMailboxPos, _selectMailboxByPos] = useState(initialMailboxPos);
+  const [selectedLabelSlug, _selectLabelBySlug] = useState(initialLabelSlug);
+  const [selectedThreadId, _selectThreadById] = useState(initialThreadId);
 
-  const { loading, data } = useGraphQLQuery(LABELS_QUERY, {
+  const { data, execute } = useGraphQLQuery(LABELS_QUERY, {
     variables: {
       position: selectedMailboxPos,
     },
-  });
+  }, { auto: false });
 
-  const values = {
-    labels: (!loading && data) ? data.mailbox.labels : [],
+  useEffect(() => execute(), [execute]);
+
+  const labels = useMemo(() => (data ? data.mailbox.labels : []), [data]);
+
+  const selectMailboxByPos = useCallback(_selectMailboxByPos, []);
+  const selectLabelBySlug = useCallback(_selectLabelBySlug, []);
+  const selectThreadById = useCallback(_selectThreadById, []);
+
+  const values = useMemo(() => ({
+    labels,
     selectedMailboxPos,
     selectMailboxByPos,
     selectedLabelSlug,
     selectLabelBySlug,
     selectedThreadId,
     selectThreadById,
-  };
-
-  if (loading) return <p>Loading...</p>;
+  }), [labels, selectLabelBySlug, selectMailboxByPos, selectThreadById, selectedLabelSlug, selectedMailboxPos, selectedThreadId]);
 
   return <MailSelectorContext.Provider value={values} {...rest} />;
 };

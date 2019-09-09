@@ -2,7 +2,7 @@
 
 import React, { useRef, useMemo, forwardRef, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { List, Empty, Typography, Row, Col } from 'antd';
+import { List, Empty, Typography, Row, Col, Affix, Dropdown, Menu } from 'antd';
 import { parseOneAddress } from 'email-addresses';
 
 import { useMailSelector } from '../../../../hooks/mail-selector-context';
@@ -15,27 +15,67 @@ const { Text } = Typography;
 const styles = makeStyles(custom);
 
 const Container = () => {
-  const { selectThreadById, selectedThreadId } = useMailSelector();
+  const { selectedMailboxPos, selectThreadById, selectedThreadId, labels, selectLabelBySlug } = useMailSelector();
 
   if (typeof window !== 'undefined' && window.location.hash.length > 0) {
     const newThreadId = window.location.hash.split('#')[1];
     if (newThreadId !== selectedThreadId) selectThreadById(newThreadId);
   }
 
+  const items = useMemo(() => {
+    return labels.map(item => (
+      <Menu.Item key={item.slug}>
+        {item.name}
+      </Menu.Item>
+    ));
+  }, [labels]);
+
+  const menuHandler = (e) => {
+    window.history.pushState(null, null, `/mail/${selectedMailboxPos}/${e.key}`);
+    selectLabelBySlug(e.key);
+  };
+
   return (
     <React.Fragment>
-      <Message.Listing />
+      <Affix>
+        <Dropdown overlay={<Menu onClick={menuHandler}>{items}</Menu>}>
+          <a className="ant-dropdown-link" href="#" onClick={(e) => e.preventDefault()}>Current Label</a>
+        </Dropdown>
+      </Affix>
+      <Message.Listing selectedThreadId={selectedThreadId} />
     </React.Fragment>
   );
 };
 
-const Listing = () => {
-  const { selectedThreadId } = useMailSelector();
+const Listing = ({ selectedThreadId }) => {
   const { register, observe, root } = useScrollObserver();
   const { loading, page, edges, before, after } = useScrollWindow();
 
   const firstElement = useRef(null);
   const lastElement = useRef(null);
+
+  useEffect(() => {
+    let didCancel = false;
+
+    if (firstElement.current && lastElement.current) observe([firstElement, lastElement]);
+
+    register((entry) => {
+      if (loading || didCancel) return;
+
+      const { cursor } = entry.target.dataset;
+      const { cursor: firstCursor } = firstElement.current.dataset;
+      const { cursor: lastCursor } = lastElement.current.dataset;
+
+      if (firstCursor === cursor && page.hasPreviousPage && edges.length > 50) {
+        after(cursor);
+        root.current.scrollTop = 100;
+      } else if (lastCursor === cursor && page.hasNextPage) {
+        before(cursor);
+      }
+    });
+
+    return () => { didCancel = true; };
+  }, [after, before, edges.length, loading, observe, page, register, root]);
 
   const items = edges.map(({ cursor, node }, index) => {
     let ref = null;
@@ -58,29 +98,6 @@ const Listing = () => {
     );
   });
 
-  useEffect(() => {
-    let didCancel = false;
-
-    if (firstElement.current && lastElement.current) observe([firstElement, lastElement]);
-
-    register((entry) => {
-      if (loading || didCancel) return;
-
-      const { cursor } = entry.target.dataset;
-      const { cursor: firstCursor } = firstElement.current.dataset;
-      const { cursor: lastCursor } = lastElement.current.dataset;
-
-      if (firstCursor === cursor && page.hasPreviousPage) {
-        after(cursor);
-        root.current.scrollTop = 100;
-      } else if (lastCursor === cursor && page.hasNextPage) {
-        before(cursor);
-      }
-    });
-
-    return () => { didCancel = true; };
-  }, [after, before, items, loading, observe, page, register, root]);
-
   return (
     <List>
       {items.length > 0 && items}
@@ -91,6 +108,14 @@ const Listing = () => {
       )}
     </List>
   );
+};
+
+Listing.propTypes = {
+  selectedThreadId: PropTypes.string,
+};
+
+Listing.defaultProps = {
+  selectedThreadId: null,
 };
 
 const Item = forwardRef(({ cursor, message, selected }, ref) => {

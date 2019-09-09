@@ -1,5 +1,5 @@
 import { orderBy } from 'lodash';
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { Menu, Icon, Popconfirm, Avatar } from 'antd';
 import gql from 'graphql-tag';
@@ -27,7 +27,9 @@ const Navigation = () => {
   const { logout } = useAuth();
   const router = useRouter();
   const { selectedMailboxPos, selectedLabelSlug } = useMailSelector();
-  const { data } = useGraphQLQuery(MAILBOXES_QUERY);
+  const { data, execute } = useGraphQLQuery(MAILBOXES_QUERY, {}, { auto: false });
+
+  useEffect(() => execute(), [execute]);
 
   const onLogout = useCallback(() => {
     logout();

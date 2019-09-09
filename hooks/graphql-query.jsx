@@ -1,48 +1,48 @@
 import { some, isEqual } from 'lodash';
-import { useState, useEffect, useContext } from 'react';
+import { useState, useEffect, useContext, useCallback } from 'react';
 import { ApolloContext } from 'react-apollo';
 import { useRouter } from 'next/router';
 
 import { useAuth } from './auth-context';
 
-function useGraphQLQuery(query, options, { validate = () => true } = {}) {
+function useGraphQLQuery(query, options, { auto = true, validate = () => true } = {}) {
   const router = useRouter();
   const { client } = useContext(ApolloContext);
   const { logout } = useAuth();
-  const [loading, setLoading] = useState(true);
-  const [errors, setErrors] = useState([]);
-  const [data, setData] = useState();
+  const [results, setResults] = useState({ loading: auto, data: null, errors: [] });
 
   useEffect(() => {
     let didCancel = false;
 
     (async () => {
-      if (!validate()) return;
+      if (results.loading && !validate()) return;
 
       try {
-        const results = await client.query({ query, ...options });
-        if (!didCancel && !isEqual(data, results.data)) setData(results.data);
+        const resultset = await client.query({ query, ...options });
+        if (didCancel || isEqual(resultset.data, results.data)) return;
+        setResults({ loading: false, data: resultset.data, errors: [] });
       } catch (error) {
-        if (!didCancel) {
-          if (!error.graphQLErrors) return;
+        if (!error.graphQLErrors || error.graphQLErrors.length === 0) return;
 
-          const formattedErrors = error.graphQLErrors.map(e => ({ name: e.extensions.exception.name, message: e.message }));
-          setErrors(formattedErrors);
+        const formattedErrors = error.graphQLErrors.map(e => ({ name: e.extensions.exception.name, message: e.message }));
+        setResults({ loading: false, data: null, errors: formattedErrors });
 
-          if (formattedErrors.length > 0 && some(formattedErrors, ['name', 'ForbiddenError'])) {
-            logout();
-            router.push('/login');
-          }
+        if (formattedErrors.length > 0 && some(formattedErrors, ['name', 'ForbiddenError'])) {
+          logout();
+          router.push('/login');
         }
-      } finally {
-        if (!didCancel) setLoading(false);
       }
     })();
 
     return () => { didCancel = true; };
-  }, [client, query, options, validate, logout, router, data]);
+  }, [client, logout, options, query, results.data, results.loading, router, validate]);
 
-  return { loading, data, errors };
+  const execute = useCallback(() => setResults(prev => ({ ...prev, loading: true })), []);
+
+  return {
+    execute,
+    ...results,
+  };
 }
 
 export { useGraphQLQuery };
