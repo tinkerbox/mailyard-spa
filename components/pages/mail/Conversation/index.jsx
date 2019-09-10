@@ -125,7 +125,7 @@ const Item = ({ message, parse }) => {
 
   const title = (
     <React.Fragment>
-      <Avatar size="small" className={styles.use('mr-2')}>{from.name[0]}</Avatar>
+      <Avatar size="small" className={styles.use('mr-2')}>{from.name ? from.name[0] : from.address[0]}</Avatar>
 
       {from.name && (
         <span>

@@ -1,6 +1,7 @@
 import { orderBy } from 'lodash';
 import React, { useCallback, useEffect } from 'react';
 import { useRouter } from 'next/router';
+import Link from 'next/link';
 import { Menu, Icon, Popconfirm, Avatar } from 'antd';
 import gql from 'graphql-tag';
 
@@ -37,12 +38,8 @@ const Navigation = () => {
   }, [logout, router]);
 
   const onMailboxSelect = useCallback(({ key }) => {
-    if (key === 'new') {
-      // TOOD: replace with a modal
-      alert('Adding of mailboxes is not supported yet.');
-    } else if (key !== 'loading') {
-      if (selectedMailboxPos.toString() !== key) router.push(`/mail/${key}/${selectedLabelSlug}`);
-    }
+    if (key === 'loading') return;
+    if (selectedMailboxPos.toString() !== key) router.push(`/mail/${key}/${selectedLabelSlug}`);
   }, [router, selectedLabelSlug, selectedMailboxPos]);
 
   const mailboxSelectors = data ? orderBy(data.mailboxes, ['position']).map(mailbox => (
@@ -67,11 +64,6 @@ const Navigation = () => {
 
         {data && mailboxSelectors}
 
-        <Menu.Item key="new">
-          <Icon type="plus" />
-          <span>Add Mailbox</span>
-        </Menu.Item>
-
       </Menu>
 
       <Menu theme="dark" selectable={false}>
@@ -89,8 +81,12 @@ const Navigation = () => {
         </Menu.Item>
 
         <Menu.Item key="settings">
-          <Icon type="setting" />
-          <span>Settings</span>
+          <Link href="/settings">
+            <a>
+              <Icon type="setting" />
+              <span>Settings</span>
+            </a>
+          </Link>
         </Menu.Item>
 
       </Menu>

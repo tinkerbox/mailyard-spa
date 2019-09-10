@@ -82,9 +82,31 @@ SimpleWide.propTypes = {
   ]).isRequired,
 };
 
+const FullScreen = ({ children }) => {
+  return (
+    <NextLayout className={styles.layout}>
+      <div className={styles.container}>
+        {children}
+      </div>
+    </NextLayout>
+  );
+};
+
+FullScreen.propTypes = {
+  children: PropTypes.oneOfType([
+    PropTypes.arrayOf(PropTypes.node),
+    PropTypes.node,
+  ]).isRequired,
+};
+
 const Layout = {};
 
 Layout.Simple = Simple;
 Layout.SimpleWide = SimpleWide;
+Layout.FullScreen = FullScreen;
+
+Simple.whyDidYouRender = true;
+SimpleWide.whyDidYouRender = true;
+FullScreen.whyDidYouRender = true;
 
 export default Layout;
