@@ -1,5 +1,5 @@
 import { orderBy } from 'lodash';
-import React, { useCallback, useMemo, useEffect } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { Menu, Icon, Popconfirm, Avatar } from 'antd';
 import gql from 'graphql-tag';

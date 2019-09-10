@@ -1,3 +1,4 @@
+import { find } from 'lodash';
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import gql from 'graphql-tag';
@@ -40,15 +41,18 @@ const MailSelectorProvider = (props) => {
   const selectLabelBySlug = useCallback(_selectLabelBySlug, []);
   const selectThreadById = useCallback(_selectThreadById, []);
 
+  const selectedLabel = useMemo(() => find(labels, { slug: selectedLabelSlug }), [labels, selectedLabelSlug]);
+
   const values = useMemo(() => ({
     labels,
     selectedMailboxPos,
     selectMailboxByPos,
+    selectedLabel,
     selectedLabelSlug,
     selectLabelBySlug,
     selectedThreadId,
     selectThreadById,
-  }), [labels, selectLabelBySlug, selectMailboxByPos, selectThreadById, selectedLabelSlug, selectedMailboxPos, selectedThreadId]);
+  }), [labels, selectLabelBySlug, selectMailboxByPos, selectThreadById, selectedLabel, selectedLabelSlug, selectedMailboxPos, selectedThreadId]);
 
   return <MailSelectorContext.Provider value={values} {...rest} />;
 };

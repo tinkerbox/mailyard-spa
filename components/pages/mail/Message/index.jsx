@@ -2,7 +2,7 @@
 
 import React, { useRef, useMemo, forwardRef, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { List, Empty, Typography, Row, Col, Affix, Dropdown, Menu } from 'antd';
+import { List, Empty, Typography, Row, Col, Affix, Dropdown, Menu, Button, Icon } from 'antd';
 import { parseOneAddress } from 'email-addresses';
 
 import { useMailSelector } from '../../../../hooks/mail-selector-context';
@@ -15,7 +15,8 @@ const { Text } = Typography;
 const styles = makeStyles(custom);
 
 const Container = () => {
-  const { selectedMailboxPos, selectThreadById, selectedThreadId, labels, selectLabelBySlug } = useMailSelector();
+  const { selectedMailboxPos, selectThreadById, selectedThreadId, labels, selectLabelBySlug, selectedLabel } = useMailSelector();
+  const { root } = useScrollObserver();
 
   if (typeof window !== 'undefined' && window.location.hash.length > 0) {
     const newThreadId = window.location.hash.split('#')[1];
@@ -33,14 +34,22 @@ const Container = () => {
   const menuHandler = (e) => {
     window.history.pushState(null, null, `/mail/${selectedMailboxPos}/${e.key}`);
     selectLabelBySlug(e.key);
+    root.current.scrollTop = 0;
   };
 
   return (
     <React.Fragment>
-      <Affix>
-        <Dropdown overlay={<Menu onClick={menuHandler}>{items}</Menu>}>
-          <a className="ant-dropdown-link" href="#" onClick={(e) => e.preventDefault()}>Current Label</a>
-        </Dropdown>
+      <Affix offsetTop={5} target={() => root.current}>
+        <Row className={styles.search}>
+          <Col>
+            <Dropdown trigger={['click']} overlay={<Menu onClick={menuHandler}>{items}</Menu>}>
+              <Button block type="link">
+                {selectedLabel && selectedLabel.name}
+                <Icon type="down" />
+              </Button>
+            </Dropdown>
+          </Col>
+        </Row>
       </Affix>
       <Message.Listing selectedThreadId={selectedThreadId} />
     </React.Fragment>
@@ -175,7 +184,7 @@ const Message = {};
 
 Message.Container = React.memo(Container);
 Message.Listing = React.memo(Listing);
-Message.Item = React.memo(Item, (prevProps, nextProps) => prevProps.cursor === nextProps.cursor);
+Message.Item = React.memo(Item, (prevProps, nextProps) => prevProps.cursor === nextProps.cursor && prevProps.selected === nextProps.selected);
 
 Container.whyDidYouRender = true;
 Listing.whyDidYouRender = true;

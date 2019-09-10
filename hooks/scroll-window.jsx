@@ -1,4 +1,4 @@
-import { find, reverse, isEqual } from 'lodash';
+import { reverse, isEqual } from 'lodash';
 import { useReducer, useEffect, useContext, useCallback, useRef } from 'react';
 import gql from 'graphql-tag';
 import { ApolloContext } from 'react-apollo';
@@ -92,12 +92,12 @@ const reducer = (state, action) => {
 };
 
 function useScrollWindow() {
-  const { labels, selectedMailboxPos, selectedLabelSlug } = useMailSelector();
+  const { labels, selectedMailboxPos, selectedLabel } = useMailSelector();
   const { client } = useContext(ApolloContext);
   const lastLabelId = useRef(null);
   const [state, dispatch] = useReducer(reducer, initialState);
 
-  const labelId = labels.length > 0 ? find(labels, { slug: selectedLabelSlug }).id : null;
+  const labelId = selectedLabel ? selectedLabel.id : null;
 
   useEffect(() => {
     let didCancel = false;
@@ -134,7 +134,7 @@ function useScrollWindow() {
     })();
 
     return () => { didCancel = true; };
-  }, [client, labelId, labels, selectedLabelSlug, selectedMailboxPos, state.loading, state.query]);
+  }, [client, labelId, labels, selectedMailboxPos, state.loading, state.query]);
 
   const before = useCallback(cursor => dispatch({ type: 'query', payload: { before: cursor, first: PER_PAGE } }), []);
   const after = useCallback(cursor => dispatch({ type: 'query', payload: { after: cursor, last: PER_PAGE } }), []);
