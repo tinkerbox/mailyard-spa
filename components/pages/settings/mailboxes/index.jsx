@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Table, Button, Divider, Drawer, Typography } from 'antd';
-import Link from 'next/link';
+import PropTypes from 'prop-types';
 import prettyBytes from 'pretty-bytes';
 
 import styles from '../../../../styles';
@@ -38,6 +38,12 @@ const columns = [
 const LinkButton = React.forwardRef(({ onClick, href, children, ...others }, ref) => {
   return <Button onClick={onClick} href={href} ref={ref} {...others}>{children}</Button>;
 });
+
+LinkButton.propTypes = {
+  onClick: PropTypes.func.isRequired,
+  href: PropTypes.string.isRequired,
+  children: PropTypes.node.isRequired,
+};
 
 const Mailboxes = () => {
   const [selectedMailbox, setSelectedMailbox] = useState(null);

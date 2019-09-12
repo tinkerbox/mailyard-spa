@@ -1,7 +1,8 @@
+/* globals window */
+
 import { orderBy } from 'lodash';
 import React, { useCallback, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import Link from 'next/link';
 import { Menu, Icon, Popconfirm, Avatar } from 'antd';
 import gql from 'graphql-tag';
 
@@ -42,6 +43,19 @@ const Navigation = () => {
     if (selectedMailboxPos.toString() !== key) router.push(`/mail/${key}/${selectedLabelSlug}`);
   }, [router, selectedLabelSlug, selectedMailboxPos]);
 
+  const onMenuSelect = useCallback(({ key }) => {
+    switch (key) {
+      case 'settings': {
+        const prevUrl = `${window.location.pathname}${window.location.hash}`;
+        window.history.pushState({ prevUrl }, null, '/settings');
+        router.push('/settings');
+        break;
+      }
+
+      default:
+    }
+  }, [router]);
+
   const mailboxSelectors = data ? orderBy(data.mailboxes, ['position']).map(mailbox => (
     <Menu.Item key={mailbox.position} selected={selectedMailboxPos === mailbox.id} title={mailbox.email}>
       <i className="anticon">
@@ -66,7 +80,7 @@ const Navigation = () => {
 
       </Menu>
 
-      <Menu theme="dark" selectable={false}>
+      <Menu theme="dark" onClick={onMenuSelect} selectable={false}>
 
         <Menu.Item key="logout">
           <Popconfirm
@@ -81,12 +95,8 @@ const Navigation = () => {
         </Menu.Item>
 
         <Menu.Item key="settings">
-          <Link href="/settings">
-            <a>
-              <Icon type="setting" />
-              <span>Settings</span>
-            </a>
-          </Link>
+          <Icon type="setting" />
+          <span>Settings</span>
         </Menu.Item>
 
       </Menu>
