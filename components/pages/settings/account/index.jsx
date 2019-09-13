@@ -1,24 +1,67 @@
-import React from 'react';
-import { Collapse, Row, Col, Typography, Alert, Button, Checkbox, Divider } from 'antd';
+import React, { useState, useContext, useEffect } from 'react';
+import { message, Collapse, Row, Col, Typography, Alert, Button, Checkbox, Divider } from 'antd';
 import { Form, Input, SubmitButton } from '@jbuschke/formik-antd';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 
+import gql from 'graphql-tag';
+import { ApolloContext } from 'react-apollo';
+
 import styles from '../../../../styles';
+import format from '../../../../lib/error-formatter';
 
 const { Panel } = Collapse;
 const { Paragraph } = Typography;
 
+const CHANGE_PASSWORD_MUTATION = gql`
+  mutation ($existingPassword: String!, $newPassword: String!) {
+    changePassword(existingPassword: $existingPassword, newPassword: $newPassword) {
+      token
+    }
+  }
+`;
+
+const schema = Yup.object().shape({
+  existingPassword: Yup.string()
+    .required('Required'),
+  newPassword: Yup.string()
+    .required('Required'),
+  confirmPassword: Yup.string()
+    .required('Required')
+    .oneOf([Yup.ref('newPassword'), null], 'Passwords must match'),
+});
+
+const formItemLayout = {
+  labelCol: {
+    xs: { span: 24 },
+    sm: { span: 8 },
+  },
+  wrapperCol: {
+    xs: { span: 24 },
+    sm: { span: 16 },
+  },
+};
+
 const Account = () => {
-  const formItemLayout = {
-    labelCol: {
-      xs: { span: 24 },
-      sm: { span: 8 },
-    },
-    wrapperCol: {
-      xs: { span: 24 },
-      sm: { span: 16 },
-    },
+  const { client } = useContext(ApolloContext);
+
+  const handleSubmit = async (values, { setSubmitting, setErrors }) => {
+    const { existingPassword, newPassword } = values;
+
+    client.mutate({
+      mutation: CHANGE_PASSWORD_MUTATION,
+      variables: { existingPassword, newPassword },
+    })
+      .then(() => {
+        message.success('Your password has been changed.');
+        // TODO: clean up the form, or close the accordion
+      })
+      .catch((error) => {
+        setErrors(format(error));
+        message.error('Could not change your password.');
+      });
+
+    setSubmitting(false);
   };
 
   return (
@@ -31,18 +74,18 @@ const Account = () => {
           <Row>
             <Col span={12}>
 
-              <Formik>
+              <Formik onSubmit={handleSubmit} validationSchema={schema}>
                 <Form layout="horizontal" {...formItemLayout}>
 
-                  <Form.Item label="Current password">
-                    <Input.Password name="currentPassword" />
+                  <Form.Item name="existingPassword" label="Current password">
+                    <Input.Password name="existingPassword" />
                   </Form.Item>
 
-                  <Form.Item label="New password">
+                  <Form.Item name="newPassword" label="New password">
                     <Input.Password name="newPassword" />
                   </Form.Item>
 
-                  <Form.Item label="Confirm new password">
+                  <Form.Item name="confirmPassword" label="Confirm new password">
                     <Input.Password name="confirmPassword" />
                   </Form.Item>
 

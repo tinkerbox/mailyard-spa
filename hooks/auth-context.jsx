@@ -62,10 +62,10 @@ const AuthProvider = (props) => {
 
   useEffect(() => {
     let didCancel = false;
-    if (!account && token) {
+    if (token) {
       (async () => {
         const result = await client.query({ query: ACCOUNT_QUERY });
-        if (!didCancel) setAccount(result.data.account);
+        if (!didCancel) setAccount(prev => prev || result.data.account);
       })();
     }
     return () => { didCancel = true; };
