@@ -39,7 +39,7 @@ const Container = () => {
 
   return (
     <React.Fragment>
-      <Affix offsetTop={5} target={() => root.current}>
+      <Affix offsetTop={0} target={() => root.current}>
         <Row className={styles.search}>
           <Col>
             <Dropdown trigger={['click']} overlay={<Menu onClick={menuHandler}>{items}</Menu>}>

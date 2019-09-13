@@ -40,9 +40,13 @@ const LinkButton = React.forwardRef(({ onClick, href, children, ...others }, ref
 });
 
 LinkButton.propTypes = {
-  onClick: PropTypes.func.isRequired,
+  onClick: PropTypes.func,
   href: PropTypes.string.isRequired,
   children: PropTypes.node.isRequired,
+};
+
+LinkButton.defaultProps = {
+  onClick: () => {},
 };
 
 const Mailboxes = () => {
@@ -78,7 +82,7 @@ const Mailboxes = () => {
 
       <Text strong>Sync mailbox</Text>
       <Paragraph>Perform a incremental backup of the new emails since the last sync.</Paragraph>
-      <LinkButton type="primary" href={`/mail/${selectedMailbox.key}/sync`}>Go to Sync</LinkButton>
+      <LinkButton type="primary" href={`/sync/${selectedMailbox.key}`}>Go to Sync</LinkButton>
 
       <Divider dashed />
 
