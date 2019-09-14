@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect } from 'react';
+import React, { useContext } from 'react';
 import { message, Collapse, Row, Col, Typography, Alert, Button, Checkbox, Divider } from 'antd';
 import { Form, Input, SubmitButton } from '@jbuschke/formik-antd';
 import { Formik } from 'formik';
@@ -34,11 +34,11 @@ const schema = Yup.object().shape({
 const formItemLayout = {
   labelCol: {
     xs: { span: 24 },
-    sm: { span: 8 },
+    md: { span: 8 },
   },
   wrapperCol: {
     xs: { span: 24 },
-    sm: { span: 16 },
+    md: { span: 16 },
   },
 };
 
@@ -72,7 +72,7 @@ const Account = () => {
         <Panel header="Change your password" className={styles.use('mt-4')}>
 
           <Row>
-            <Col span={12}>
+            <Col md={12}>
 
               <Formik onSubmit={handleSubmit} validationSchema={schema}>
                 <Form layout="horizontal" {...formItemLayout}>
@@ -149,5 +149,7 @@ const Account = () => {
     </React.Fragment>
   );
 };
+
+Account.whyDidYouRender = true;
 
 export default Account;

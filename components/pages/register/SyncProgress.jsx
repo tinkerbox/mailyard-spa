@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 
 import { Typography, Progress } from 'antd';
 
-import Button from '../../Button';
+import LinkButton from '../../link-button';
 import styles from '../../../styles';
 
 import { useMessageSynchronizer } from '../../../hooks/message-synchronizer';
@@ -31,7 +31,7 @@ const SyncProgress = ({ mailboxId, messagesTotal, updateStatus }) => {
 
       { status === 'waiting' && (
         <div className={styles.cardRow}>
-          <Button type="primary" size="large" onClick={startSync}>Start Sync</Button>
+          <LinkButton type="primary" size="large" onClick={startSync}>Start Sync</LinkButton>
         </div>
       )}
 

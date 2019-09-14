@@ -10,7 +10,7 @@ import { useGoogle } from '../../hooks/google-context';
 import Layout from '../../components/Layout';
 import Wizard from '../../components/pages/register/Wizard';
 import GoogleProfile from '../../components/pages/register/GoogleProfile';
-import Button from '../../components/Button';
+import LinkButton from '../../components/link-button';
 
 import { makeStyles } from '../../styles';
 
@@ -69,8 +69,8 @@ const Register = () => {
         <Divider />
 
         <div className={styles.cardFooter}>
-          <Button type="primary" size="large" href="/register/step-2" disabled={!profile}>Next</Button>
-          <Button type="link" href="/login"><a>Already have an account?</a></Button>
+          <LinkButton type="primary" size="large" href="/register/step-2" disabled={!profile}>Next</LinkButton>
+          <LinkButton type="link" href="/login">Already have an account?</LinkButton>
         </div>
 
       </Card>

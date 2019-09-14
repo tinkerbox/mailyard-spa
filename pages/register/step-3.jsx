@@ -11,7 +11,7 @@ import { useAuth } from '../../hooks/auth-context';
 import { useGoogleQuery } from '../../hooks/google-query';
 
 import Layout from '../../components/Layout';
-import Button from '../../components/Button';
+import LinkButton from '../../components/link-button';
 import SyncProgress from '../../components/pages/register/SyncProgress';
 import Wizard from '../../components/pages/register/Wizard';
 
@@ -94,7 +94,7 @@ const Step3 = () => {
         <Divider />
 
         <div className={styles.cardFooter}>
-          <Button type="primary" size="large" href="/" disabled={status !== 'finished'}>Done</Button>
+          <LinkButton type="primary" size="large" href="/" disabled={status !== 'finished'}>Done</LinkButton>
         </div>
 
       </Card>

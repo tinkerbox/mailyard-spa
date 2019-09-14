@@ -15,7 +15,7 @@ import { useGoogleQuery } from '../../hooks/google-query';
 import Layout from '../../components/Layout';
 import Wizard from '../../components/pages/register/Wizard';
 import format from '../../lib/error-formatter';
-import Button from '../../components/Button';
+import LinkButton from '../../components/link-button';
 
 import styles from '../../styles';
 
@@ -108,7 +108,7 @@ const Step2 = () => {
 
             <div className={styles.cardFooter}>
               <SubmitButton size="large" type="primary" htmlType="submit">Next</SubmitButton>
-              <Button type="link" href="/register">Back</Button>
+              <LinkButton type="link" href="/register">Back</LinkButton>
             </div>
 
           </Form>

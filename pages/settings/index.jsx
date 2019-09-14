@@ -64,6 +64,8 @@ const Content = dynamic(() => {
   ssr: false,
 });
 
+Content.whyDidYouRender = true;
+
 const Settings = () => {
   return (
     <Layout.FullScreen>
@@ -71,5 +73,7 @@ const Settings = () => {
     </Layout.FullScreen>
   );
 };
+
+Settings.whyDidYouRender = true;
 
 export default Settings;

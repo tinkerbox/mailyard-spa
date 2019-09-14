@@ -101,9 +101,9 @@ FullScreen.propTypes = {
 
 const Layout = {};
 
-Layout.Simple = Simple;
-Layout.SimpleWide = SimpleWide;
-Layout.FullScreen = FullScreen;
+Layout.Simple = React.memo(Simple);
+Layout.SimpleWide = React.memo(SimpleWide);
+Layout.FullScreen = React.memo(FullScreen);
 
 Simple.whyDidYouRender = true;
 SimpleWide.whyDidYouRender = true;
