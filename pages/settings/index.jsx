@@ -24,7 +24,7 @@ const Content = dynamic(() => {
 
     const router = useRouter();
     const [selectedScreen, setSelectedScreen] = useState(initialSelectedScreen);
-    const previousPage = useRef(prevUrl);
+    const previousPage = useRef(prevUrl || '/');
 
     const handleClick = (e) => {
       setSelectedScreen(e.key);
