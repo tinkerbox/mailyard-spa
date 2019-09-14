@@ -3,13 +3,13 @@ import PropTypes from 'prop-types';
 
 import { Typography, Divider, Row, Col, Avatar, Statistic } from 'antd';
 
-import Google from '../../Google';
+import Google from '../../google';
 
 import styles from '../../../styles';
 
 const { Text } = Typography;
 
-const GoogleProfile = ({ profile }) => {
+const GoogleProfile = React.memo(({ profile }) => {
   const { name, email, imageUrl } = profile;
 
   return (
@@ -33,7 +33,7 @@ const GoogleProfile = ({ profile }) => {
       <Col xs={0} sm={2} md={4} lg={6} />
     </Row>
   );
-};
+});
 
 GoogleProfile.propTypes = {
   profile: PropTypes.shape({
@@ -42,5 +42,7 @@ GoogleProfile.propTypes = {
     imageUrl: PropTypes.string.isRequired,
   }).isRequired,
 };
+
+GoogleProfile.whyDidYouRender = true;
 
 export default GoogleProfile;

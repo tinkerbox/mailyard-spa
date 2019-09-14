@@ -17,5 +17,6 @@ LinkButton.defaultProps = {
 };
 
 LinkButton.whyDidYouRender = true;
+LinkButton.displayName = 'LinkButton';
 
 export default LinkButton;

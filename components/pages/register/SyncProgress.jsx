@@ -1,16 +1,13 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useCallback } from 'react';
 import PropTypes from 'prop-types';
+import { Typography, Progress, Button } from 'antd';
 
-import { Typography, Progress } from 'antd';
-
-import LinkButton from '../../link-button';
 import styles from '../../../styles';
-
 import { useMessageSynchronizer } from '../../../hooks/message-synchronizer';
 
 const { Text } = Typography;
 
-const SyncProgress = ({ mailboxId, messagesTotal, updateStatus }) => {
+const SyncProgress = React.memo(({ mailboxId, messagesTotal, updateStatus }) => {
   const { status, count, start } = useMessageSynchronizer(mailboxId);
 
   const progress = Math.round(count / messagesTotal * 100);
@@ -21,17 +18,17 @@ const SyncProgress = ({ mailboxId, messagesTotal, updateStatus }) => {
     return () => { didCancel = true; };
   }, [status, updateStatus]);
 
-  const startSync = () => {
+  const startSync = useCallback(() => {
     updateStatus('running');
     start();
-  };
+  }, [start, updateStatus]);
 
   return (
     <React.Fragment>
 
       { status === 'waiting' && (
         <div className={styles.cardRow}>
-          <LinkButton type="primary" size="large" onClick={startSync}>Start Sync</LinkButton>
+          <Button type="primary" size="large" onClick={startSync}>Start Sync</Button>
         </div>
       )}
 
@@ -53,7 +50,7 @@ const SyncProgress = ({ mailboxId, messagesTotal, updateStatus }) => {
 
     </React.Fragment>
   );
-};
+});
 
 SyncProgress.propTypes = {
   mailboxId: PropTypes.string.isRequired,

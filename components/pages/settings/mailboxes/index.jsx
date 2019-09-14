@@ -96,7 +96,7 @@ const Mailboxes = () => {
     <React.Fragment>
 
       <div className={styles.use('py-3')}>
-        <Button type="primary">Add Mailbox</Button>
+        <Button type="primary" href="/add">Add Mailbox</Button>
       </div>
 
       <Table

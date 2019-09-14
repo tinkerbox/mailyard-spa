@@ -1,36 +1,30 @@
-import React, { useEffect } from 'react';
-
-import { Avatar, Typography, Card, Divider, Row, Col } from 'antd';
+import React from 'react';
 import { useRouter } from 'next/router';
+import { Avatar, Typography, Card, Divider, Row, Col, PageHeader } from 'antd';
 
-import { useAuth } from '../../hooks/auth-context';
 import { useGoogle } from '../../hooks/google-context';
-
 import Layout from '../../components/Layout';
 import Wizard from '../../components/pages/register/Wizard';
 import GoogleProfile from '../../components/pages/register/GoogleProfile';
 import LinkButton from '../../components/link-button';
-
 import { makeStyles } from '../../styles';
-
-import Google from '../../components/google';
 import custom from '../../styles/pages/register/index.css';
+import Google from '../../components/google';
 
 const styles = makeStyles(custom);
 
 const { Text } = Typography;
-const Register = () => {
+
+const AddMailboxScreen = () => {
   const router = useRouter();
-  const { loggedIn } = useAuth();
   const { profile } = useGoogle();
 
-  useEffect(() => {
-    if (loggedIn) router.push('/');
-  }, [loggedIn, router]);
-
   return (
-    <Layout.SimpleWide>
-      <Card title="Get started in 3 easy steps">
+    <Layout.FullScreen>
+
+      <PageHeader onBack={() => router.push('/settings#mailboxes')} title="Add New Mailbox" />
+
+      <Card>
 
         <Wizard current={0} />
 
@@ -60,15 +54,14 @@ const Register = () => {
         <Divider />
 
         <div className={styles.cardFooter}>
-          <LinkButton type="primary" size="large" href="/register/step-2" disabled={!profile}>Next</LinkButton>
-          <LinkButton type="link" href="/login">Already have an account?</LinkButton>
+          <LinkButton type="primary" size="large" href="/add/sync" disabled={!profile}>Next</LinkButton>
         </div>
 
       </Card>
-    </Layout.SimpleWide>
+    </Layout.FullScreen>
   );
 };
 
-Register.whyDidYouRender = true;
+AddMailboxScreen.whyDidYouRender = true;
 
-export default Register;
+export default AddMailboxScreen;

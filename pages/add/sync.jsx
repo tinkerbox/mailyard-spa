@@ -2,8 +2,8 @@
 
 import { isEmpty } from 'lodash';
 import React, { useCallback, useState, useEffect } from 'react';
-
-import { Card, Divider, Row, Col, Avatar, Statistic, Typography } from 'antd';
+import { useRouter } from 'next/router';
+import { Card, Divider, Row, Col, Avatar, Statistic, Typography, PageHeader } from 'antd';
 
 import { useGoogle } from '../../hooks/google-context';
 import { useAuth } from '../../hooks/auth-context';
@@ -13,19 +13,20 @@ import Layout from '../../components/Layout';
 import LinkButton from '../../components/link-button';
 import SyncProgress from '../../components/pages/register/SyncProgress';
 import Wizard from '../../components/pages/register/Wizard';
-import Google from '../../components/google';
 
 import { makeStyles } from '../../styles';
 
+import Google from '../../components/google';
 import custom from '../../styles/pages/register/step-3.css';
 
 const styles = makeStyles(custom);
 
 const { Text } = Typography;
 
-const Step3 = () => {
+const SyncScreen = () => {
   const [status, setStatus] = useState('pending');
   const { profile, api } = useGoogle();
+  const router = useRouter();
 
   const query = useCallback(() => api.getProfile(), [api]);
   const [mailbox] = useGoogleQuery(api, query);
@@ -39,12 +40,15 @@ const Step3 = () => {
   }, [status]);
 
   return (
-    <Layout.SimpleWide>
+    <Layout.FullScreen>
+
+      <PageHeader onBack={() => router.push('/settings#mailboxes')} title="Add New Mailbox" />
+
       <Card title="Get started in 3 easy steps">
 
         <Wizard current={2} />
 
-        {!profile && <Google.Login render={() => null} loading={() => null} />}
+        {!profile && <Google.Login render={() => null} />}
 
         {(!profile || isEmpty(mailbox)) && (
           <div className={styles.loading}>
@@ -90,13 +94,14 @@ const Step3 = () => {
 
         <div className={styles.cardFooter}>
           <LinkButton type="primary" size="large" href="/" disabled={status !== 'finished'}>Done</LinkButton>
+          <LinkButton type="link" href="/add">Back</LinkButton>
         </div>
 
       </Card>
-    </Layout.SimpleWide>
+    </Layout.FullScreen>
   );
 };
 
-Step3.whyDidYouRender = true;
+SyncScreen.whyDidYouRender = true;
 
-export default Step3;
+export default SyncScreen;

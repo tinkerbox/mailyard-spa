@@ -1,7 +1,6 @@
 import React, { useCallback } from 'react';
 
 import { useRouter } from 'next/router';
-import dynamic from 'next/dynamic';
 
 import { Card, Divider, Row, Col } from 'antd';
 import { Form, Input, SubmitButton } from '@jbuschke/formik-antd';
@@ -16,13 +15,9 @@ import Layout from '../../components/Layout';
 import Wizard from '../../components/pages/register/Wizard';
 import format from '../../lib/error-formatter';
 import LinkButton from '../../components/link-button';
+import Google from '../../components/google';
 
 import styles from '../../styles';
-
-const GoogleLogin = dynamic(
-  () => import('../../components/Google').then(mod => mod.default.Login),
-  { ssr: false },
-);
 
 const schema = Yup.object().shape({
   username: Yup.string()
@@ -81,7 +76,7 @@ const Step2 = () => {
       <Card title="Get started in 3 easy steps">
 
         <Wizard current={1} />
-        <GoogleLogin render={() => <React.Fragment />} />
+        <Google.Login render={() => <React.Fragment />} />
 
         <Formik onSubmit={handleSubmit} validationSchema={schema}>
           <Form layout="vertical">
