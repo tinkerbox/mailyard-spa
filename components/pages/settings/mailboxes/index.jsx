@@ -1,11 +1,27 @@
 import React, { useState } from 'react';
 import { Table, Button, Divider, Drawer, Typography } from 'antd';
 import prettyBytes from 'pretty-bytes';
+import gql from 'graphql-tag';
 
 import styles from '../../../../styles';
 import LinkButton from '../../../link-button';
+import { useGraphQLQuery } from '../../../../hooks/graphql-query';
 
 const { Text, Paragraph } = Typography;
+
+const MAILBOXES_QUERY = gql`
+  query {
+    mailboxes {
+      id
+      name
+      email
+      position
+      # messageCount
+      # usage
+      # lastSyncAt
+    }
+  }
+`;
 
 const columns = [
   {
@@ -37,23 +53,20 @@ const columns = [
 
 const Mailboxes = () => {
   const [selectedMailbox, setSelectedMailbox] = useState(null);
+  const { loading, data } = useGraphQLQuery(MAILBOXES_QUERY);
 
-  const data = [
-    {
-      key: '0',
-      name: 'John Doe',
-      email: 'john.doe@example.net',
-      messages: (32013).toLocaleString(),
+  const rows = data ? data.mailboxes.map((m) => {
+    return {
+      key: m.position,
+      email: m.email,
+      name: m.name,
+      messages: (32013).toLocaleString(), // TODO: use real data
       usage: prettyBytes(19200000000),
       lastSync: new Date().toDateString(),
-    },
-  ];
-
-  const onRowSelect = (record) => {
-    return {
-      onClick: () => setSelectedMailbox(record),
     };
-  };
+  }) : [];
+
+  const onRowSelect = record => ({ onClick: () => setSelectedMailbox(record) });
 
   const closeDrawer = () => setSelectedMailbox(null);
 
@@ -86,7 +99,13 @@ const Mailboxes = () => {
         <Button type="primary">Add Mailbox</Button>
       </div>
 
-      <Table columns={columns} dataSource={data} pagination={false} onRow={onRowSelect} />
+      <Table
+        loading={loading}
+        columns={columns}
+        dataSource={rows}
+        pagination={false}
+        onRow={onRowSelect}
+      />
 
       <Divider dashed />
 
