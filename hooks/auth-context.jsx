@@ -36,6 +36,11 @@ const ACCOUNT_QUERY = gql`
           slug
         }
       }
+      mailboxes {
+        id
+        name
+        email
+      }
     }
   }
 `;
