@@ -53,15 +53,15 @@ const Account = () => {
       variables: { existingPassword, newPassword },
     })
       .then(() => {
+        setSubmitting(false);
         message.success('Your password has been changed.');
         // TODO: clean up the form, or close the accordion
       })
       .catch((error) => {
+        setSubmitting(false);
         setErrors(format(error));
         message.error('Could not change your password.');
       });
-
-    setSubmitting(false);
   };
 
   return (

@@ -57,7 +57,7 @@ const AddMailboxScreen = () => {
         <Divider />
 
         <div className={styles.cardFooter}>
-          <LinkButton type="primary" size="large" href="/add/sync" disabled={!canContinue}>Next</LinkButton>
+          <LinkButton type="primary" size="large" href="/add/mailbox" disabled={!canContinue}>Next</LinkButton>
           {profile && existingMailbox && <Text type="warning">This mailbox has already been created.</Text>}
         </div>
 
