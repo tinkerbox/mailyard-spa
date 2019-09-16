@@ -5,8 +5,10 @@ import { useRouter } from 'next/router';
 import { useAuth } from '../../hooks/auth-context';
 import Layout from '../../components/Layout';
 import Wizard from '../../components/pages/register/Wizard';
+import AccountSelector from '../../components/google/account-selector';
+import LinkButton from '../../components/link-button';
 
-import RegistrationComponent from '../../components/pages/register';
+import styles from '../../styles';
 
 const RegistrationScreen = () => {
   const router = useRouter();
@@ -20,7 +22,14 @@ const RegistrationScreen = () => {
     <Layout.SimpleWide>
       <Card title="Get started in 3 easy steps">
         <Wizard current={0} />
-        <RegistrationComponent />
+        <AccountSelector>
+          {({ disabled }) => (
+            <div className={styles.cardFooter}>
+              <LinkButton type="primary" size="large" href="register/account" disabled={disabled}>Next</LinkButton>
+              <LinkButton type="link" href="/login">Already have an account?</LinkButton>
+            </div>
+          )}
+        </AccountSelector>
       </Card>
     </Layout.SimpleWide>
   );

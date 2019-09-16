@@ -13,7 +13,7 @@ import Layout from '../../components/Layout';
 import LinkButton from '../../components/link-button';
 import SyncProgress from '../../components/pages/register/SyncProgress';
 import Wizard from '../../components/pages/register/Wizard';
-import Google from '../../components/google';
+import Google from '../../components/google/auth-buttons';
 
 import { makeStyles } from '../../styles';
 

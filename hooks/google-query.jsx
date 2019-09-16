@@ -12,7 +12,7 @@ function useGoogleQuery(query, params = []) {
     (async () => {
       if (!api || !state.loading) return;
       const results = await api[query](...params);
-      if (!didCancel) setState({ loading: false, datat: results.result });
+      if (!didCancel) setState({ loading: false, data: results.result });
     })();
 
     return () => { didCancel = true; };

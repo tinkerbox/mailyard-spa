@@ -33,7 +33,11 @@ const MailSelectorProvider = (props) => {
     },
   }, { auto: false });
 
-  useEffect(() => execute(), [execute]);
+  useEffect(() => {
+    let didCancel = false;
+    if (!didCancel) execute();
+    return () => { didCancel = true; };
+  }, [execute]);
 
   const labels = useMemo(() => (data ? data.mailbox.labels : []), [data]);
 
