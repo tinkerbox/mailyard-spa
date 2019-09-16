@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import dynamic from 'next/dynamic';
 import { Typography } from 'antd';
 
-import { useGoogle } from '../hooks/google-context';
+import { useGoogle } from '../../hooks/google-context';
 
 const { Text } = Typography;
 

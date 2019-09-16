@@ -1,11 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-
 import { Typography, Divider, Row, Col, Avatar, Statistic } from 'antd';
 
-import Google from '../../google';
-
-import styles from '../../../styles';
+import Google from './auth-buttons';
+import styles from '../../styles';
 
 const { Text } = Typography;
 
