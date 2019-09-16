@@ -1,7 +1,7 @@
 /* global window */
 
 import { isEmpty } from 'lodash';
-import React, { useCallback, useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 
 import { Card, Divider, Row, Col, Avatar, Statistic, Typography } from 'antd';
 
@@ -25,10 +25,8 @@ const { Text } = Typography;
 
 const Step3 = () => {
   const [status, setStatus] = useState('pending');
-  const { profile, api } = useGoogle();
-
-  const query = useCallback(() => api.getProfile(), [api]);
-  const [mailbox] = useGoogleQuery(api, query);
+  const { profile } = useGoogle();
+  const [mailbox] = useGoogleQuery('getProfile');
 
   const { account } = useAuth();
   const mailboxId = account ? account.defaultMailboxId : null;

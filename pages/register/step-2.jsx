@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React from 'react';
 
 import { useRouter } from 'next/router';
 
@@ -55,10 +55,8 @@ const paramsForRegistration = (values, profile, labels) => {
 const Step2 = () => {
   const router = useRouter();
   const { register } = useAuth();
-  const { profile, api } = useGoogle();
-
-  const query = useCallback(() => api.getAllLabels(), [api]);
-  const [result] = useGoogleQuery(api, query);
+  const { profile } = useGoogle();
+  const [result] = useGoogleQuery('getAllLabels');
 
   const handleSubmit = async (values, { setSubmitting, setErrors }) => {
     const params = paramsForRegistration(values, profile, result.labels);

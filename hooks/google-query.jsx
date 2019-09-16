@@ -1,29 +1,24 @@
 import { useState, useEffect } from 'react';
 
-// TODO: rewrite this to simply take in the function
-function useGoogleQuery(api, query) {
-  const [result, setResult] = useState({});
-  const [status, setStatus] = useState('waiting');
+import { useGoogle } from './google-context';
+
+function useGoogleQuery(query, params = []) {
+  const { api } = useGoogle();
+  const [state, setState] = useState({ loading: true, data: null });
 
   useEffect(() => {
     let didCancel = false;
 
     (async () => {
-      if (!api) return;
-
-      setStatus('running');
-      const results = await query();
-
-      if (!didCancel) {
-        setResult(results.result);
-        setStatus('done');
-      }
+      if (!api || !state.loading) return;
+      const results = await api[query](...params);
+      if (!didCancel) setState({ loading: false, datat: results.result });
     })();
 
     return () => { didCancel = true; };
-  }, [api, query]);
+  }, [api, params, query, state.loading]);
 
-  return [result, status];
+  return [state.data, state.loading];
 }
 
 export { useGoogleQuery };

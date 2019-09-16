@@ -1,6 +1,6 @@
-import React, { useCallback, useContext } from 'react';
+import React, { useContext } from 'react';
 import gql from 'graphql-tag';
-import { message, Divider, Row, Col, Typography, Spin } from 'antd';
+import { message, Divider, Row, Col, Spin } from 'antd';
 import { ApolloContext } from 'react-apollo';
 import { Form, Input, SubmitButton } from '@jbuschke/formik-antd';
 import { Formik } from 'formik';
@@ -14,8 +14,6 @@ import Google from '../../../google';
 import LinkButton from '../../../link-button';
 
 import styles from '../../../../styles';
-
-const { Text } = Typography;
 
 const ADD_MAILBOX_MUTATION = gql`
   mutation($mailbox: MailboxInput!) {
@@ -33,6 +31,7 @@ const schema = Yup.object().shape({
 });
 
 const paramsForMailbox = (values, profile, labels) => {
+  // TODO: move this somehere, and make it resuable
   const { googleId: providerId, email } = profile;
 
   return {
@@ -57,10 +56,8 @@ const paramsForMailbox = (values, profile, labels) => {
 const ConfigureMailboxComponent = () => {
   const router = useRouter();
   const { client } = useContext(ApolloContext);
-  const { profile, api } = useGoogle();
-
-  const query = useCallback(() => api.getAllLabels(), [api]);
-  const [result, status] = useGoogleQuery(api, query);
+  const { profile } = useGoogle();
+  const [result, queryLoading] = useGoogleQuery('getAllLabels');
 
   const handleSubmit = async (values, { setSubmitting, setErrors }) => {
     const variables = paramsForMailbox(values, profile, result.labels);
@@ -83,7 +80,7 @@ const ConfigureMailboxComponent = () => {
 
   const initialValues = profile ? { name: profile.name } : {};
 
-  const loading = (status !== 'done') || !profile;
+  const loading = queryLoading || !profile;
 
   return (
     <React.Fragment>
