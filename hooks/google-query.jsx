@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 
+// TODO: rewrite this to simply take in the function
 function useGoogleQuery(api, query) {
   const [result, setResult] = useState({});
   const [status, setStatus] = useState('waiting');

@@ -57,6 +57,7 @@ const Mailboxes = () => {
 
   const rows = data ? data.mailboxes.map((m) => {
     return {
+      id: m.id,
       key: m.position,
       email: m.email,
       name: m.name,
@@ -81,7 +82,7 @@ const Mailboxes = () => {
 
       <Text strong>Sync mailbox</Text>
       <Paragraph>Perform a incremental backup of the new emails since the last sync.</Paragraph>
-      <LinkButton type="primary" href={`/sync/${selectedMailbox.key}`}>Go to Sync</LinkButton>
+      <LinkButton type="primary" href={`/mailboxes/${selectedMailbox.id}/sync`}>Go to Sync</LinkButton>
 
       <Divider dashed />
 
@@ -96,7 +97,7 @@ const Mailboxes = () => {
     <React.Fragment>
 
       <div className={styles.use('py-3')}>
-        <LinkButton type="primary" href="/add">Add Mailbox</LinkButton>
+        <LinkButton type="primary" href="/mailboxes/new">Add Mailbox</LinkButton>
       </div>
 
       <Table

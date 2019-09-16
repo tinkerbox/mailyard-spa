@@ -1,21 +1,19 @@
 import React, { useCallback, useContext } from 'react';
-import { message, Card, Divider, Row, Col, PageHeader, Typography } from 'antd';
-import { useRouter } from 'next/router';
-import { ApolloContext } from 'react-apollo';
 import gql from 'graphql-tag';
+import { message, Divider, Row, Col, Typography, Spin } from 'antd';
+import { ApolloContext } from 'react-apollo';
 import { Form, Input, SubmitButton } from '@jbuschke/formik-antd';
 import { Formik } from 'formik';
+import { useRouter } from 'next/router';
 import * as Yup from 'yup';
 
-import { useGoogle } from '../../hooks/google-context';
-import { useGoogleQuery } from '../../hooks/google-query';
+import { useGoogle } from '../../../../hooks/google-context';
+import { useGoogleQuery } from '../../../../hooks/google-query';
+import format from '../../../../lib/error-formatter';
+import Google from '../../../google';
+import LinkButton from '../../../link-button';
 
-import Layout from '../../components/Layout';
-import format from '../../lib/error-formatter';
-import LinkButton from '../../components/link-button';
-import Google from '../../components/google';
-
-import styles from '../../styles';
+import styles from '../../../../styles';
 
 const { Text } = Typography;
 
@@ -56,10 +54,9 @@ const paramsForMailbox = (values, profile, labels) => {
   };
 };
 
-const ConfigureMailboxScreen = () => {
+const ConfigureMailboxComponent = () => {
   const router = useRouter();
   const { client } = useContext(ApolloContext);
-
   const { profile, api } = useGoogle();
 
   const query = useCallback(() => api.getAllLabels(), [api]);
@@ -75,7 +72,7 @@ const ConfigureMailboxScreen = () => {
       .then((mailbox) => {
         setSubmitting(false);
         message.success('Mailbox created, please wait.');
-        router.push(`/sync/${mailbox.data.addMailbox.id}`);
+        router.push(`/mailboxes/${mailbox.data.addMailbox.id}/sync`);
       })
       .catch((error) => {
         setSubmitting(false);
@@ -89,49 +86,43 @@ const ConfigureMailboxScreen = () => {
   const loading = (status !== 'done') || !profile;
 
   return (
-    <Layout.FullScreen>
+    <React.Fragment>
 
-      <PageHeader onBack={() => router.push('/settings#mailboxes')} title="Add New Mailbox" />
+      <Google.Login render={() => <React.Fragment />} />
 
-      <Card>
+      {loading && <Spin size="large" />}
 
-        <Google.Login render={() => <React.Fragment />} />
+      {!loading && (
+        <Formik onSubmit={handleSubmit} validationSchema={schema} initialValues={initialValues} isInitialValid>
+          <Form layout="vertical">
 
-        {loading && <Text>Please wait...</Text>}
+            <Row>
+              <Col sm={0} md={4} lg={5} />
+              <Col sm={24} md={16} lg={14}>
 
-        {!loading && (
-          <Formik onSubmit={handleSubmit} validationSchema={schema} initialValues={initialValues} isInitialValid>
-            <Form layout="vertical">
+                <Form.Item name="name" label="Mailbox name">
+                  <Input name="name" placeholder="Name of mailbox" size="large" />
+                </Form.Item>
 
-              <Row>
-                <Col sm={0} md={4} lg={5} />
-                <Col sm={24} md={16} lg={14}>
+              </Col>
+              <Col sm={0} md={4} lg={5} />
+            </Row>
 
-                  <Form.Item name="name" label="Mailbox name">
-                    <Input name="name" placeholder="Name of mailbox" size="large" />
-                  </Form.Item>
+            <Divider />
 
-                </Col>
-                <Col sm={0} md={4} lg={5} />
-              </Row>
+            <div className={styles.cardFooter}>
+              <SubmitButton size="large" type="primary" htmlType="submit">Next</SubmitButton>
+              <LinkButton type="link" href="/mailboxes/new">Back</LinkButton>
+            </div>
 
-              <Divider />
+          </Form>
+        </Formik>
+      )}
 
-              <div className={styles.cardFooter}>
-                <SubmitButton size="large" type="primary" htmlType="submit">Next</SubmitButton>
-                <LinkButton type="link" href="/add">Back</LinkButton>
-              </div>
-
-            </Form>
-          </Formik>
-        )}
-
-      </Card>
-    </Layout.FullScreen>
-
+    </React.Fragment>
   );
 };
 
-ConfigureMailboxScreen.whyDidYouRender = true;
+ConfigureMailboxComponent.whyDidYouRender = true;
 
-export default ConfigureMailboxScreen;
+export default ConfigureMailboxComponent;

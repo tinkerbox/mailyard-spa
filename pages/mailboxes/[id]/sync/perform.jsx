@@ -1,22 +1,25 @@
 import React from 'react';
-import { Card, Divider, Row, Col, PageHeader, Typography } from 'antd';
+import { PageHeader, Card } from 'antd';
 import { useRouter } from 'next/router';
 
-import Layout from '../../../components/Layout';
+import Layout from '../../../../components/Layout';
 
-const ConnectGoogle = () => {
+const PerformSyncMailboxScreen = () => {
   const router = useRouter();
+
   return (
     <Layout.FullScreen>
 
       <PageHeader onBack={() => router.push('/settings#mailboxes')} title="Sync Mailbox" />
 
       <Card>
-        <p>Connect Google</p>
+        <p>Content goes here</p>
       </Card>
 
     </Layout.FullScreen>
   );
 };
 
-export default ConnectGoogle;
+PerformSyncMailboxScreen.whyDidYouRender = true;
+
+export default PerformSyncMailboxScreen;
