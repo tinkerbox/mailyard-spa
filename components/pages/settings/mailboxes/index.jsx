@@ -18,9 +18,9 @@ const MAILBOXES_QUERY = gql`
       name
       email
       position
-      # messageCount
-      # usage
-      # lastSyncAt
+      messageCount
+      usage
+      lastSyncAt
     }
   }
 `;
@@ -73,9 +73,9 @@ const Mailboxes = () => {
       key: m.position,
       email: m.email,
       name: m.name,
-      messages: (32013).toLocaleString(), // TODO: use real data
-      usage: prettyBytes(19200000000),
-      lastSync: new Date().toDateString(),
+      messages: m.messageCount ? (32013).toLocaleString() : '-',
+      usage: m.usage ? prettyBytes(m.usage) : '-',
+      lastSync: m.lastSyncAt ? new Date(m.lastSyncAt).toDateString() : 'Pending sync...',
     };
   }) : [];
 
