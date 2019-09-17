@@ -109,7 +109,7 @@ const Item = ({ message, parse }) => {
   const [loading, setLoading] = useState(true);
   const [payload, setPayload] = useState();
   const { receivedAt, headers, getRequest } = message;
-  const from = parseOneAddress(headers.From);
+  const from = parseOneAddress(headers.from);
 
   useEffect(() => {
     let didCancel = false;
@@ -166,7 +166,7 @@ Item.propTypes = {
     receivedAt: PropTypes.string.isRequired,
     getRequest: PropTypes.string.isRequired,
     headers: PropTypes.shape({
-      From: PropTypes.string,
+      from: PropTypes.string,
     }).isRequired,
   }).isRequired,
 };

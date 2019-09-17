@@ -137,8 +137,8 @@ const Item = forwardRef(({ cursor, message, selected }, ref) => {
     window.location.hash = threadId;
   };
 
-  const from = useMemo(() => parseOneAddress(headers.From), [headers.From]);
-  const subject = headers.Subject;
+  const from = useMemo(() => parseOneAddress(headers.from), [headers.from]);
+  const { subject } = headers;
 
   return (
     <List.Item onClick={clickHandler} className={styles.use('item', `${selected ? 'selected' : ''}`)}>
@@ -175,8 +175,8 @@ Item.propTypes = {
     receivedAt: PropTypes.string.isRequired,
     snippet: PropTypes.string.isRequired,
     headers: PropTypes.shape({
-      From: PropTypes.string,
-      Subject: PropTypes.string.isRequired,
+      from: PropTypes.string,
+      subject: PropTypes.string.isRequired,
     }).isRequired,
   }).isRequired,
 };
