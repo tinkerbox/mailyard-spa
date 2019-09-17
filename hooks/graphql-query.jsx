@@ -18,7 +18,11 @@ function useGraphQLQuery(query, options, { auto = true, validate = () => true } 
       if (results.loading && !validate()) return;
 
       try {
-        const resultset = await client.query({ query, ...options });
+        const resultset = await client.query({
+          query, ...options,
+          fetchPolicy: 'no-cache',
+        });
+
         if (didCancel || isEqual(resultset.data, results.data)) return;
         setResults({ loading: false, data: resultset.data, errors: [] });
       } catch (error) {

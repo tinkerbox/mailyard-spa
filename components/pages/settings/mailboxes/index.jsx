@@ -1,11 +1,13 @@
-import React, { useState } from 'react';
-import { Table, Button, Divider, Drawer, Typography } from 'antd';
+import React, { useState, useContext } from 'react';
+import { message, Table, Button, Divider, Drawer, Typography } from 'antd';
 import prettyBytes from 'pretty-bytes';
 import gql from 'graphql-tag';
+import { ApolloContext } from 'react-apollo';
 
 import styles from '../../../../styles';
 import LinkButton from '../../../link-button';
 import { useGraphQLQuery } from '../../../../hooks/graphql-query';
+import { useAuth } from '../../../../hooks/auth-context';
 
 const { Text, Paragraph } = Typography;
 
@@ -21,6 +23,14 @@ const MAILBOXES_QUERY = gql`
       # lastSyncAt
     }
   }
+`;
+
+const DELETE_MAILBOX_MUTATION = gql`
+mutation ($id: ID!) {
+  removeMailbox(id: $id){
+    id
+  }
+}
 `;
 
 const columns = [
@@ -52,8 +62,10 @@ const columns = [
 ];
 
 const Mailboxes = () => {
+  const { client } = useContext(ApolloContext);
+  const { refresh } = useAuth();
   const [selectedMailbox, setSelectedMailbox] = useState(null);
-  const { loading, data } = useGraphQLQuery(MAILBOXES_QUERY);
+  const { loading, data, execute } = useGraphQLQuery(MAILBOXES_QUERY);
 
   const rows = data ? data.mailboxes.map((m) => {
     return {
@@ -70,6 +82,20 @@ const Mailboxes = () => {
   const onRowSelect = record => ({ onClick: () => setSelectedMailbox(record) });
 
   const closeDrawer = () => setSelectedMailbox(null);
+
+  const handleDelete = async () => {
+    client.mutate({
+      mutation: DELETE_MAILBOX_MUTATION,
+      variables: { id: selectedMailbox.id },
+    }).then(() => {
+      message.success('Mailbox removed');
+      execute();
+      refresh();
+      setSelectedMailbox(null);
+    }).catch(() => {
+      message.error('Could not remove selected mailbox');
+    });
+  };
 
   const drawer = selectedMailbox ? (
     <Drawer visible onClose={closeDrawer}>
@@ -88,7 +114,7 @@ const Mailboxes = () => {
 
       <Text strong>Delete this mailbox</Text>
       <Paragraph>Warning: this action cannot be undone.</Paragraph>
-      <Button type="danger">Delete</Button>
+      <Button type="danger" onClick={handleDelete}>Delete</Button>
 
     </Drawer>
   ) : <Drawer visible={false} />;
