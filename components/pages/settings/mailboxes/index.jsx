@@ -1,5 +1,5 @@
 import React, { useState, useContext } from 'react';
-import { message, Table, Button, Divider, Drawer, Typography } from 'antd';
+import { message, Table, Button, Divider, Drawer, Typography, Tag } from 'antd';
 import prettyBytes from 'pretty-bytes';
 import gql from 'graphql-tag';
 import { ApolloContext } from 'react-apollo';
@@ -35,6 +35,13 @@ mutation ($id: ID!) {
 
 const columns = [
   {
+    title: '',
+    dataIndex: 'default',
+    key: 'default',
+    render: isDefault => (isDefault ? <Tag>Default</Tag> : null),
+    align: 'right',
+  },
+  {
     title: 'Name',
     dataIndex: 'name',
     key: 'name',
@@ -63,7 +70,7 @@ const columns = [
 
 const Mailboxes = () => {
   const { client } = useContext(ApolloContext);
-  const { refresh } = useAuth();
+  const { refresh, account } = useAuth();
   const [selectedMailbox, setSelectedMailbox] = useState(null);
   const { loading, data, execute } = useGraphQLQuery(MAILBOXES_QUERY);
 
@@ -76,6 +83,7 @@ const Mailboxes = () => {
       messages: m.messageCount ? (32013).toLocaleString() : '-',
       usage: m.usage ? prettyBytes(m.usage) : '-',
       lastSync: m.lastSyncAt ? new Date(m.lastSyncAt).toDateString() : 'Pending sync...',
+      default: account.defaultMailboxId === m.id,
     };
   }) : [];
 
