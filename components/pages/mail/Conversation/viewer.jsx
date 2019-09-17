@@ -15,7 +15,7 @@ import Attachment from './attachment';
 const styles = makeStyles(custom);
 const { Text } = Typography;
 
-const Viewer = ({ payload, parse: parseMail }) => {
+const Viewer = React.memo(({ payload, parse: parseMail }) => {
   const [email, setEmail] = useState();
   const [loaded, setLoaded] = useState(false);
 
@@ -69,7 +69,7 @@ const Viewer = ({ payload, parse: parseMail }) => {
 
     </div>
   );
-};
+});
 
 Viewer.propTypes = {
   payload: PropTypes.string.isRequired,

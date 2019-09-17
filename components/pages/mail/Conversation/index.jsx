@@ -123,19 +123,27 @@ const Item = ({ message, parse }) => {
     return () => { didCancel = true; };
   }, [getRequest]);
 
-  const title = (
+  const sender = from ? (
     <React.Fragment>
       <Avatar size="small" className={styles.use('mr-2')}>{from.name ? from.name[0] : from.address[0]}</Avatar>
-
       {from.name && (
         <span>
           <Text strong>{from.name}</Text>
           <Text type="secondary">{` <${from.address}>`}</Text>
         </span>
       )}
-
       {!from.name && <Text>{from.address}</Text>}
+    </React.Fragment>
+  ) : (
+    <React.Fragment>
+      <Avatar icon="question" size="small" className={styles.use('mr-2')} />
+      <Text>Unknown Sender</Text>
+    </React.Fragment>
+  );
 
+  const title = (
+    <React.Fragment>
+      {sender}
     </React.Fragment>
   );
 

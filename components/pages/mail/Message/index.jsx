@@ -145,7 +145,12 @@ const Item = forwardRef(({ cursor, message, selected }, ref) => {
 
       <Row type="flex" justify="space-between" align="top" className={styles.use('mb-1')}>
         <Col>
-          <Text strong ellipsis>{from.name || from.address}</Text>
+          {from ? (
+            <Text strong ellipsis>{from.name || from.address}</Text>
+          ) : (
+            <Text disabled ellipsis>Unknown Sender</Text>
+          )}
+
         </Col>
         <Col align="right">
           <Text ellipsis type="secondary">{displayDate}</Text>
@@ -170,7 +175,7 @@ Item.propTypes = {
     receivedAt: PropTypes.string.isRequired,
     snippet: PropTypes.string.isRequired,
     headers: PropTypes.shape({
-      From: PropTypes.string.isRequired,
+      From: PropTypes.string,
       Subject: PropTypes.string.isRequired,
     }).isRequired,
   }).isRequired,
