@@ -122,7 +122,11 @@ const Mailboxes = () => {
 
       <Text strong>Delete this mailbox</Text>
       <Paragraph>Warning: this action cannot be undone.</Paragraph>
-      <Button type="danger" onClick={handleDelete}>Delete</Button>
+      {account.defaultMailboxId === selectedMailbox.id ? (
+        <Paragraph type="warning">This mailbox is set as your default, and cannot be deleted.</Paragraph>
+      ) : (
+        <Button type="danger" onClick={handleDelete}>Delete</Button>
+      )}
 
     </Drawer>
   ) : <Drawer visible={false} />;
