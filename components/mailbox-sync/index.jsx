@@ -74,7 +74,10 @@ const MailboxSync = ({ mailboxId, children }) => {
 
 MailboxSync.propTypes = {
   mailboxId: PropTypes.string.isRequired,
-  children: PropTypes.node.isRequired,
+  children: PropTypes.oneOfType([
+    PropTypes.func,
+    PropTypes.node,
+  ]).isRequired,
 };
 
 MailboxSync.whyDidYouRender = true;

@@ -9,6 +9,7 @@ import { useRouter } from 'next/router';
 import * as Yup from 'yup';
 
 import format from '../../../../lib/error-formatter';
+import { useAuth } from '../../../../hooks/auth-context';
 import useMailboxBuilder from '../../../../hooks/mailbox-builder';
 
 const ADD_MAILBOX_MUTATION = gql`
@@ -29,9 +30,10 @@ const schema = Yup.object().shape({
 const ConfigureMailboxComponent = ({ children }) => {
   const router = useRouter();
   const { client } = useContext(ApolloContext);
+  const { refresh } = useAuth();
   const { loading, fields, google, build, initialValues } = useMailboxBuilder();
 
-  const handleSubmit = async (values, { setSubmitting, setErrors }) => {
+  const handleSubmit = (values, { setSubmitting, setErrors }) => {
     client.mutate({
       mutation: ADD_MAILBOX_MUTATION,
       variables: { mailbox: build(values) },
@@ -39,6 +41,7 @@ const ConfigureMailboxComponent = ({ children }) => {
       .then((mailbox) => {
         setSubmitting(false);
         message.success('Mailbox created, please wait.');
+        refresh();
         router.push(`/mailboxes/${mailbox.data.addMailbox.id}/sync`);
       })
       .catch((error) => {

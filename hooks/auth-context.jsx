@@ -1,6 +1,6 @@
 /* globals window, localStorage */
 
-import React, { useState, useContext, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useContext, useEffect, useCallback, useMemo, useRef } from 'react';
 
 import gql from 'graphql-tag';
 import { ApolloContext } from 'react-apollo';
@@ -52,8 +52,12 @@ const AuthProvider = (props) => {
   const existingAccount = (typeof window !== 'undefined') ? localStorage.getItem('account') : null;
 
   const { client } = useContext(ApolloContext);
+  // TODO: combine state to reduce re-renders
   const [token, setToken] = useState(existingToken);
   const [account, setAccount] = useState(existingAccount ? JSON.parse(existingAccount) : null);
+  const mounted = useRef(true);
+
+  useEffect(() => () => { mounted.current = false; }, []);
 
   useEffect(() => {
     if (token) localStorage.setItem('authToken', token);
@@ -66,14 +70,11 @@ const AuthProvider = (props) => {
   }, [account]);
 
   useEffect(() => {
-    let didCancel = false;
-    if (token) {
-      (async () => {
-        const result = await client.query({ query: ACCOUNT_QUERY });
-        if (!didCancel) setAccount(prev => prev || result.data.account);
-      })();
-    }
-    return () => { didCancel = true; };
+    (async () => {
+      if (!token) return;
+      const result = await client.query({ query: ACCOUNT_QUERY });
+      if (mounted.current) setAccount(prev => prev || result.data.account);
+    })();
   }, [client, token]);
 
   const login = useCallback(async (values, callbacks) => {
@@ -83,7 +84,7 @@ const AuthProvider = (props) => {
         variables: values,
         fetchPolicy: 'no-cache',
       });
-      setToken(result.data.authenticate.token);
+      if (mounted.current) setToken(result.data.authenticate.token);
       client.cache.reset();
       if (callbacks.success) callbacks.success(result.data.authenticate);
     } catch (error) {
@@ -104,7 +105,7 @@ const AuthProvider = (props) => {
         variables: values,
         fetchPolicy: 'no-cache',
       });
-      setToken(result.data.register.token);
+      if (mounted.current) setToken(result.data.register.token);
       if (callbacks.success) callbacks.success(result.data.register);
     } catch (error) {
       if (callbacks.failure) callbacks.failure(error);
@@ -113,13 +114,25 @@ const AuthProvider = (props) => {
 
   const loggedIn = !!token;
 
+  const refresh = useCallback(() => {
+    (async () => {
+      if (!token) return;
+      const result = await client.query({
+        query: ACCOUNT_QUERY,
+        fetchPolicy: 'no-cache',
+      });
+      if (mounted.current) setAccount(result.data.account);
+    })();
+  }, [client, token]);
+
   const values = useMemo(() => ({
     login,
     logout,
     register,
     account,
     loggedIn,
-  }), [account, loggedIn, login, logout, register]);
+    refresh,
+  }), [account, loggedIn, login, logout, register, refresh]);
 
   return <AuthContext.Provider value={values} {...props} />;
 };

@@ -18,13 +18,15 @@ const SyncMailboxScreen = () => {
       <PageHeader onBack={() => router.push('/settings#mailboxes')} title="Sync Mailbox" />
 
       <Card>
-        <MailboxSync mailboxId={id}>
-          {({ status }) => (
-            <div className={styles.cardFooter}>
-              <LinkButton type="primary" size="large" href="/settings#mailboxes" disabled={status !== 'finished'}>Done</LinkButton>
-            </div>
-          )}
-        </MailboxSync>
+        {id && (
+          <MailboxSync mailboxId={id}>
+            {({ status }) => (
+              <div className={styles.cardFooter}>
+                <LinkButton type="primary" size="large" href="/settings#mailboxes" disabled={status !== 'finished'}>Done</LinkButton>
+              </div>
+            )}
+          </MailboxSync>
+        )}
       </Card>
 
     </Layout.FullScreen>
