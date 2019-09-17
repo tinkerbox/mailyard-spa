@@ -2,8 +2,8 @@ import React, { useEffect, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { Typography, Progress, Button } from 'antd';
 
-import styles from '../../../styles';
-import { useMessageSynchronizer } from '../../../hooks/message-synchronizer';
+import styles from '../../styles';
+import { useMessageSynchronizer } from '../../hooks/message-synchronizer';
 
 const { Text } = Typography;
 

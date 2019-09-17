@@ -2,10 +2,10 @@ import React from 'react';
 import { Card } from 'antd';
 import { SubmitButton } from '@jbuschke/formik-antd';
 
-import styles from '../../styles';
-import Layout from '../../components/Layout';
 import LinkButton from '../../components/link-button';
-import Wizard from '../../components/pages/register/Wizard';
+import Layout from '../../components/Layout';
+import Wizard from '../../components/pages/register/wizard';
+import styles from '../../styles';
 import AccountRegistrationComponent from '../../components/pages/register/account';
 
 const AccountRegistrationScreen = () => {

@@ -3,12 +3,12 @@ import { Card } from 'antd';
 import { useRouter } from 'next/router';
 
 import { useAuth } from '../../hooks/auth-context';
-import Layout from '../../components/Layout';
-import Wizard from '../../components/pages/register/Wizard';
-import AccountSelector from '../../components/google/account-selector';
 import LinkButton from '../../components/link-button';
-
+import Layout from '../../components/Layout';
+import Wizard from '../../components/pages/register/wizard';
 import styles from '../../styles';
+import AccountSelector from '../../components/google/account-selector';
+
 
 const RegistrationScreen = () => {
   const router = useRouter();
