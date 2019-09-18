@@ -1,7 +1,7 @@
 /* globals window, localStorage */
 
+import { isEqual } from 'lodash';
 import React, { useState, useContext, useEffect, useCallback, useMemo, useRef } from 'react';
-
 import gql from 'graphql-tag';
 import { ApolloContext } from 'react-apollo';
 
@@ -121,7 +121,12 @@ const AuthProvider = (props) => {
         query: ACCOUNT_QUERY,
         fetchPolicy: 'no-cache',
       });
-      if (mounted.current) setAccount(result.data.account);
+      if (mounted.current) {
+        setAccount((prev) => {
+          if (isEqual(prev, result.data.account)) return prev;
+          return result.data.account;
+        });
+      }
     })();
   }, [client, token]);
 

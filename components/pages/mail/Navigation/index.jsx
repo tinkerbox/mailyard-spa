@@ -1,6 +1,6 @@
 /* globals window */
 
-import { orderBy } from 'lodash';
+import { filter, orderBy } from 'lodash';
 import React, { useCallback, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { Menu, Icon, Popconfirm, Avatar } from 'antd';
@@ -21,6 +21,7 @@ const MAILBOXES_QUERY = gql`
       name
       email
       position
+      markedForDeletionAt
     }
   }
 `;
@@ -56,7 +57,8 @@ const Navigation = () => {
     }
   }, [router]);
 
-  const mailboxSelectors = data ? orderBy(data.mailboxes, ['position']).map(mailbox => (
+  const mailboxes = data ? filter(data.mailboxes, (m) => { return !m.markedForDeletionAt; }) : [];
+  const mailboxSelectors = data ? orderBy(mailboxes, ['position']).map(mailbox => (
     <Menu.Item key={mailbox.position} selected={selectedMailboxPos === mailbox.id} title={mailbox.email}>
       <i className="anticon">
         <Avatar size="small">{mailbox.name[0]}</Avatar>

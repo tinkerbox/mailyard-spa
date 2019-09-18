@@ -21,6 +21,7 @@ const MAILBOXES_QUERY = gql`
       messageCount
       usage
       lastSyncAt
+      markedForDeletionAt
     }
   }
 `;
@@ -62,9 +63,9 @@ const columns = [
     key: 'usage',
   },
   {
-    title: 'Last Sync',
-    dataIndex: 'lastSync',
-    key: 'lastSync',
+    title: 'Status',
+    dataIndex: 'status',
+    key: 'status',
   },
 ];
 
@@ -76,14 +77,18 @@ const Mailboxes = () => {
 
   const rows = data ? data.mailboxes.map((m) => {
     return {
+      default: account.defaultMailboxId === m.id,
       id: m.id,
       key: m.position,
       email: m.email,
       name: m.name,
       messages: m.messageCount ? (32013).toLocaleString() : '-',
       usage: m.usage ? prettyBytes(m.usage) : '-',
-      lastSync: m.lastSyncAt ? new Date(m.lastSyncAt).toDateString() : 'Pending sync...',
-      default: account.defaultMailboxId === m.id,
+      markedForDeletionAt: m.markedForDeletionAt,
+      status: (() => {
+        if (m.markedForDeletionAt) return 'Pending deletion...';
+        return m.lastSyncAt ? new Date(m.lastSyncAt).toDateString() : 'Pending sync...';
+      })(),
     };
   }) : [];
 
@@ -96,7 +101,7 @@ const Mailboxes = () => {
       mutation: DELETE_MAILBOX_MUTATION,
       variables: { id: selectedMailbox.id },
     }).then(() => {
-      message.success('Mailbox removed');
+      message.success('Your mailbox will be removed shortly');
       execute();
       refresh();
       setSelectedMailbox(null);
@@ -116,7 +121,7 @@ const Mailboxes = () => {
 
       <Text strong>Sync mailbox</Text>
       <Paragraph>Perform a incremental backup of the new emails since the last sync.</Paragraph>
-      <LinkButton type="primary" href={`/mailboxes/${selectedMailbox.id}/sync`}>Go to Sync</LinkButton>
+      <LinkButton type="primary" href={`/mailboxes/${selectedMailbox.id}/sync`} disabled={!!selectedMailbox.markedForDeletionAt}>Go to Sync</LinkButton>
 
       <Divider dashed />
 
@@ -125,11 +130,16 @@ const Mailboxes = () => {
       {account.defaultMailboxId === selectedMailbox.id ? (
         <Paragraph type="warning">This mailbox is set as your default, and cannot be deleted.</Paragraph>
       ) : (
-        <Button type="danger" onClick={handleDelete}>Delete</Button>
+        <Button type="danger" onClick={handleDelete} disabled={!!selectedMailbox.markedForDeletionAt}>Delete</Button>
       )}
 
     </Drawer>
   ) : <Drawer visible={false} />;
+
+  const rowClassName = (record) => {
+    if (record.markedForDeletionAt) return styles.deleted;
+    return '';
+  };
 
   return (
     <React.Fragment>
@@ -144,6 +154,7 @@ const Mailboxes = () => {
         dataSource={rows}
         pagination={false}
         onRow={onRowSelect}
+        rowClassName={rowClassName}
       />
 
       <Divider dashed />

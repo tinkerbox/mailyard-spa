@@ -21,3 +21,7 @@
 .full {
   height: 100vh;
 }
+
+.deleted {
+  color: lightgray;
+}
