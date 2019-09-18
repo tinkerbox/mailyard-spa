@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
+import dynamic from 'next/dynamic';
 import { Divider, Row, Col, Avatar, Statistic } from 'antd';
 
 import { useGoogle } from '../../hooks/google-context';
@@ -82,4 +83,4 @@ MailboxSync.propTypes = {
 
 MailboxSync.whyDidYouRender = true;
 
-export default MailboxSync;
+export default dynamic(() => Promise.resolve(MailboxSync), { ssr: false });
