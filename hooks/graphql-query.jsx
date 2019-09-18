@@ -1,5 +1,5 @@
 import { some, isEqual } from 'lodash';
-import { useState, useEffect, useContext, useCallback } from 'react';
+import { useState, useEffect, useContext, useCallback, useRef } from 'react';
 import { ApolloContext } from 'react-apollo';
 import { useRouter } from 'next/router';
 
@@ -9,27 +9,42 @@ function useGraphQLQuery(query, options, { auto = true, validate = () => true } 
   const router = useRouter();
   const { client } = useContext(ApolloContext);
   const { logout } = useAuth();
-  const [results, setResults] = useState({ loading: auto, data: null, errors: [] });
+  const loading = useRef(false);
+  const [results, setResults] = useState({
+    pending: auto,
+    data: null,
+    errors: [],
+  });
 
   useEffect(() => {
     let didCancel = false;
 
     (async () => {
-      if (results.loading && !validate()) return;
+      if (loading.current) return; // skip if already loading
+      if (!results.pending) return; // skip if don't need to execute
+      if (!validate()) return; // skip if validation failed
+
+      loading.current = true;
 
       try {
         const resultset = await client.query({
-          query, ...options,
+          query,
+          ...options,
           fetchPolicy: 'no-cache',
         });
 
-        if (didCancel || isEqual(resultset.data, results.data)) return;
-        setResults({ loading: false, data: resultset.data, errors: [] });
+        if (didCancel) return;
+        loading.current = false;
+        setResults((prev) => {
+          if (isEqual(resultset.data, results.data)) return { ...prev, pending: false };
+          return { pending: false, data: resultset.data, errors: [] };
+        });
       } catch (error) {
         if (!error.graphQLErrors || error.graphQLErrors.length === 0) return;
 
         const formattedErrors = error.graphQLErrors.map(e => ({ name: e.extensions.exception.name, message: e.message }));
-        setResults({ loading: false, data: null, errors: formattedErrors });
+        loading.current = false;
+        setResults({ pending: false, data: null, errors: formattedErrors });
 
         if (formattedErrors.length > 0 && some(formattedErrors, ['name', 'ForbiddenError'])) {
           logout();
@@ -39,9 +54,11 @@ function useGraphQLQuery(query, options, { auto = true, validate = () => true } 
     })();
 
     return () => { didCancel = true; };
-  }, [client, logout, options, query, results.data, results.loading, router, validate]);
+  }, [client, logout, options, query, results, results.data, results.execute, router, validate]);
 
-  const execute = useCallback(() => setResults(prev => ({ ...prev, loading: true })), []);
+  const execute = useCallback(() => {
+    if (!loading.current) setResults(prev => ({ ...prev, pending: true }));
+  }, []);
 
   return {
     execute,

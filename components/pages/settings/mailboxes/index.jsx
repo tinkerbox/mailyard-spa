@@ -26,6 +26,14 @@ const MAILBOXES_QUERY = gql`
   }
 `;
 
+const SET_AS_DEFAULT_MUTATION = gql`
+mutation ($id: ID!) {
+  setMailboxAsDefault(id: $id){
+    id
+  }
+}
+`;
+
 const DELETE_MAILBOX_MUTATION = gql`
 mutation ($id: ID!) {
   removeMailbox(id: $id){
@@ -73,7 +81,7 @@ const Mailboxes = () => {
   const { client } = useContext(ApolloContext);
   const { refresh, account } = useAuth();
   const [selectedMailbox, setSelectedMailbox] = useState(null);
-  const { loading, data, execute } = useGraphQLQuery(MAILBOXES_QUERY);
+  const { loading, data, execute } = useGraphQLQuery(MAILBOXES_QUERY, { auto: false });
 
   const rows = data ? data.mailboxes.map((m) => {
     return {
@@ -95,6 +103,20 @@ const Mailboxes = () => {
   const onRowSelect = record => ({ onClick: () => setSelectedMailbox(record) });
 
   const closeDrawer = () => setSelectedMailbox(null);
+
+  const handleSetAsDefault = async () => {
+    client.mutate({
+      mutation: SET_AS_DEFAULT_MUTATION,
+      variables: { id: selectedMailbox.id },
+    }).then(() => {
+      execute();
+      refresh();
+      setSelectedMailbox(null);
+      message.success('Mailbox has been set as default');
+    }).catch(() => {
+      message.error('Could not set selected mailbox as default');
+    });
+  };
 
   const handleDelete = async () => {
     client.mutate({
@@ -122,6 +144,16 @@ const Mailboxes = () => {
       <Text strong>Sync mailbox</Text>
       <Paragraph>Perform a incremental backup of the new emails since the last sync.</Paragraph>
       <LinkButton type="primary" href={`/mailboxes/${selectedMailbox.id}/sync`} disabled={!!selectedMailbox.markedForDeletionAt}>Go to Sync</LinkButton>
+
+      <Divider dashed />
+
+      <Text strong>Set as default</Text>
+      <Paragraph>This will be the mailbox that is displayed upon startup.</Paragraph>
+      {account.defaultMailboxId === selectedMailbox.id ? (
+        <Paragraph type="warning">This mailbox is already your default.</Paragraph>
+      ) : (
+        <Button type="primary" onClick={handleSetAsDefault} disabled={!!selectedMailbox.markedForDeletionAt}>Set as default</Button>
+      )}
 
       <Divider dashed />
 
