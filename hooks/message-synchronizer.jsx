@@ -1,11 +1,11 @@
 import { map } from 'lodash';
-import { useReducer, useContext, useRef, useEffect } from 'react';
+import { useReducer, useContext, useEffect, useRef } from 'react';
 import { ApolloContext } from 'react-apollo';
 import PromiseThrottle from 'promise-throttle';
+import gql from 'graphql-tag';
 
 import { useGoogle } from './google-context';
 import { useEmailParser } from './email-parser';
-
 import { retry } from '../lib/promise-retry';
 import { uploadFile } from '../lib/file-manager';
 import EmailUploader from '../lib/email-uploader';
@@ -13,7 +13,15 @@ import EmailExtractor from '../lib/email-extractor';
 
 const THROTTLE_LIMIT = 5;
 
-const sync = async (token, dispatch, api, parse, uploader) => {
+const START_SYNC_MUTATION = gql`
+  mutation ($mailboxId: ID!) {
+    startSync(mailboxId: $mailboxId) {
+      id
+    }
+  }
+`;
+
+const sync = async (token, dispatch, api, parse, uploader, syncSessionId) => {
   const params = token ? { pageToken: token } : {};
   const { result: batchQuery } = await api.getAllMessages(params);
   const { messages, nextPageToken } = batchQuery;
@@ -25,7 +33,7 @@ const sync = async (token, dispatch, api, parse, uploader) => {
         const parsed = await parse(detailQuery.raw);
         const extractor = new EmailExtractor(parsed);
 
-        const { data } = await uploader.sync(detailQuery, extractor);
+        const { data } = await uploader.sync(detailQuery, extractor, syncSessionId);
         const { putRequest } = data.sync;
 
         const response = await uploadFile(putRequest, detailQuery.raw);
@@ -71,8 +79,9 @@ const reducer = (state, action) => {
     case 'start':
       return {
         messages: 0,
-        nextPageToken: null,
+        nextPageToken: 'first-query',
         status: 'running',
+        syncSessionId: payload.syncSessionId,
       };
 
     case 'stop':
@@ -121,15 +130,23 @@ const useMessageSynchronizer = (mailboxId) => {
     let didCancel = false;
 
     if (status.nextPageToken && status.status === 'running' && !didCancel) {
-      sync(status.nextPageToken, dispatch, api, parse, uploader.current);
+      if (status.nextPageToken === 'first-query') {
+        sync(null, dispatch, api, parse, uploader.current, status.syncSessionId);
+      } else {
+        sync(status.nextPageToken, dispatch, api, parse, uploader.current, status.syncSessionId);
+      }
     }
 
     return () => { didCancel = true; };
-  }, [api, parse, status.nextPageToken, status.status]);
+  }, [api, parse, status.nextPageToken, status.status, status.syncSessionId]);
 
   const start = () => {
-    dispatch({ type: 'start' });
-    sync(null, dispatch, api, parse, uploader.current);
+    client.mutate({
+      mutation: START_SYNC_MUTATION,
+      variables: { mailboxId },
+    }).then((results) => {
+      dispatch({ type: 'start', payload: { syncSessionId: results.data.startSync.id } });
+    });
   };
 
   return {

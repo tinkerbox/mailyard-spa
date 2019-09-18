@@ -90,7 +90,7 @@ const Mailboxes = () => {
       key: m.position,
       email: m.email,
       name: m.name,
-      messages: m.messageCount ? (32013).toLocaleString() : '-',
+      messages: m.messageCount ? (m.messageCount).toLocaleString() : '-',
       usage: m.usage ? prettyBytes(m.usage) : '-',
       markedForDeletionAt: m.markedForDeletionAt,
       status: (() => {
