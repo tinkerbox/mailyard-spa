@@ -95,7 +95,7 @@ const Mailboxes = () => {
       markedForDeletionAt: m.markedForDeletionAt,
       status: (() => {
         if (m.markedForDeletionAt) return 'Pending deletion...';
-        return m.lastSyncAt ? new Date(m.lastSyncAt).toDateString() : 'Pending sync...';
+        return m.lastSyncAt ? new Date(m.lastSyncAt).toLocaleString() : 'Pending sync...';
       })(),
     };
   }) : [];
