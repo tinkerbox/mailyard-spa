@@ -1,68 +1,66 @@
 import { some, isEqual } from 'lodash';
-import { useState, useEffect, useContext, useCallback, useRef } from 'react';
+import { useEffect, useContext, useCallback, useReducer } from 'react';
 import { ApolloContext } from 'react-apollo';
 import { useRouter } from 'next/router';
 
 import { useAuth } from './auth-context';
 
+const reducer = (state, action) => {
+  switch (action.type) {
+    case 'execute':
+      return { ...state, loading: true };
+
+    case 'complete':
+      if (isEqual(action.payload, state.data)) return { ...state, loading: false };
+      return { loading: false, data: action.payload, errors: []};
+
+    case 'error':
+      return { loading: false, data: null, errors: action.payload };
+
+    default:
+      throw new Error();
+  }
+};
+
 function useGraphQLQuery(query, options, { auto = true, validate = () => true } = {}) {
   const router = useRouter();
   const { client } = useContext(ApolloContext);
   const { logout } = useAuth();
-  const loading = useRef(false);
-  const [results, setResults] = useState({
-    pending: auto,
-    data: null,
-    errors: [],
-  });
+
+  const [state, dispatch] = useReducer(reducer, { loading: auto });
 
   useEffect(() => {
     let didCancel = false;
 
     (async () => {
-      if (loading.current) return; // skip if already loading
-      if (!results.pending) return; // skip if don't need to execute
-      if (!validate()) return; // skip if validation failed
-
-      loading.current = true;
-
-      try {
-        const resultset = await client.query({
-          query,
-          ...options,
-          fetchPolicy: 'no-cache',
-        });
-
+      if (!state.loading || !validate()) return;
+      client.query({
+        query,
+        ...options,
+        fetchPolicy: 'no-cache',
+      }).then((resutlset) => {
         if (didCancel) return;
-        loading.current = false;
-        setResults((prev) => {
-          if (isEqual(resultset.data, results.data)) return { ...prev, pending: false };
-          return { pending: false, data: resultset.data, errors: [] };
-        });
-      } catch (error) {
+        dispatch({ type: 'complete', payload: resutlset.data });
+      }).catch((error) => {
+        if (didCancel) return;
         if (!error.graphQLErrors || error.graphQLErrors.length === 0) return;
-
         const formattedErrors = error.graphQLErrors.map(e => ({ name: e.extensions.exception.name, message: e.message }));
-        loading.current = false;
-        setResults({ pending: false, data: null, errors: formattedErrors });
-
+        dispatch({ type: 'error', payload: formattedErrors });
         if (formattedErrors.length > 0 && some(formattedErrors, ['name', 'ForbiddenError'])) {
           logout();
           router.push('/login');
         }
-      }
+      });
     })();
 
     return () => { didCancel = true; };
-  }, [client, logout, options, query, results, results.data, results.execute, router, validate]);
+  }, [client, logout, options, query, router, state.loading, validate]);
 
-  const execute = useCallback(() => {
-    if (!loading.current) setResults(prev => ({ ...prev, pending: true }));
-  }, []);
+  const execute = useCallback(() => { dispatch({ type: 'execute' }); }, []);
 
   return {
     execute,
-    ...results,
+    ...state,
   };
 }
 
