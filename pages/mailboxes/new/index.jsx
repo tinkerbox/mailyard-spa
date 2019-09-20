@@ -18,9 +18,9 @@ const AddMailboxScreen = () => {
       <PageHeader onBack={() => router.push('/settings#mailboxes')} title="Add New Mailbox" />
       <Card>
         <AccountSelector>
-          {({ disabled, mailbox }) => (
+          {({ mailbox, profile }) => (
             <div className={styles.cardFooter}>
-              <LinkButton type="primary" size="large" href="/mailboxes/new/config" disabled={disabled}>Next</LinkButton>
+              <LinkButton type="primary" size="large" href="/mailboxes/new/config" disabled={!profile || mailbox}>Next</LinkButton>
               {mailbox && <Text type="warning">This mailbox has already been created.</Text>}
             </div>
           )}

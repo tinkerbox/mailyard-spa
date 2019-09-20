@@ -143,7 +143,7 @@ const Mailboxes = () => {
 
       <Text strong>Sync mailbox</Text>
       <Paragraph>Perform a incremental backup of the new emails since the last sync.</Paragraph>
-      <LinkButton type="primary" href={`/mailboxes/${selectedMailbox.id}/sync`} disabled={!!selectedMailbox.markedForDeletionAt}>Go to Sync</LinkButton>
+      <LinkButton type="primary" href={`/mailboxes/${selectedMailbox.id}`} disabled={!!selectedMailbox.markedForDeletionAt}>Go to Sync</LinkButton>
 
       <Divider dashed />
 

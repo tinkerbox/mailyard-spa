@@ -6,9 +6,8 @@ import { useAuth } from '../../hooks/auth-context';
 import LinkButton from '../../components/link-button';
 import Layout from '../../components/Layout';
 import Wizard from '../../components/pages/register/wizard';
-import styles from '../../styles';
 import AccountSelector from '../../components/google/account-selector';
-
+import styles from '../../styles';
 
 const RegistrationScreen = () => {
   const router = useRouter();
@@ -23,9 +22,9 @@ const RegistrationScreen = () => {
       <Card title="Get started in 3 easy steps">
         <Wizard current={0} />
         <AccountSelector>
-          {({ disabled }) => (
+          {({ profile }) => (
             <div className={styles.cardFooter}>
-              <LinkButton type="primary" size="large" href="register/account" disabled={disabled}>Next</LinkButton>
+              <LinkButton type="primary" size="large" href="register/account" disabled={!profile}>Next</LinkButton>
               <LinkButton type="link" href="/login">Already have an account?</LinkButton>
             </div>
           )}

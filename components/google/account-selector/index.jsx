@@ -18,7 +18,6 @@ const AccountSelector = ({ children }) => {
   const { profile } = useGoogle();
 
   const mailbox = (account && profile) ? find(account.mailboxes, { email: profile.email }) : false;
-  const disabled = !(profile && !mailbox);
 
   return (
     <React.Fragment>
@@ -48,7 +47,7 @@ const AccountSelector = ({ children }) => {
 
       <Divider />
 
-      {children({ disabled, mailbox })}
+      {children({ mailbox, profile })}
 
     </React.Fragment>
   );
