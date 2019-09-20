@@ -1,4 +1,5 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
+import { useRouter } from 'next/router';
 import { message, Collapse, Row, Col, Typography, Alert, Button, Checkbox, Divider } from 'antd';
 import { Form, Input, SubmitButton } from '@jbuschke/formik-antd';
 import { Formik } from 'formik';
@@ -7,6 +8,7 @@ import * as Yup from 'yup';
 import gql from 'graphql-tag';
 import { ApolloContext } from 'react-apollo';
 
+import { useAuth } from '../../../../hooks/auth-context';
 import styles from '../../../../styles';
 import format from '../../../../lib/error-formatter';
 
@@ -17,6 +19,14 @@ const CHANGE_PASSWORD_MUTATION = gql`
   mutation ($existingPassword: String!, $newPassword: String!) {
     changePassword(existingPassword: $existingPassword, newPassword: $newPassword) {
       token
+    }
+  }
+`;
+
+const DELETE_ACCOUNT_MUTATION = gql`
+  mutation {
+    removeAccount {
+      id
     }
   }
 `;
@@ -42,10 +52,10 @@ const formItemLayout = {
   },
 };
 
-const Account = () => {
+const ChangePasswordForm = () => {
   const { client } = useContext(ApolloContext);
 
-  const handleSubmit = async (values, { setSubmitting, setErrors }) => {
+  const handleChangePassword = async (values, { setSubmitting, setErrors }) => {
     const { existingPassword, newPassword } = values;
 
     client.mutate({
@@ -65,40 +75,72 @@ const Account = () => {
   };
 
   return (
+    <Row>
+      <Col md={12}>
+        <Formik onSubmit={handleChangePassword} validationSchema={schema}>
+          <Form layout="horizontal" {...formItemLayout}>
+
+            <Form.Item name="existingPassword" label="Current password">
+              <Input.Password name="existingPassword" />
+            </Form.Item>
+
+            <Form.Item name="newPassword" label="New password">
+              <Input.Password name="newPassword" />
+            </Form.Item>
+
+            <Form.Item name="confirmPassword" label="Confirm new password">
+              <Input.Password name="confirmPassword" />
+            </Form.Item>
+
+            <Divider dashed />
+
+            <SubmitButton type="primary" htmlType="submit">Change Password</SubmitButton>
+
+          </Form>
+        </Formik>
+      </Col>
+    </Row>
+  );
+};
+
+const DeleteAccountForm = () => {
+  const [agree, setAgree] = useState(false);
+  const { client } = useContext(ApolloContext);
+  const { logout } = useAuth();
+  const router = useRouter();
+
+  const handleDeleteAccount = () => {
+    client.mutate({ mutation: DELETE_ACCOUNT_MUTATION })
+      .then(() => {
+        message.success('Your account will be deleted shortly.');
+        logout();
+        router.push('/login');
+      })
+      .catch(() => {
+        message.error('Could not delete your account.');
+      });
+  };
+
+  return (
+    <React.Fragment>
+      <Alert message="This action cannot be undone. This will permanently delete all your mailboxes, labels, threads and messages." type="warning" />
+      <div className={styles.use('m-3')}>
+        <Checkbox checked={agree} onClick={() => setAgree(true)}>I fully understand the consequences of deleting my account</Checkbox>
+      </div>
+      <Divider dashed />
+      <Button type="danger" onClick={handleDeleteAccount} disabled={!agree}>Delete Account</Button>
+    </React.Fragment>
+  );
+};
+
+const Account = () => {
+  return (
     <React.Fragment>
 
       <Collapse bordered={false} accordion>
 
         <Panel header="Change your password" className={styles.use('mt-4')}>
-
-          <Row>
-            <Col md={12}>
-
-              <Formik onSubmit={handleSubmit} validationSchema={schema}>
-                <Form layout="horizontal" {...formItemLayout}>
-
-                  <Form.Item name="existingPassword" label="Current password">
-                    <Input.Password name="existingPassword" />
-                  </Form.Item>
-
-                  <Form.Item name="newPassword" label="New password">
-                    <Input.Password name="newPassword" />
-                  </Form.Item>
-
-                  <Form.Item name="confirmPassword" label="Confirm new password">
-                    <Input.Password name="confirmPassword" />
-                  </Form.Item>
-
-                  <Divider dashed />
-
-                  <SubmitButton type="primary" htmlType="submit">Change Password</SubmitButton>
-
-                </Form>
-              </Formik>
-
-            </Col>
-          </Row>
-
+          <ChangePasswordForm />
         </Panel>
 
         <Panel header="Manage your notifications" className={styles.use('mt-4')}>
@@ -106,12 +148,7 @@ const Account = () => {
         </Panel>
 
         <Panel header="Delete your account" className={styles.use('mt-4')}>
-          <Alert message="This action cannot be undone. This will permanently delete all your mailboxes, labels, threads and messages." type="warning" />
-          <div className={styles.use('m-3')}>
-            <Checkbox>I fully understand the consequences of deleting my account</Checkbox>
-          </div>
-          <Divider dashed />
-          <Button type="danger">Delete Account</Button>
+          <DeleteAccountForm />
         </Panel>
 
       </Collapse>
