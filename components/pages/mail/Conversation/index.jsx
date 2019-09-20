@@ -44,7 +44,7 @@ const Container = () => {
   const { selectedMailboxPos, selectedThreadId } = useMailSelector();
   const { parse } = useEmailParser();
 
-  const { loading, data } = useGraphQLQuery(
+  const { loading, data, execute } = useGraphQLQuery(
     THREAD_QUERY,
     {
       variables: {
@@ -53,9 +53,16 @@ const Container = () => {
       },
     },
     {
+      auto: false,
       validate: useCallback(() => !!selectedThreadId, [selectedThreadId]),
     },
   );
+
+  useEffect(() => {
+    let didCancel = false;
+    if (!didCancel) execute();
+    return () => { didCancel = true; };
+  }, [execute, selectedThreadId]);
 
   const items = data ? data.mailbox.thread.messages.map(m => <Conversation.Item key={m.id} message={m} parse={parse} />) : [];
 

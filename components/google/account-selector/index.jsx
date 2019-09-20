@@ -13,7 +13,7 @@ import custom from './styles.css';
 const styles = makeStyles(custom);
 const { Text } = Typography;
 
-const AccountSelector = ({ children }) => {
+const AccountSelector = ({ children, hint }) => {
   const { account } = useAuth();
   const { profile } = useGoogle();
 
@@ -37,7 +37,7 @@ const AccountSelector = ({ children }) => {
             <Divider />
 
             <div className={styles.loading}>
-              <Google.Login />
+              <Google.Login loginHint={hint} />
             </div>
 
           </Col>
@@ -53,7 +53,14 @@ const AccountSelector = ({ children }) => {
   );
 };
 
-AccountSelector.propTypes = { children: PropTypes.func.isRequired };
+AccountSelector.propTypes = {
+  children: PropTypes.func.isRequired,
+  hint: PropTypes.string,
+};
+
+AccountSelector.defaultProps = {
+  hint: null,
+};
 
 AccountSelector.whyDidYouRender = true;
 

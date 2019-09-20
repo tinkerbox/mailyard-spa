@@ -24,14 +24,16 @@ const GoogleSyncMailboxScreen = () => {
       <PageHeader onBack={() => router.push('/settings#mailboxes')} title="Login to Google" />
 
       <Card>
-        <AccountSelector>
-          {({ mailbox }) => (
-            <div className={styles.cardFooter}>
-              <LinkButton type="primary" size="large" href={`/mailboxes/${id}/sync`} disabled={!mailbox || mailbox.email !== target.email}>Next</LinkButton>
-              {(!mailbox && target) && <Text type="warning">{`You need to be logged in to ${target.email} to continue`}</Text>}
-            </div>
-          )}
-        </AccountSelector>
+        {target && (
+          <AccountSelector hint={target.email}>
+            {({ mailbox }) => (
+              <div className={styles.cardFooter}>
+                <LinkButton type="primary" size="large" href={`/mailboxes/${id}/sync`} disabled={!mailbox || mailbox.email !== target.email}>Next</LinkButton>
+                {(!mailbox && target) && <Text type="warning">{`You need to be logged in to ${target.email} to continue`}</Text>}
+              </div>
+            )}
+          </AccountSelector>
+        )}
       </Card>
 
     </Layout.FullScreen>

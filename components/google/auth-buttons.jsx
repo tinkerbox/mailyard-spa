@@ -25,7 +25,7 @@ const Login = (props) => {
       onFailure={login}
       cookiePolicy="single_host_origin"
       theme="dark"
-      prompt="consent"
+      prompt="select_account"
       isSignedIn
       {...props}
     />

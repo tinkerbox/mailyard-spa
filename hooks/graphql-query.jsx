@@ -8,11 +8,12 @@ import { useAuth } from './auth-context';
 const reducer = (state, action) => {
   switch (action.type) {
     case 'execute':
+      if (state.loading) return state;
       return { ...state, loading: true };
 
     case 'complete':
       if (isEqual(action.payload, state.data)) return { ...state, loading: false };
-      return { loading: false, data: action.payload, errors: []};
+      return { loading: false, data: action.payload, errors: [] };
 
     case 'error':
       return { loading: false, data: null, errors: action.payload };
@@ -27,25 +28,30 @@ function useGraphQLQuery(query, options, { auto = true, validate = () => true } 
   const { client } = useContext(ApolloContext);
   const { logout } = useAuth();
 
-  const [state, dispatch] = useReducer(reducer, { loading: auto });
+  const [state, dispatch] = useReducer(reducer, { loading: auto, data: null, errors: [] });
 
   useEffect(() => {
     let didCancel = false;
 
     (async () => {
-      if (!state.loading || !validate()) return;
+      if (!state.loading) return;
+      if (!validate()) return;
+
       client.query({
         query,
         ...options,
         fetchPolicy: 'no-cache',
-      }).then((resutlset) => {
+      }).then((response) => {
         if (didCancel) return;
-        dispatch({ type: 'complete', payload: resutlset.data });
+
+        dispatch({ type: 'complete', payload: response.data });
       }).catch((error) => {
         if (didCancel) return;
+
         if (!error.graphQLErrors || error.graphQLErrors.length === 0) return;
         const formattedErrors = error.graphQLErrors.map(e => ({ name: e.extensions.exception.name, message: e.message }));
         dispatch({ type: 'error', payload: formattedErrors });
+
         if (formattedErrors.length > 0 && some(formattedErrors, ['name', 'ForbiddenError'])) {
           logout();
           router.push('/login');
