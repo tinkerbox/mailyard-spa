@@ -18,7 +18,7 @@ const { Paragraph } = Typography;
 const CHANGE_PASSWORD_MUTATION = gql`
   mutation ($existingPassword: String!, $newPassword: String!) {
     changePassword(existingPassword: $existingPassword, newPassword: $newPassword) {
-      token
+      accountId
     }
   }
 `;

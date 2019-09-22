@@ -3,7 +3,7 @@ import React, { useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 
-import { Card, Divider } from 'antd';
+import { message, Card, Divider } from 'antd';
 import { Form, Input, SubmitButton } from '@jbuschke/formik-antd';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
@@ -22,18 +22,22 @@ const schema = Yup.object().shape({
 
 const Login = () => {
   const router = useRouter();
-  const { loggedIn, login } = useAuth();
+  const { login, account } = useAuth();
 
   useEffect(() => {
-    if (loggedIn) router.push('/');
-  }, [router, loggedIn]);
+    if (account) router.push('/');
+  }, [router, account]);
 
   const handleSubmit = async (values, { setSubmitting, setErrors }) => {
     await login(values, {
-      success: () => { router.push('/'); },
+      success: () => {
+        router.push('/');
+        message.success('Logged in successfully');
+      },
       failure: (error) => {
         setErrors(format(error));
         setSubmitting(false);
+        message.error('Could not log you in');
       },
     });
   };

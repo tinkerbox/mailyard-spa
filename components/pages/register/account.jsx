@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { useRouter } from 'next/router';
-import { Divider, Row, Col, Spin } from 'antd';
+import { message, Divider, Row, Col, Spin } from 'antd';
 import { Form, Input } from '@jbuschke/formik-antd';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
@@ -30,8 +30,12 @@ const AccountRegistrationComponent = ({ children }) => {
   const handleSubmit = async (values, { setSubmitting, setErrors }) => {
     const params = { ...values, mailbox: build() };
     await register(params, {
-      success: () => { router.push('/register/sync'); },
+      success: () => {
+        message.success('Account registered sucessfully');
+        router.push('/register/sync');
+      },
       failure: (error) => {
+        message.success('Please review the errors in the form');
         setErrors(format(error));
         setSubmitting(false);
       },

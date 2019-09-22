@@ -3,7 +3,7 @@
 import { filter, orderBy } from 'lodash';
 import React, { useCallback, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import { Menu, Icon, Popconfirm, Avatar } from 'antd';
+import { Menu, Icon, Popconfirm, Avatar, message } from 'antd';
 import gql from 'graphql-tag';
 
 import { useAuth } from '../../../../hooks/auth-context';
@@ -35,13 +35,17 @@ const Navigation = () => {
   useEffect(() => execute(), [execute]);
 
   const onLogout = useCallback(() => {
-    logout();
+    logout({
+      success: () => message.success('Logged out, please wait'),
+      failure: () => message.error('Something went wrong'),
+    });
     router.push('/login');
   }, [logout, router]);
 
   const onMailboxSelect = useCallback(({ key }) => {
     if (key === 'loading') return;
     if (selectedMailboxPos.toString() !== key) router.push(`/mail/${key}/${selectedLabelSlug}`);
+    // TODO: something wonky going on here, explore updating context directly
   }, [router, selectedLabelSlug, selectedMailboxPos]);
 
   const onMenuSelect = useCallback(({ key }) => {

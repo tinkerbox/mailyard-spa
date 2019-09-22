@@ -33,9 +33,7 @@ const errorHandler = (error) => {
   if (graphQLErrors) {
     const forbidden = find(graphQLErrors, (e) => { return e.extensions.exception.name === 'ForbiddenError'; });
     if (forbidden) {
-      // TODO: revisit how to do this with some ability to override
-      // localStorage.removeItem('authToken');
-      // localStorage.removeItem('account');
+      // TODO: log the user out and redirect?
     } else {
       graphQLErrors.map(({ message, locations, path }) => {
         // TODO: filter out errors that can be ignored, track the rest

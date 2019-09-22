@@ -1,22 +1,32 @@
 /* globals window, localStorage */
 
 import { isEqual } from 'lodash';
-import React, { useState, useContext, useEffect, useCallback, useMemo, useRef } from 'react';
+import React, { useContext, useReducer, useEffect, useCallback, useRef } from 'react';
 import gql from 'graphql-tag';
 import { ApolloContext } from 'react-apollo';
 
-const AUTHENTICATE_MUTATION = gql`
-  mutation ($username: ID!, $password: String!) {
-    authenticate(username: $username, password: $password) {
-      token
-    }
-  }
-`;
+const STORAGE_IDENTIFIER = 'account';
 
 const REGISTER_MUTATION = gql`
   mutation ($username: ID!, $password: String!, $mailbox: MailboxInput!) {
     register(username: $username, password: $password, mailbox: $mailbox) {
-      token
+      username
+    }
+  }
+`;
+
+const AUTHENTICATE_MUTATION = gql`
+  mutation ($username: ID!, $password: String!) {
+    authenticate(username: $username, password: $password) {
+      username
+    }
+  }
+`;
+
+const LOGOUT_MUTATION = gql`
+  mutation {
+    logout {
+      username
     }
   }
 `;
@@ -45,99 +55,112 @@ const ACCOUNT_QUERY = gql`
   }
 `;
 
+const reducer = (state, action) => {
+  const { payload, type } = action;
+  switch (type) {
+    case 'register': {
+      localStorage.setItem(STORAGE_IDENTIFIER, payload.username);
+      const nextState = { loggedIn: true, account: null };
+      if (isEqual(state, nextState)) return state;
+      return nextState;
+    }
+
+    case 'login': {
+      localStorage.setItem(STORAGE_IDENTIFIER, payload.username);
+      const nextState = { loggedIn: true, account: null };
+      if (isEqual(state, nextState)) return state;
+      return nextState;
+    }
+
+    case 'logout': {
+      localStorage.removeItem(STORAGE_IDENTIFIER);
+      const nextState = { loggedIn: false, account: null };
+      if (isEqual(state, nextState)) return state;
+      return nextState;
+    }
+
+    case 'refresh': {
+      const { account } = payload;
+      const nextState = { ...state, account };
+      if (isEqual(state, nextState)) return state;
+      return nextState;
+    }
+
+    default:
+      throw new Error();
+  }
+};
+
 const AuthContext = React.createContext();
 
 const AuthProvider = (props) => {
-  const existingToken = (typeof window !== 'undefined') ? localStorage.getItem('authToken') : null;
-  const existingAccount = (typeof window !== 'undefined') ? localStorage.getItem('account') : null;
+  const existingAccountId = (typeof window !== 'undefined') ? localStorage.getItem(STORAGE_IDENTIFIER) : null;
 
   const { client } = useContext(ApolloContext);
-  // TODO: combine state to reduce re-renders
-  const [token, setToken] = useState(existingToken);
-  const [account, setAccount] = useState(existingAccount ? JSON.parse(existingAccount) : null);
   const mounted = useRef(true);
+  const [state, dispatch] = useReducer(reducer, { loggedIn: false, account: null, accountId: null });
 
   useEffect(() => () => { mounted.current = false; }, []);
 
-  useEffect(() => {
-    if (token) localStorage.setItem('authToken', token);
-    else localStorage.removeItem('authToken');
-  }, [token]);
+  const register = useCallback((values, callbacks = {}) => {
+    client.mutate({
+      mutation: REGISTER_MUTATION,
+      variables: values,
+      fetchPolicy: 'no-cache',
+    }).then(({ data }) => {
+      dispatch({ type: 'register', payload: data.register });
+      if (callbacks.success) callbacks.success(data.register);
+    }).catch((error) => {
+      dispatch({ type: 'refresh', payload: { account: null } });
+      if (callbacks.failure) callbacks.failure(error);
+    });
+  }, [client]);
 
-  useEffect(() => {
-    if (account) localStorage.setItem('account', JSON.stringify(account));
-    else localStorage.removeItem('account');
-  }, [account]);
-
-  useEffect(() => {
-    (async () => {
-      if (!token) return;
-      const result = await client.query({ query: ACCOUNT_QUERY });
-      if (mounted.current) setAccount(prev => prev || result.data.account);
-    })();
-  }, [client, token]);
-
-  const login = useCallback(async (values, callbacks) => {
-    try {
-      const result = await client.mutate({
-        mutation: AUTHENTICATE_MUTATION,
-        variables: values,
-        fetchPolicy: 'no-cache',
-      });
-      if (mounted.current) setToken(result.data.authenticate.token);
+  const login = useCallback((values, callbacks = {}) => {
+    client.mutate({
+      mutation: AUTHENTICATE_MUTATION,
+      variables: values,
+      fetchPolicy: 'no-cache',
+    }).then(({ data }) => {
       client.cache.reset();
-      if (callbacks.success) callbacks.success(result.data.authenticate);
-    } catch (error) {
+      dispatch({ type: 'login', payload: data.authenticate });
+      if (callbacks.success) callbacks.success(data.authenticate);
+    }).catch((error) => {
+      dispatch({ type: 'refresh', payload: { account: null } });
       if (callbacks.failure) callbacks.failure(error);
-    }
+    });
   }, [client]);
 
-  const logout = useCallback(() => {
-    setToken(null);
-    setAccount(null);
-    client.cache.reset();
-  }, [client.cache]);
-
-  const register = useCallback(async (values, callbacks) => {
-    try {
-      const result = await client.mutate({
-        mutation: REGISTER_MUTATION,
-        variables: values,
-        fetchPolicy: 'no-cache',
-      });
-      if (mounted.current) setToken(result.data.register.token);
-      if (callbacks.success) callbacks.success(result.data.register);
-    } catch (error) {
+  const logout = useCallback((callbacks = {}) => {
+    client.mutate({
+      mutation: LOGOUT_MUTATION,
+      fetchPolicy: 'no-cache',
+    }).then(() => {
+      client.cache.reset();
+      dispatch({ type: 'logout' });
+      if (callbacks.success) callbacks.success();
+    }).catch((error) => {
       if (callbacks.failure) callbacks.failure(error);
-    }
+    });
   }, [client]);
-
-  const loggedIn = !!token;
 
   const refresh = useCallback(() => {
-    (async () => {
-      if (!token) return;
-      const result = await client.query({
-        query: ACCOUNT_QUERY,
-        fetchPolicy: 'no-cache',
-      });
-      if (mounted.current) {
-        setAccount((prev) => {
-          if (isEqual(prev, result.data.account)) return prev;
-          return result.data.account;
-        });
-      }
-    })();
-  }, [client, token]);
+    client.query({ query: ACCOUNT_QUERY, fetchPolicy: 'no-cache' })
+      .then(result => dispatch({ type: 'refresh', payload: result.data }))
+      .catch(() => dispatch({ type: 'refresh', payload: { account: null } }));
+  }, [client]);
 
-  const values = useMemo(() => ({
+  useEffect(() => {
+    if (!state.account && existingAccountId) refresh();
+  }, [existingAccountId, refresh, state.account]);
+
+  const values = {
     login,
     logout,
     register,
-    account,
-    loggedIn,
     refresh,
-  }), [account, loggedIn, login, logout, register, refresh]);
+    ...state,
+  };
 
   return <AuthContext.Provider value={values} {...props} />;
 };
