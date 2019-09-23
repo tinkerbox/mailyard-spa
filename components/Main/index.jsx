@@ -33,4 +33,6 @@ const Main = {};
 
 Main.Navigation = Navigation;
 
+Navigation.whyDidYouRender = true;
+
 export default Main;

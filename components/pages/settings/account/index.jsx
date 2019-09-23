@@ -1,5 +1,4 @@
 import React, { useContext, useState } from 'react';
-import { useRouter } from 'next/router';
 import { message, Collapse, Row, Col, Typography, Alert, Button, Checkbox, Divider } from 'antd';
 import { Form, Input, SubmitButton } from '@jbuschke/formik-antd';
 import { Formik } from 'formik';
@@ -106,15 +105,14 @@ const ChangePasswordForm = () => {
 const DeleteAccountForm = () => {
   const [agree, setAgree] = useState(false);
   const { client } = useContext(ApolloContext);
-  const { logout } = useAuth();
-  const router = useRouter();
+  const { logout, refresh } = useAuth();
 
   const handleDeleteAccount = () => {
     client.mutate({ mutation: DELETE_ACCOUNT_MUTATION })
       .then(() => {
         message.success('Your account will be deleted shortly.');
         logout();
-        router.push('/login');
+        refresh();
       })
       .catch(() => {
         message.error('Could not delete your account.');

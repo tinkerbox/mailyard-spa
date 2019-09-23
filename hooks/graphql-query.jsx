@@ -51,11 +51,6 @@ function useGraphQLQuery(query, options, { auto = true, validate = () => true } 
         if (!error.graphQLErrors || error.graphQLErrors.length === 0) return;
         const formattedErrors = error.graphQLErrors.map(e => ({ name: e.extensions.exception.name, message: e.message }));
         dispatch({ type: 'error', payload: formattedErrors });
-
-        if (formattedErrors.length > 0 && some(formattedErrors, ['name', 'ForbiddenError'])) {
-          logout();
-          router.push('/login');
-        }
       });
     })();
 

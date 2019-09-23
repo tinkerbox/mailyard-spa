@@ -60,28 +60,28 @@ const reducer = (state, action) => {
   switch (type) {
     case 'register': {
       localStorage.setItem(STORAGE_IDENTIFIER, payload.username);
-      const nextState = { loggedIn: true, account: null };
+      const nextState = { account: null, loading: true };
       if (isEqual(state, nextState)) return state;
       return nextState;
     }
 
     case 'login': {
       localStorage.setItem(STORAGE_IDENTIFIER, payload.username);
-      const nextState = { loggedIn: true, account: null };
+      const nextState = { account: null, loading: true };
       if (isEqual(state, nextState)) return state;
       return nextState;
     }
 
     case 'logout': {
       localStorage.removeItem(STORAGE_IDENTIFIER);
-      const nextState = { loggedIn: false, account: null };
+      const nextState = { account: null, loading: false };
       if (isEqual(state, nextState)) return state;
       return nextState;
     }
 
     case 'refresh': {
       const { account } = payload;
-      const nextState = { ...state, account };
+      const nextState = { ...state, account, loading: false };
       if (isEqual(state, nextState)) return state;
       return nextState;
     }
@@ -98,7 +98,7 @@ const AuthProvider = (props) => {
 
   const { client } = useContext(ApolloContext);
   const mounted = useRef(true);
-  const [state, dispatch] = useReducer(reducer, { loggedIn: false, account: null, accountId: null });
+  const [state, dispatch] = useReducer(reducer, { account: null, accountId: null, loading: true });
 
   useEffect(() => () => { mounted.current = false; }, []);
 
@@ -146,7 +146,7 @@ const AuthProvider = (props) => {
 
   const refresh = useCallback(() => {
     client.query({ query: ACCOUNT_QUERY, fetchPolicy: 'no-cache' })
-      .then(result => dispatch({ type: 'refresh', payload: result.data }))
+      .then(({ data }) => dispatch({ type: 'refresh', payload: { account: data.account } }))
       .catch(() => {
         localStorage.removeItem(STORAGE_IDENTIFIER);
         dispatch({ type: 'refresh', payload: { account: null } });

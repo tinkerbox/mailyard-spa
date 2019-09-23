@@ -27,7 +27,7 @@ const MAILBOXES_QUERY = gql`
 `;
 
 const Navigation = () => {
-  const { logout } = useAuth();
+  const { logout, refresh } = useAuth();
   const router = useRouter();
   const { selectedMailboxPos, selectedLabelSlug } = useMailSelector();
   const { data, execute } = useGraphQLQuery(MAILBOXES_QUERY, {}, { auto: false });
@@ -39,8 +39,8 @@ const Navigation = () => {
       success: () => message.success('Logged out, please wait'),
       failure: () => message.error('Something went wrong'),
     });
-    router.push('/login');
-  }, [logout, router]);
+    refresh();
+  }, [logout, refresh]);
 
   const onMailboxSelect = useCallback(({ key }) => {
     if (key === 'loading') return;

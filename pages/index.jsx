@@ -9,17 +9,15 @@ import styles from '../styles';
 const { Content } = Layout;
 
 const Index = () => {
-  const { loggedIn, account } = useAuth();
+  const { loading, account } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
-    if (!loggedIn) {
-      router.push('/login');
-    } else if (account) {
+    if (!loading && account) {
       const defaultMailViewPath = `/mail/${account.defaultMailbox.position}/${account.defaultMailbox.defaultLabel.slug}`;
       router.push(defaultMailViewPath);
     }
-  }, [loggedIn, account, router]);
+  }, [account, loading, router]);
 
   return (
     <Layout className={styles.full}>
@@ -29,5 +27,7 @@ const Index = () => {
     </Layout>
   );
 };
+
+Index.whyDidYouRender = true;
 
 export default Index;

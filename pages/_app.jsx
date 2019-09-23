@@ -1,4 +1,3 @@
-/* globals localStorage, navigator, window */
 /* eslint-disable no-console */
 
 import { find } from 'lodash';

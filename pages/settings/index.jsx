@@ -6,6 +6,7 @@ import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 
 import Layout from '../../components/Layout';
+import AuthWrapper from '../../components/auth-wrapper';
 
 const Mailboxes = dynamic(() => import('../../components/pages/settings/mailboxes'));
 const Account = dynamic(() => import('../../components/pages/settings/account'));
@@ -32,7 +33,7 @@ const Content = dynamic(() => {
     };
 
     return (
-      <React.Fragment>
+      <AuthWrapper.Authenticated>
         <PageHeader onBack={() => router.push(previousPage.current)} title="Settings" />
 
         <Card>
@@ -57,7 +58,7 @@ const Content = dynamic(() => {
           {selectedScreen === 'subscription' && <Subscription />}
 
         </Card>
-      </React.Fragment>
+      </AuthWrapper.Authenticated>
     );
   });
 }, {

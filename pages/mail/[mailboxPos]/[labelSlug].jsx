@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { Layout } from 'antd';
 
+import AuthWrapper from '../../../components/auth-wrapper';
 import { ScrollProvider } from '../../../hooks/scroll-observer';
 import { MailSelectorProvider } from '../../../hooks/mail-selector-context';
 import Navigation from '../../../components/pages/mail/Navigation';
@@ -19,33 +20,35 @@ const MailView = ({ query }) => {
   const messagesListingRef = useRef(null);
 
   return (
-    <Layout className={styles.layout} hasSider>
-      <MailSelectorProvider initialMailboxPos={query.mailboxPos} initialLabelSlug={query.labelSlug} initialThreadId={null}>
+    <AuthWrapper.Authenticated>
+      <Layout className={styles.layout} hasSider>
+        <MailSelectorProvider initialMailboxPos={query.mailboxPos} initialLabelSlug={query.labelSlug} initialThreadId={null}>
 
-        <Sider collapsible className={styles.sider} collapsed={collapsed} onCollapse={() => { setCollapsed(!collapsed); }}>
-          <Navigation />
-        </Sider>
+          <Sider collapsible className={styles.sider} collapsed={collapsed} onCollapse={() => { setCollapsed(!collapsed); }}>
+            <Navigation />
+          </Sider>
 
-        <Content>
-          <Layout className={styles.main} hasSider>
+          <Content>
+            <Layout className={styles.main} hasSider>
 
-            <ScrollProvider targetRef={messagesListingRef}>
-              <Sider theme="light" width={320} className={styles.use('listing')}>
-                <div ref={messagesListingRef} className={styles.use('scrollpane')}>
-                  <Message.Container />
-                </div>
-              </Sider>
-            </ScrollProvider>
+              <ScrollProvider targetRef={messagesListingRef}>
+                <Sider theme="light" width={320} className={styles.use('listing')}>
+                  <div ref={messagesListingRef} className={styles.use('scrollpane')}>
+                    <Message.Container />
+                  </div>
+                </Sider>
+              </ScrollProvider>
 
-            <Content className={styles.scrollpane}>
-              <Conversation.Container />
-            </Content>
+              <Content className={styles.scrollpane}>
+                <Conversation.Container />
+              </Content>
 
-          </Layout>
-        </Content>
+            </Layout>
+          </Content>
 
-      </MailSelectorProvider>
-    </Layout>
+        </MailSelectorProvider>
+      </Layout>
+    </AuthWrapper.Authenticated>
   );
 };
 

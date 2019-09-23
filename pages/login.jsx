@@ -8,7 +8,6 @@ import { Form, Input, SubmitButton } from '@jbuschke/formik-antd';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 
-
 import { useAuth } from '../hooks/auth-context';
 import Layout from '../components/Layout';
 import format from '../lib/error-formatter';
@@ -22,11 +21,11 @@ const schema = Yup.object().shape({
 
 const Login = () => {
   const router = useRouter();
-  const { login, account } = useAuth();
+  const { login, loading, account } = useAuth();
 
   useEffect(() => {
-    if (account) router.push('/');
-  }, [router, account]);
+    if (!loading && account) router.push('/');
+  }, [router, account, loading]);
 
   const handleSubmit = async (values, { setSubmitting, setErrors }) => {
     await login(values, {
@@ -70,5 +69,7 @@ const Login = () => {
     </Layout.Simple>
   );
 };
+
+Login.whyDidYouRender = true;
 
 export default Login;

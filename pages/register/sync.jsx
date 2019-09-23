@@ -1,7 +1,7 @@
 import React from 'react';
 import { Card } from 'antd';
 
-import { useAuth } from '../../hooks/auth-context';
+import AuthWrapper from '../../components/auth-wrapper';
 import LinkButton from '../../components/link-button';
 import Layout from '../../components/Layout';
 import Wizard from '../../components/pages/register/wizard';
@@ -9,27 +9,26 @@ import styles from '../../styles';
 import MailboxSync from '../../components/mailbox-sync';
 
 const SyncScreen = () => {
-  const { account } = useAuth();
-  const mailboxId = account ? account.defaultMailboxId : null;
-
   return (
-    <Layout.SimpleWide>
-      <Card title="Get started in 3 easy steps">
+    <AuthWrapper.Authenticated>
+      {account => (
+        <Layout.SimpleWide>
+          <Card title="Get started in 3 easy steps">
 
-        <Wizard current={2} />
+            <Wizard current={2} />
 
-        {mailboxId && (
-          <MailboxSync mailboxId={mailboxId}>
-            {({ status }) => (
-              <div className={styles.cardFooter}>
-                <LinkButton type="primary" size="large" href="/" disabled={status !== 'finished'}>Done</LinkButton>
-              </div>
-            )}
-          </MailboxSync>
-        )}
+            <MailboxSync mailboxId={account.defaultMailboxId}>
+              {({ status }) => (
+                <div className={styles.cardFooter}>
+                  <LinkButton type="primary" size="large" href="/" disabled={status !== 'finished'}>Done</LinkButton>
+                </div>
+              )}
+            </MailboxSync>
 
-      </Card>
-    </Layout.SimpleWide>
+          </Card>
+        </Layout.SimpleWide>
+      )}
+    </AuthWrapper.Authenticated>
   );
 };
 
