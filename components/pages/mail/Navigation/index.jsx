@@ -45,7 +45,6 @@ const Navigation = () => {
   const onMailboxSelect = useCallback(({ key }) => {
     if (key === 'loading') return;
     if (selectedMailboxPos.toString() !== key) router.push(`/mail/${key}/${selectedLabelSlug}`);
-    // TODO: something wonky going on here, explore updating context directly
   }, [router, selectedLabelSlug, selectedMailboxPos]);
 
   const onMenuSelect = useCallback(({ key }) => {

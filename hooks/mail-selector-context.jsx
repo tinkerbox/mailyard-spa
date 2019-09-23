@@ -1,9 +1,10 @@
-import { find } from 'lodash';
-import React, { useState, useMemo, useEffect, useCallback } from 'react';
+import { find, isEqual } from 'lodash';
+import React, { useReducer, useMemo, useEffect, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import gql from 'graphql-tag';
 
 import { useGraphQLQuery } from './graphql-query';
+import { useAuth } from './auth-context';
 
 const LABELS_QUERY = gql`
   query ($position: Int!) {
@@ -18,18 +19,59 @@ const LABELS_QUERY = gql`
   }
 `;
 
+const reducer = (state, { type, payload }) => {
+  const newState = (() => {
+    switch (type) {
+      case 'select-mailbox': {
+        const mailbox = find(payload.account.mailboxes, { position: payload.position });
+        return {
+          selectedMailboxPos: mailbox.position,
+          selectedLabelSlug: mailbox.defaultLabel.slug,
+          selectedThreadId: null,
+        };
+      }
+
+      case 'select-label': {
+        return {
+          ...state,
+          selectedLabelSlug: payload.slug,
+          selectedThreadId: null,
+        };
+      }
+
+      case 'select-thread': {
+        return {
+          ...state,
+          selectedThreadId: payload.id,
+        };
+      }
+
+      default:
+        throw new Error();
+    }
+  })();
+
+  if (isEqual(state, newState)) return state;
+  return newState;
+};
+
 const MailSelectorContext = React.createContext();
 
 const MailSelectorProvider = (props) => {
   const { initialMailboxPos, initialLabelSlug, initialThreadId, ...rest } = props;
+  const { account } = useAuth();
 
-  const [selectedMailboxPos, _selectMailboxByPos] = useState(initialMailboxPos);
-  const [selectedLabelSlug, _selectLabelBySlug] = useState(initialLabelSlug);
-  const [selectedThreadId, _selectThreadById] = useState(initialThreadId);
+  const initialState = {
+    selectedMailboxPos: initialMailboxPos,
+    selectedLabelSlug: initialLabelSlug,
+    selectedThreadId: initialThreadId,
+  };
+
+  const [state, dispatch] = useReducer(reducer, initialState);
 
   const { data, execute } = useGraphQLQuery(LABELS_QUERY, {
     variables: {
-      position: selectedMailboxPos,
+      position: state.selectedMailboxPos,
     },
   }, { auto: false });
 
@@ -39,24 +81,21 @@ const MailSelectorProvider = (props) => {
     return () => { didCancel = true; };
   }, [execute]);
 
+  const selectMailbox = useCallback(position => dispatch({ type: 'select-mailbox', payload: { account, position } }), [account]);
+  const selectLabel = useCallback(slug => dispatch({ type: 'select-label', payload: { account, slug } }), [account]);
+  const selectThread = useCallback(id => dispatch({ type: 'select-thread', payload: { account, id } }), [account]);
+
   const labels = useMemo(() => (data ? data.mailbox.labels : []), [data]);
-
-  const selectMailboxByPos = useCallback(_selectMailboxByPos, []);
-  const selectLabelBySlug = useCallback(_selectLabelBySlug, []);
-  const selectThreadById = useCallback(_selectThreadById, []);
-
-  const selectedLabel = useMemo(() => find(labels, { slug: selectedLabelSlug }), [labels, selectedLabelSlug]);
+  const selectedLabel = useMemo(() => find(labels, { slug: state.selectedLabelSlug }), [labels, state.selectedLabelSlug]);
 
   const values = useMemo(() => ({
     labels,
-    selectedMailboxPos,
-    selectMailboxByPos,
+    ...state,
+    selectMailbox,
+    selectLabel,
+    selectThread,
     selectedLabel,
-    selectedLabelSlug,
-    selectLabelBySlug,
-    selectedThreadId,
-    selectThreadById,
-  }), [labels, selectLabelBySlug, selectMailboxByPos, selectThreadById, selectedLabel, selectedLabelSlug, selectedMailboxPos, selectedThreadId]);
+  }), [labels, selectLabel, selectMailbox, selectThread, selectedLabel, state]);
 
   return <MailSelectorContext.Provider value={values} {...rest} />;
 };

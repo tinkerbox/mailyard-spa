@@ -77,6 +77,9 @@ const processResults = (state, action) => {
 
 const reducer = (state, action) => {
   switch (action.type) {
+    case 'reload':
+      return { ...state, loading: true };
+
     case 'query': {
       const next = { ...state, loading: true };
       if (isEqual(action.payload, state.query)) return { ...next, query: state.query };
@@ -92,19 +95,21 @@ const reducer = (state, action) => {
 };
 
 function useScrollWindow() {
-  const { labels, selectedMailboxPos, selectedLabel } = useMailSelector();
+  const { labels, selectedLabel, selectedMailboxPos } = useMailSelector();
   const { client } = useContext(ApolloContext);
   const lastLabelId = useRef(null);
   const [state, dispatch] = useReducer(reducer, initialState);
 
   const labelId = selectedLabel ? selectedLabel.id : null;
 
+  useEffect(() => dispatch({ type: 'reload' }), [selectedMailboxPos]);
+
   useEffect(() => {
     let didCancel = false;
 
     (async () => {
       if (!didCancel && labelId && lastLabelId.current !== labelId && !state.loading) {
-        dispatch({ type: 'query', payload: {} });
+        dispatch({ type: 'query', payload: { loading: true } });
         return;
       }
 

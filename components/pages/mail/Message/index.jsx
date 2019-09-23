@@ -15,12 +15,12 @@ const { Text } = Typography;
 const styles = makeStyles(custom);
 
 const Container = () => {
-  const { selectedMailboxPos, selectThreadById, selectedThreadId, labels, selectLabelBySlug, selectedLabel } = useMailSelector();
+  const { selectedMailboxPos, selectThread, selectedThreadId, labels, selectLabel, selectedLabel } = useMailSelector();
   const { root } = useScrollObserver();
 
   if (typeof window !== 'undefined' && window.location.hash.length > 0) {
     const newThreadId = window.location.hash.split('#')[1];
-    if (newThreadId !== selectedThreadId) selectThreadById(newThreadId);
+    if (newThreadId !== selectedThreadId) selectThread(newThreadId);
   }
 
   const items = useMemo(() => {
@@ -33,7 +33,7 @@ const Container = () => {
 
   const menuHandler = (e) => {
     window.history.pushState(null, null, `/mail/${selectedMailboxPos}/${e.key}`);
-    selectLabelBySlug(e.key);
+    selectLabel(e.key);
     root.current.scrollTop = 0;
   };
 
@@ -128,12 +128,12 @@ Listing.defaultProps = {
 };
 
 const Item = forwardRef(({ cursor, message, selected }, ref) => {
-  const { selectThreadById } = useMailSelector();
+  const { selectThread } = useMailSelector();
   const { threadId, receivedAt, snippet, headers } = message;
   const displayDate = new Date(receivedAt).toDateString();
 
   const clickHandler = () => {
-    selectThreadById(threadId);
+    selectThread(threadId);
     window.location.hash = threadId;
   };
 

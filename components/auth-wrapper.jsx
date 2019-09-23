@@ -9,7 +9,7 @@ import { useAuth } from '../hooks/auth-context';
 const LoginPage = dynamic(() => import('../pages/login'));
 const LandingPage = dynamic(() => import('../pages'));
 
-const Authenticated = ({ children }) => {
+const Authenticated = React.memo(({ children }) => {
   const { account, loading, refresh } = useAuth();
   const router = useRouter();
 
@@ -27,7 +27,7 @@ const Authenticated = ({ children }) => {
       {account && (typeof children === 'function') && children(account)}
     </React.Fragment>
   );
-};
+});
 
 Authenticated.propTypes = {
   children: PropTypes.oneOfType([
@@ -37,7 +37,7 @@ Authenticated.propTypes = {
   ]).isRequired,
 };
 
-const NotAuthenticated = ({ children }) => {
+const NotAuthenticated = React.memo(({ children }) => {
   const { account, loading, refresh } = useAuth();
   const router = useRouter();
 
@@ -54,7 +54,7 @@ const NotAuthenticated = ({ children }) => {
       {!account && children}
     </React.Fragment>
   );
-};
+});
 
 NotAuthenticated.propTypes = {
   children: PropTypes.oneOfType([

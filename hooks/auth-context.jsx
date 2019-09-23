@@ -50,6 +50,10 @@ const ACCOUNT_QUERY = gql`
         id
         name
         email
+        position
+        defaultLabel {
+          slug
+        }
       }
     }
   }
@@ -57,38 +61,32 @@ const ACCOUNT_QUERY = gql`
 
 const reducer = (state, action) => {
   const { payload, type } = action;
-  switch (type) {
-    case 'register': {
-      localStorage.setItem(STORAGE_IDENTIFIER, payload.username);
-      const nextState = { account: null, loading: true };
-      if (isEqual(state, nextState)) return state;
-      return nextState;
-    }
+  const nextState = (() => {
+    switch (type) {
+      case 'register':
+        localStorage.setItem(STORAGE_IDENTIFIER, payload.username);
+        return { account: null, loading: true };
 
-    case 'login': {
-      localStorage.setItem(STORAGE_IDENTIFIER, payload.username);
-      const nextState = { account: null, loading: true };
-      if (isEqual(state, nextState)) return state;
-      return nextState;
-    }
+      case 'login':
+        localStorage.setItem(STORAGE_IDENTIFIER, payload.username);
+        return { account: null, loading: true };
 
-    case 'logout': {
-      localStorage.removeItem(STORAGE_IDENTIFIER);
-      const nextState = { account: null, loading: false };
-      if (isEqual(state, nextState)) return state;
-      return nextState;
-    }
+      case 'logout':
+        localStorage.removeItem(STORAGE_IDENTIFIER);
+        return { account: null, loading: false };
 
-    case 'refresh': {
-      const { account } = payload;
-      const nextState = { ...state, account, loading: false };
-      if (isEqual(state, nextState)) return state;
-      return nextState;
-    }
+      case 'refresh': {
+        const { account } = payload;
+        return { ...state, account, loading: false };
+      }
 
-    default:
-      throw new Error();
-  }
+      default:
+        throw new Error();
+    }
+  })();
+
+  if (isEqual(state, nextState)) return state;
+  return nextState;
 };
 
 const AuthContext = React.createContext();
