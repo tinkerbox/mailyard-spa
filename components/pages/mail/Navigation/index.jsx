@@ -29,7 +29,7 @@ const MAILBOXES_QUERY = gql`
 const Navigation = () => {
   const { logout, refresh } = useAuth();
   const router = useRouter();
-  const { selectedMailboxPos, selectedLabelSlug } = useMailSelector();
+  const { selectedMailboxPos, selectedLabelSlug, selectMailbox } = useMailSelector();
   const { data, execute } = useGraphQLQuery(MAILBOXES_QUERY, {}, { auto: false });
 
   useEffect(() => execute(), [execute]);
@@ -44,8 +44,10 @@ const Navigation = () => {
 
   const onMailboxSelect = useCallback(({ key }) => {
     if (key === 'loading') return;
-    if (selectedMailboxPos.toString() !== key) router.push(`/mail/${key}/${selectedLabelSlug}`);
-  }, [router, selectedLabelSlug, selectedMailboxPos]);
+    selectMailbox(parseInt(key, 10));
+    const path = `/mail/${key}/${selectedLabelSlug}`;
+    window.history.pushState(null, null, path);
+  }, [selectMailbox, selectedLabelSlug]);
 
   const onMenuSelect = useCallback(({ key }) => {
     switch (key) {

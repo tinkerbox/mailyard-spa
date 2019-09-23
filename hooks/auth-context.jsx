@@ -35,7 +35,6 @@ const ACCOUNT_QUERY = gql`
   query {
     account {
       username
-      defaultMailboxId
       defaultMailbox {
         id
         position
@@ -52,6 +51,12 @@ const ACCOUNT_QUERY = gql`
         email
         position
         defaultLabel {
+          id
+          slug
+        }
+        labels {
+          id
+          name
           slug
         }
       }

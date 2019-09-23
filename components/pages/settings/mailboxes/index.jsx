@@ -85,7 +85,7 @@ const Mailboxes = () => {
 
   const rows = data ? data.mailboxes.map((m) => {
     return {
-      default: account.defaultMailboxId === m.id,
+      default: account.defaultMailbox.id === m.id,
       id: m.id,
       key: m.position,
       email: m.email,
@@ -149,7 +149,7 @@ const Mailboxes = () => {
 
       <Text strong>Set as default</Text>
       <Paragraph>This will be the mailbox that is displayed upon startup.</Paragraph>
-      {account.defaultMailboxId === selectedMailbox.id ? (
+      {account.defaultMailbox.id === selectedMailbox.id ? (
         <Paragraph type="warning">This mailbox is already your default.</Paragraph>
       ) : (
         <Button type="primary" onClick={handleSetAsDefault} disabled={!!selectedMailbox.markedForDeletionAt}>Set as default</Button>
@@ -159,7 +159,7 @@ const Mailboxes = () => {
 
       <Text strong>Delete this mailbox</Text>
       <Paragraph>Warning: this action cannot be undone.</Paragraph>
-      {account.defaultMailboxId === selectedMailbox.id ? (
+      {account.defaultMailbox.id === selectedMailbox.id ? (
         <Paragraph type="warning">This mailbox is set as your default, and cannot be deleted.</Paragraph>
       ) : (
         <Button type="danger" onClick={handleDelete} disabled={!!selectedMailbox.markedForDeletionAt}>Delete</Button>

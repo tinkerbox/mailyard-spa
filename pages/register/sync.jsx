@@ -17,7 +17,7 @@ const SyncScreen = () => {
 
             <Wizard current={2} />
 
-            <MailboxSync mailboxId={account.defaultMailboxId}>
+            <MailboxSync mailboxId={account.defaultMailbox.id}>
               {({ status }) => (
                 <div className={styles.cardFooter}>
                   <LinkButton type="primary" size="large" href="/" disabled={status !== 'finished'}>Done</LinkButton>

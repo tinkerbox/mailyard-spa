@@ -1,23 +1,8 @@
 import { find, isEqual } from 'lodash';
-import React, { useReducer, useMemo, useEffect, useCallback } from 'react';
+import React, { useReducer, useMemo, useCallback } from 'react';
 import PropTypes from 'prop-types';
-import gql from 'graphql-tag';
 
-import { useGraphQLQuery } from './graphql-query';
 import { useAuth } from './auth-context';
-
-const LABELS_QUERY = gql`
-  query ($position: Int!) {
-    mailbox(position: $position) {
-      id
-      labels {
-        id
-        name
-        slug
-      }
-    }
-  }
-`;
 
 const reducer = (state, { type, payload }) => {
   const newState = (() => {
@@ -69,33 +54,21 @@ const MailSelectorProvider = (props) => {
 
   const [state, dispatch] = useReducer(reducer, initialState);
 
-  const { data, execute } = useGraphQLQuery(LABELS_QUERY, {
-    variables: {
-      position: state.selectedMailboxPos,
-    },
-  }, { auto: false });
-
-  useEffect(() => {
-    let didCancel = false;
-    if (!didCancel) execute();
-    return () => { didCancel = true; };
-  }, [execute]);
-
   const selectMailbox = useCallback(position => dispatch({ type: 'select-mailbox', payload: { account, position } }), [account]);
   const selectLabel = useCallback(slug => dispatch({ type: 'select-label', payload: { account, slug } }), [account]);
   const selectThread = useCallback(id => dispatch({ type: 'select-thread', payload: { account, id } }), [account]);
 
-  const labels = useMemo(() => (data ? data.mailbox.labels : []), [data]);
-  const selectedLabel = useMemo(() => find(labels, { slug: state.selectedLabelSlug }), [labels, state.selectedLabelSlug]);
+  const selectedMailbox = useMemo(() => find(account.mailboxes, { position: state.selectedMailboxPos }), [account.mailboxes, state.selectedMailboxPos]);
+  const selectedLabel = useMemo(() => find(selectedMailbox.labels, { slug: state.selectedLabelSlug }), [selectedMailbox.labels, state.selectedLabelSlug]);
 
   const values = useMemo(() => ({
-    labels,
+    labels: selectedMailbox.labels,
     ...state,
     selectMailbox,
     selectLabel,
     selectThread,
     selectedLabel,
-  }), [labels, selectLabel, selectMailbox, selectThread, selectedLabel, state]);
+  }), [selectLabel, selectMailbox, selectThread, selectedLabel, selectedMailbox.labels, state]);
 
   return <MailSelectorContext.Provider value={values} {...rest} />;
 };
