@@ -147,7 +147,10 @@ const AuthProvider = (props) => {
   const refresh = useCallback(() => {
     client.query({ query: ACCOUNT_QUERY, fetchPolicy: 'no-cache' })
       .then(result => dispatch({ type: 'refresh', payload: result.data }))
-      .catch(() => dispatch({ type: 'refresh', payload: { account: null } }));
+      .catch(() => {
+        localStorage.removeItem(STORAGE_IDENTIFIER);
+        dispatch({ type: 'refresh', payload: { account: null } });
+      });
   }, [client]);
 
   useEffect(() => {
