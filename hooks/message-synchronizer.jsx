@@ -65,10 +65,7 @@ const sync = async (token, dispatch, api, parse, uploader, syncSessionId) => {
   if (!nextPageToken) {
     dispatch({ type: 'stop' });
   } else {
-    dispatch({
-      type: 'next',
-      payload: { nextPageToken },
-    });
+    dispatch({ type: 'next', payload: { nextPageToken } });
   }
 };
 

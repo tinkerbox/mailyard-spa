@@ -5,7 +5,7 @@ import Link from 'next/link';
 
 const LinkButton = React.memo(({ href, children, ...others }) => (
   <Link href={href}>
-    <Button {...others}>{children}</Button>
+    <Button onClick={() => { }} {...others}>{children}</Button>
   </Link>
 ));
 

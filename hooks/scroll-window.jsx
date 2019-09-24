@@ -76,22 +76,27 @@ const processResults = (state, action) => {
 };
 
 const reducer = (state, action) => {
-  switch (action.type) {
-    case 'reload':
-      return { ...state, loading: true };
+  const newState = (() => {
+    switch (action.type) {
+      case 'reload':
+        return { ...state, loading: true };
 
-    case 'query': {
-      const next = { ...state, loading: true };
-      if (isEqual(action.payload, state.query)) return { ...next, query: state.query };
-      return { ...next, query: action.payload };
+      case 'query': {
+        const next = { ...state, loading: true };
+        if (isEqual(action.payload, state.query)) return { ...next, query: state.query };
+        return { ...next, query: action.payload };
+      }
+
+      case 'process':
+        return { ...state, loading: false, ...processResults(state, action) };
+
+      default:
+        throw new Error();
     }
+  })();
 
-    case 'process':
-      return { ...state, loading: false, ...processResults(state, action) };
-
-    default:
-      throw new Error('Action not supported');
-  }
+  if (isEqual(state, newState)) return state;
+  return newState;
 };
 
 function useScrollWindow() {

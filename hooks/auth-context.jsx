@@ -1,7 +1,7 @@
 /* globals window, localStorage */
 
 import { isEqual } from 'lodash';
-import React, { useContext, useReducer, useEffect, useCallback, useRef } from 'react';
+import React, { useContext, useReducer, useEffect, useCallback, useRef, useMemo } from 'react';
 import gql from 'graphql-tag';
 import { ApolloContext } from 'react-apollo';
 
@@ -160,13 +160,13 @@ const AuthProvider = (props) => {
     if (!state.account && existingAccountId) refresh();
   }, [existingAccountId, refresh, state.account]);
 
-  const values = {
+  const values = useMemo(() => ({
     login,
     logout,
     register,
     refresh,
     ...state,
-  };
+  }), [login, logout, refresh, register, state]);
 
   return <AuthContext.Provider value={values} {...props} />;
 };
