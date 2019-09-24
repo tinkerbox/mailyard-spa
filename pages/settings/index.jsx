@@ -5,7 +5,7 @@ import { PageHeader, Menu, Icon, Card } from 'antd';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 
-import Layout from '../../components/Layout';
+import Layout from '../../components/layout';
 import AuthWrapper from '../../components/auth-wrapper';
 
 const Mailboxes = dynamic(() => import('../../components/pages/settings/mailboxes'));

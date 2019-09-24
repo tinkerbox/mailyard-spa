@@ -8,6 +8,7 @@ import { register, unregister } from 'next-offline/runtime';
 import whyDidYouRender from '@welldone-software/why-did-you-render';
 import { ApolloProvider } from 'react-apollo';
 import * as Sentry from '@sentry/browser';
+import { ThemeProvider } from 'styled-components';
 
 import 'antd/dist/antd.min.css';
 
@@ -50,6 +51,11 @@ const errorHandler = (error) => {
 
 const apollo = Connect(RELEASE_NAME, errorHandler);
 
+const theme = {
+  colors: {
+    primary: '#0070f3',
+  },
+};
 class MailyardSPA extends App {
   componentDidMount() {
     register();
@@ -72,7 +78,9 @@ class MailyardSPA extends App {
         <ApolloProvider client={apollo}>
           <GoogleProvider clientId={config.GOOGLE_CLIENT_ID} scope={config.GOOGLE_SCOPE}>
             <AuthProvider>
-              <Component {...pageProps} />
+              <ThemeProvider theme={theme}>
+                <Component {...pageProps} />
+              </ThemeProvider>
             </AuthProvider>
           </GoogleProvider>
         </ApolloProvider>

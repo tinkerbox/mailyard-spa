@@ -3,7 +3,7 @@ import { Card } from 'antd';
 
 import AuthWrapper from '../../components/auth-wrapper';
 import LinkButton from '../../components/link-button';
-import Layout from '../../components/Layout';
+import Layout from '../../components/layout';
 import Wizard from '../../components/pages/register/wizard';
 import AccountSelector from '../../components/google/account-selector';
 import styles from '../../styles';

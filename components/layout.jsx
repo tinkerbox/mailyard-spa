@@ -1,27 +1,50 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-
+import styled from 'styled-components';
+import Head from 'next/head';
 import { Divider, Row, Col, Layout as NextLayout } from 'antd';
 
-import config from '../../config/runtime';
-
-import { makeStyles } from '../../styles';
-import custom from './styles.css';
+import config from '../config/runtime';
 
 const { Header, Footer } = NextLayout;
 
-const styles = makeStyles(custom);
+const StyledLayout = styled(NextLayout)`
+  &&& { min-height: 100vh; }
+`;
+
+const StyledContainer = styled.div`
+  margin-left: auto;
+  margin-right: auto;
+  width: 100%;
+  max-width: 480px;
+  @media (min-width: 576px) { & { max-width: 480px; } }
+  @media (min-width: 768px) { & { max-width: 720px; } }
+  @media (min-width: 992px) { & { max-width: 960px; } }
+  @media (min-width: 1200px) { & { max-width: 1024px; } }
+`;
+
+const StyledHeader = styled(Header)`
+  &&& {
+    background-color: transparent;
+    text-align: center;
+  }
+`;
+
+const StyledFooter = styled(Footer)`
+  text-align: center;
+`;
 
 const COPYRIGHT_NOTICE = 'Mailyard, by Tinkerbox Studios Pte Ltd © 2019';
 
 const Simple = ({ children }) => {
   return (
-    <NextLayout className={styles.layout}>
-      <div className={styles.container}>
+    <StyledLayout>
+      <Head />
+      <StyledContainer>
 
-        <Header className={styles.header}>
+        <StyledHeader>
           <a href={config.MAILYARD_WEB_URL}>Mailyard</a>
-        </Header>
+        </StyledHeader>
 
         <Row>
           <Col xs={0} sm={2} md={4} lg={6} />
@@ -31,13 +54,13 @@ const Simple = ({ children }) => {
           <Col xs={0} sm={2} md={4} lg={6} />
         </Row>
 
-        <Footer className={styles.footer}>
+        <StyledFooter>
           <Divider />
           <small>{COPYRIGHT_NOTICE}</small>
-        </Footer>
+        </StyledFooter>
 
-      </div>
-    </NextLayout>
+      </StyledContainer>
+    </StyledLayout>
   );
 };
 
@@ -50,12 +73,12 @@ Simple.propTypes = {
 
 const SimpleWide = ({ children }) => {
   return (
-    <NextLayout className={styles.layout}>
-      <div className={styles.container}>
+    <StyledLayout>
+      <StyledContainer>
 
-        <Header className={styles.header}>
+        <StyledHeader>
           <a href={config.MAILYARD_WEB_URL}>Mailyard</a>
-        </Header>
+        </StyledHeader>
 
         <Row>
           <Col lg={3} />
@@ -65,13 +88,13 @@ const SimpleWide = ({ children }) => {
           <Col lg={3} />
         </Row>
 
-        <Footer className={styles.footer}>
+        <StyledFooter>
           <Divider />
           <small>{COPYRIGHT_NOTICE}</small>
-        </Footer>
+        </StyledFooter>
 
-      </div>
-    </NextLayout>
+      </StyledContainer>
+    </StyledLayout>
   );
 };
 
@@ -84,11 +107,11 @@ SimpleWide.propTypes = {
 
 const FullScreen = ({ children }) => {
   return (
-    <NextLayout className={styles.layout}>
-      <div className={styles.container}>
+    <StyledLayout>
+      <StyledContainer>
         {children}
-      </div>
-    </NextLayout>
+      </StyledContainer>
+    </StyledLayout>
   );
 };
 

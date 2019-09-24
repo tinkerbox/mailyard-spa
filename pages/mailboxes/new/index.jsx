@@ -2,7 +2,7 @@ import React from 'react';
 import { PageHeader, Card, Typography } from 'antd';
 import { useRouter } from 'next/router';
 
-import Layout from '../../../components/Layout';
+import Layout from '../../../components/layout';
 
 import AuthWrapper from '../../../components/auth-wrapper';
 import AccountSelector from '../../../components/google/account-selector';

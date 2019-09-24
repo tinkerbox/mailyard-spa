@@ -3,7 +3,7 @@ import { PageHeader, Card } from 'antd';
 import { useRouter } from 'next/router';
 
 import AuthWrapper from '../../../components/auth-wrapper';
-import Layout from '../../../components/Layout';
+import Layout from '../../../components/layout';
 import LinkButton from '../../../components/link-button';
 import MailboxSync from '../../../components/mailbox-sync';
 

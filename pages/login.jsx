@@ -9,7 +9,7 @@ import { Formik } from 'formik';
 import * as Yup from 'yup';
 
 import { useAuth } from '../hooks/auth-context';
-import Layout from '../components/Layout';
+import Layout from '../components/layout';
 import format from '../lib/error-formatter';
 
 const schema = Yup.object().shape({

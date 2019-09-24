@@ -5,7 +5,7 @@ import { useRouter } from 'next/router';
 
 import { useAuth } from '../../../hooks/auth-context';
 import AuthWrapper from '../../../components/auth-wrapper';
-import Layout from '../../../components/Layout';
+import Layout from '../../../components/layout';
 import LinkButton from '../../../components/link-button';
 import AccountSelector from '../../../components/google/account-selector';
 import styles from '../../../styles';

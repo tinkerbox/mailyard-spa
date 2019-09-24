@@ -3,7 +3,7 @@ import { Card } from 'antd';
 import { SubmitButton } from '@jbuschke/formik-antd';
 
 import LinkButton from '../../components/link-button';
-import Layout from '../../components/Layout';
+import Layout from '../../components/layout';
 import Wizard from '../../components/pages/register/wizard';
 import styles from '../../styles';
 import AccountRegistrationComponent from '../../components/pages/register/account';

@@ -5,7 +5,7 @@ import { SubmitButton } from '@jbuschke/formik-antd';
 
 import AuthWrapper from '../../../components/auth-wrapper';
 import styles from '../../../styles';
-import Layout from '../../../components/Layout';
+import Layout from '../../../components/layout';
 import LinkButton from '../../../components/link-button';
 import ConfigureMailboxComponent from '../../../components/pages/mailboxes/new/config';
 
