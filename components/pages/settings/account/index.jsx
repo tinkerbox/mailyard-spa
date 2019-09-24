@@ -8,7 +8,6 @@ import gql from 'graphql-tag';
 import { ApolloContext } from 'react-apollo';
 
 import { useAuth } from '../../../../hooks/auth-context';
-import styles from '../../../../styles';
 import format from '../../../../lib/error-formatter';
 
 const { Panel } = Collapse;
@@ -122,7 +121,7 @@ const DeleteAccountForm = () => {
   return (
     <React.Fragment>
       <Alert message="This action cannot be undone. This will permanently delete all your mailboxes, labels, threads and messages." type="warning" />
-      <div className={styles.use('m-3')}>
+      <div className="m-3">
         <Checkbox checked={agree} onClick={() => setAgree(true)}>I fully understand the consequences of deleting my account</Checkbox>
       </div>
       <Divider dashed />
@@ -137,15 +136,15 @@ const Account = () => {
 
       <Collapse bordered={false} accordion>
 
-        <Panel header="Change your password" className={styles.use('mt-4')}>
+        <Panel header="Change your password" className="mt-4">
           <ChangePasswordForm />
         </Panel>
 
-        <Panel header="Manage your notifications" className={styles.use('mt-4')}>
+        <Panel header="Manage your notifications" className="mt-4">
           <Paragraph>Lorem ipsum</Paragraph>
         </Panel>
 
-        <Panel header="Delete your account" className={styles.use('mt-4')}>
+        <Panel header="Delete your account" className="mt-4">
           <DeleteAccountForm />
         </Panel>
 

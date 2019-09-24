@@ -3,18 +3,28 @@ import PropTypes from 'prop-types';
 import gql from 'graphql-tag';
 import { Empty, Icon, PageHeader, Tag, Card, Avatar, Typography } from 'antd';
 import { parseOneAddress } from 'email-addresses';
+import styled from 'styled-components';
 
 import ErrorBoundary from '../../../error-boundary';
 import { useMailSelector } from '../../../../hooks/mail-selector-context';
 import { useGraphQLQuery } from '../../../../hooks/graphql-query';
 import { useEmailParser } from '../../../../hooks/email-parser';
-import { makeStyles } from '../../../../styles';
 import { downloadFile } from '../../../../lib/file-manager';
-import custom from './styles.css';
 import Viewer from './viewer';
 
-const styles = makeStyles(custom);
 const { Text } = Typography;
+
+const Centralize = styled.div`
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  display: flex;
+`;
+
+const StyledThread = styled.div`
+  display: flex;
+  flex-direction: column;
+`;
 
 const THREAD_QUERY = gql`
   query ($position: Int!, $id: ID!) {
@@ -70,15 +80,15 @@ const Container = () => {
     <React.Fragment>
 
       {selectedThreadId && loading && (
-        <div className={styles.use('centralize')}>
+        <Centralize>
           <Icon type="loading" />
-        </div>
+        </Centralize>
       )}
 
       {!selectedThreadId && (
-        <div className={styles.use('centralize')}>
+        <Centralize>
           <Empty description="" />
-        </div>
+        </Centralize>
       )}
 
       {items.length > 0 && <Conversation.Listing thread={data.mailbox.thread}>{items}</Conversation.Listing>}
@@ -91,10 +101,10 @@ const Listing = ({ thread, children }) => {
   const { labels } = thread;
   const tags = labels.map(label => <Tag key={label.id}>{label.name}</Tag>);
   return (
-    <div className={styles.thread}>
+    <StyledThread>
       <PageHeader title={thread.subject} tags={tags} />
-      <div className={styles.use('p-3')}>{children}</div>
-    </div>
+      <div className="p-3">{children}</div>
+    </StyledThread>
   );
 };
 
@@ -132,7 +142,7 @@ const Item = ({ message, parse }) => {
 
   const sender = from ? (
     <React.Fragment>
-      <Avatar size="small" className={styles.use('mr-2')}>{from.name ? from.name[0] : from.address[0]}</Avatar>
+      <Avatar size="small" className="mr-2">{from.name ? from.name[0] : from.address[0]}</Avatar>
       {from.name && (
         <span>
           <Text strong>{from.name}</Text>
@@ -143,7 +153,7 @@ const Item = ({ message, parse }) => {
     </React.Fragment>
   ) : (
     <React.Fragment>
-      <Avatar icon="question" size="small" className={styles.use('mr-2')} />
+      <Avatar icon="question" size="small" className="mr-2" />
       <Text>Unknown Sender</Text>
     </React.Fragment>
   );
@@ -157,7 +167,7 @@ const Item = ({ message, parse }) => {
   const extra = <Text type="secondary">{new Date(receivedAt).toString()}</Text>;
 
   return (
-    <Card size="small" className={styles.use('mb-3', 'item')} title={title} extra={extra} loading={loading}>
+    <Card size="small" className="mb-3" title={title} extra={extra} loading={loading}>
       <ErrorBoundary>
         {loading && <Icon type="loading" />}
         {!loading && <Viewer payload={payload} parse={parse} />}

@@ -7,7 +7,7 @@ import Layout from '../../../components/layout';
 import AuthWrapper from '../../../components/auth-wrapper';
 import AccountSelector from '../../../components/google/account-selector';
 import LinkButton from '../../../components/link-button';
-import styles from '../../../styles';
+import Styled from '../../../components/styled';
 
 const { Text } = Typography;
 
@@ -21,10 +21,10 @@ const AddMailboxScreen = () => {
         <Card>
           <AccountSelector>
             {({ mailbox, profile }) => (
-              <div className={styles.cardFooter}>
+              <Styled.CardFooter>
                 <LinkButton type="primary" size="large" href="/mailboxes/new/config" disabled={!profile || mailbox}>Next</LinkButton>
                 {mailbox && <Text type="warning">This mailbox has already been created.</Text>}
-              </div>
+              </Styled.CardFooter>
             )}
           </AccountSelector>
         </Card>

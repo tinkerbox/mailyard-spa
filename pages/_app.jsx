@@ -11,6 +11,7 @@ import * as Sentry from '@sentry/browser';
 import { ThemeProvider } from 'styled-components';
 
 import 'antd/dist/antd.min.css';
+import '../styles/spacing.css';
 
 import Connect from '../config/apollo';
 import config from '../config/runtime';

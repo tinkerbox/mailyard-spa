@@ -4,8 +4,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Button } from 'antd';
 
-import styles from '../../../../styles';
-
 const Attachment = ({ payload }) => {
   const { filename, content, type } = payload;
 
@@ -26,10 +24,10 @@ const Attachment = ({ payload }) => {
   return (
     <React.Fragment>
       {!content && (
-        <Button disabled type="danger" icon="download" className={styles.use('mr-2')}>{filename}</Button>
+        <Button disabled type="danger" icon="download" className="mr-2">{filename}</Button>
       )}
       {content && (
-        <Button type="primary" icon="download" className={styles.use('mr-2')} onClick={download}>
+        <Button type="primary" icon="download" className="mr-2" onClick={download}>
           {filename}
         </Button>
       )}

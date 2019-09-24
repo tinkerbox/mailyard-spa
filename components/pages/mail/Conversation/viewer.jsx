@@ -5,15 +5,25 @@ import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { Typography, Divider, Icon } from 'antd';
 import DOMPurify from 'dompurify';
+import styled from 'styled-components';
 
 import EmailExtractor from '../../../../lib/email-extractor';
 import parse from '../../../../lib/html-parser';
-import { makeStyles } from '../../../../styles';
-import custom from './styles.css';
 import Attachment from './attachment';
 
-const styles = makeStyles(custom);
 const { Text } = Typography;
+
+const StyledDivider = styled(Divider)`
+span {
+  color: lightgray;
+  font-weight: 200;
+  font-size: 10pt;
+}
+`;
+
+const StyledText = styled(Text)`
+  white-space: pre-wrap;
+`;
 
 const Viewer = React.memo(({ payload, parse: parseMail }) => {
   const [email, setEmail] = useState();
@@ -35,9 +45,9 @@ const Viewer = React.memo(({ payload, parse: parseMail }) => {
 
             case 'text/plain':
               return (
-                <Text className={styles.plain}>
+                <StyledText>
                   <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(node.content) }} />
-                </Text>
+                </StyledText>
               );
 
             default:
@@ -58,13 +68,13 @@ const Viewer = React.memo(({ payload, parse: parseMail }) => {
   }, [email, parseMail, payload]);
 
   return (
-    <div className={styles.use('p-2')}>
+    <div className="'p-2">
 
       {!loaded && <Icon type="loading" />}
       {loaded && email.content.length > 0 && email.content[email.content.length - 1]}
       {loaded && email.content.length === 0 && <Text disabled>No content</Text>}
 
-      {loaded && email.attachments.length > 0 && <Divider dashed orientation="left" className={styles.divider}>ATTACHMENTS</Divider>}
+      {loaded && email.attachments.length > 0 && <StyledDivider dashed orientation="left">ATTACHMENTS</StyledDivider>}
       {loaded && email.attachments}
 
     </div>

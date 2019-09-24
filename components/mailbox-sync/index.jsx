@@ -9,8 +9,7 @@ import { useGoogle } from '../../hooks/google-context';
 import { useGoogleQuery } from '../../hooks/google-query';
 import Google from '../google/auth-buttons';
 import SyncProgress from './progress';
-
-import styles from '../../styles';
+import Styled from '../styled';
 
 const MailboxSync = ({ mailboxId, children }) => {
   const [status, setStatus] = useState('pending');
@@ -32,10 +31,10 @@ const MailboxSync = ({ mailboxId, children }) => {
           <Col sm={0} md={4} lg={5} />
           <Col sm={24} md={16} lg={14}>
 
-            <div className={styles.cardRow}>
-              <Avatar src={profile.imageUrl} size={48} className={`${styles['mx-2']} ${styles['mx-md-3']} `} />
+            <Styled.CardRow>
+              <Avatar src={profile.imageUrl} size={48} className="mx-2 mx-md-3" />
               <Statistic title={profile.name} value={profile.email} />
-            </div>
+            </Styled.CardRow>
 
             <Divider />
 

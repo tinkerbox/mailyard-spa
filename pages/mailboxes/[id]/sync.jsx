@@ -6,8 +6,7 @@ import AuthWrapper from '../../../components/auth-wrapper';
 import Layout from '../../../components/layout';
 import LinkButton from '../../../components/link-button';
 import MailboxSync from '../../../components/mailbox-sync';
-
-import styles from '../../../styles';
+import Styled from '../../../components/styled';
 
 const SyncMailboxScreen = () => {
   const router = useRouter();
@@ -23,9 +22,9 @@ const SyncMailboxScreen = () => {
           {id && (
             <MailboxSync mailboxId={id}>
               {({ status }) => (
-                <div className={styles.cardFooter}>
+                <Styled.CardFooter>
                   <LinkButton type="primary" size="large" href="/settings#mailboxes" disabled={status !== 'finished'}>Done</LinkButton>
-                </div>
+                </Styled.CardFooter>
               )}
             </MailboxSync>
           )}

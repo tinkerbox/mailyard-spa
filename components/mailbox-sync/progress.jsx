@@ -2,8 +2,8 @@ import React, { useEffect, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { Typography, Progress, Button } from 'antd';
 
-import styles from '../../styles';
 import { useMessageSynchronizer } from '../../hooks/message-synchronizer';
+import Styled from '../styled';
 
 const { Text } = Typography;
 
@@ -27,9 +27,9 @@ const SyncProgress = React.memo(({ mailboxId, messagesTotal, updateStatus }) => 
     <React.Fragment>
 
       {status === 'waiting' && (
-        <div className={styles.cardRow}>
+        <Styled.CardRow>
           <Button type="primary" size="large" onClick={startSync}>Start Sync</Button>
-        </div>
+        </Styled.CardRow>
       )}
 
       {status === 'running' && (

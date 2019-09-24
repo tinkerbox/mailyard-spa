@@ -1,12 +1,19 @@
 import React from 'react';
 import { Card } from 'antd';
+import styled from 'styled-components';
 
 import AuthWrapper from '../../components/auth-wrapper';
 import LinkButton from '../../components/link-button';
 import Layout from '../../components/layout';
 import Wizard from '../../components/pages/register/wizard';
 import AccountSelector from '../../components/google/account-selector';
-import styles from '../../styles';
+
+const StyledCardFooter = styled.div`
+  display: flex;
+  justify-content: space-between;
+  flex-direction: row-reverse;
+  align-items: center;
+`;
 
 const RegistrationScreen = () => {
   return (
@@ -16,10 +23,10 @@ const RegistrationScreen = () => {
           <Wizard current={0} />
           <AccountSelector>
             {({ profile }) => (
-              <div className={styles.cardFooter}>
+              <StyledCardFooter>
                 <LinkButton type="primary" size="large" href="register/account" disabled={!profile}>Next</LinkButton>
                 <LinkButton type="link" href="/login">Already have an account?</LinkButton>
-              </div>
+              </StyledCardFooter>
             )}
           </AccountSelector>
         </Card>

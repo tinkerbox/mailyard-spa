@@ -1,19 +1,31 @@
 import React, { useState, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { Layout } from 'antd';
+import styled from 'styled-components';
 
 import AuthWrapper from '../../../components/auth-wrapper';
 import { ScrollProvider } from '../../../hooks/scroll-observer';
 import { MailSelectorProvider } from '../../../hooks/mail-selector-context';
-import Navigation from '../../../components/pages/mail/Navigation';
-import Message from '../../../components/pages/mail/Message';
-import Conversation from '../../../components/pages/mail/Conversation';
-import { makeStyles } from '../../../styles';
-import custom from '../../../styles/pages/mail/index.css';
-
-const styles = makeStyles(custom);
+import Navigation from '../../../components/pages/mail/navigation';
+import Message from '../../../components/pages/mail/message';
+import Conversation from '../../../components/pages/mail/conversation';
 
 const { Content, Sider } = Layout;
+
+const StyledLayout = styled(Layout)`
+  &&& { min-height: 100vh; }
+`;
+
+const ScrollPane = styled.div`
+  overflow: auto;
+  overflow-x: hidden;
+  height: 100vh;
+`;
+
+const Listing = styled(Sider)`
+  height: 100%;
+  li { padding: 0.75rem; }
+`;
 
 const MailView = ({ query }) => {
   const [collapsed, setCollapsed] = useState(true);
@@ -21,33 +33,35 @@ const MailView = ({ query }) => {
 
   return (
     <AuthWrapper.Authenticated>
-      <Layout className={styles.layout} hasSider>
+      <StyledLayout hasSider>
         <MailSelectorProvider initialMailboxPos={query.mailboxPos} initialLabelSlug={query.labelSlug} initialThreadId={null}>
 
-          <Sider collapsible className={styles.sider} collapsed={collapsed} onCollapse={() => { setCollapsed(!collapsed); }}>
+          <Sider collapsible collapsed={collapsed} onCollapse={() => { setCollapsed(!collapsed); }}>
             <Navigation />
           </Sider>
 
           <Content>
-            <Layout className={styles.main} hasSider>
+            <Layout hasSider>
 
               <ScrollProvider targetRef={messagesListingRef}>
-                <Sider theme="light" width={320} className={styles.use('listing')}>
-                  <div ref={messagesListingRef} className={styles.use('scrollpane')}>
+                <Listing theme="light" width={320}>
+                  <ScrollPane ref={messagesListingRef}>
                     <Message.Container />
-                  </div>
-                </Sider>
+                  </ScrollPane>
+                </Listing>
               </ScrollProvider>
 
-              <Content className={styles.scrollpane}>
-                <Conversation.Container />
+              <Content>
+                <ScrollPane>
+                  <Conversation.Container />
+                </ScrollPane>
               </Content>
 
             </Layout>
           </Content>
 
         </MailSelectorProvider>
-      </Layout>
+      </StyledLayout>
     </AuthWrapper.Authenticated>
   );
 };

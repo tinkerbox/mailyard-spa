@@ -1,7 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import Head from 'next/head';
 import { Divider, Row, Col, Layout as NextLayout } from 'antd';
 
 import config from '../config/runtime';
@@ -39,7 +38,6 @@ const COPYRIGHT_NOTICE = 'Mailyard, by Tinkerbox Studios Pte Ltd © 2019';
 const Simple = ({ children }) => {
   return (
     <StyledLayout>
-      <Head />
       <StyledContainer>
 
         <StyledHeader>

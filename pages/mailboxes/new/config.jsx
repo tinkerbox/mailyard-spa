@@ -4,7 +4,7 @@ import { useRouter } from 'next/router';
 import { SubmitButton } from '@jbuschke/formik-antd';
 
 import AuthWrapper from '../../../components/auth-wrapper';
-import styles from '../../../styles';
+import Styled from '../../../components/styled';
 import Layout from '../../../components/layout';
 import LinkButton from '../../../components/link-button';
 import ConfigureMailboxComponent from '../../../components/pages/mailboxes/new/config';
@@ -18,10 +18,10 @@ const ConfigureMailboxScreen = () => {
         <PageHeader onBack={() => router.push('/settings#mailboxes')} title="Configure Mailbox" />
         <Card>
           <ConfigureMailboxComponent>
-            <div className={styles.cardFooter}>
+            <Styled.CardFooter>
               <SubmitButton size="large" type="primary" htmlType="submit">Next</SubmitButton>
               <LinkButton type="link" href="/mailboxes/new">Back</LinkButton>
-            </div>
+            </Styled.CardFooter>
           </ConfigureMailboxComponent>
         </Card>
       </Layout.FullScreen>

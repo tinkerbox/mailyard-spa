@@ -5,14 +5,18 @@ import React, { useCallback, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { Menu, Icon, Popconfirm, Avatar, message } from 'antd';
 import gql from 'graphql-tag';
+import styled from 'styled-components';
 
-import { useAuth } from '../../../../hooks/auth-context';
-import { useGraphQLQuery } from '../../../../hooks/graphql-query';
-import { useMailSelector } from '../../../../hooks/mail-selector-context';
-import { makeStyles } from '../../../../styles';
-import custom from './styles.css';
+import { useAuth } from '../../../hooks/auth-context';
+import { useGraphQLQuery } from '../../../hooks/graphql-query';
+import { useMailSelector } from '../../../hooks/mail-selector-context';
 
-const styles = makeStyles(custom);
+const MainMenu = styled.div`
+  display: flex;
+  height: 100%;
+  flex-direction: column;
+  justify-content: space-between;
+`;
 
 const MAILBOXES_QUERY = gql`
   query {
@@ -73,7 +77,7 @@ const Navigation = () => {
   )) : [];
 
   return (
-    <div className={styles.menus}>
+    <MainMenu>
 
       <Menu theme="dark" onClick={onMailboxSelect} selectable={false}>
 
@@ -108,7 +112,7 @@ const Navigation = () => {
 
       </Menu>
 
-    </div>
+    </MainMenu>
   );
 };
 

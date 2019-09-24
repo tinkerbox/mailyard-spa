@@ -3,7 +3,7 @@ import Document, { Html, Head, Main, NextScript } from 'next/document';
 import { ServerStyleSheet, createGlobalStyle } from 'styled-components';
 
 const GlobalStyles = createGlobalStyle`
-  // body { background: red !important; }
+  .row-deleted { color: lightgray; }
 `;
 
 class SiteDocument extends Document {

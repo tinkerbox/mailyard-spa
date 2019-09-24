@@ -4,7 +4,6 @@ import prettyBytes from 'pretty-bytes';
 import gql from 'graphql-tag';
 import { ApolloContext } from 'react-apollo';
 
-import styles from '../../../../styles';
 import LinkButton from '../../../link-button';
 import { useGraphQLQuery } from '../../../../hooks/graphql-query';
 import { useAuth } from '../../../../hooks/auth-context';
@@ -76,6 +75,11 @@ const columns = [
     key: 'status',
   },
 ];
+
+const rowClassName = (record) => {
+  if (record.markedForDeletionAt) return 'row-deleted';
+  return '';
+};
 
 const Mailboxes = () => {
   const { client } = useContext(ApolloContext);
@@ -168,15 +172,10 @@ const Mailboxes = () => {
     </Drawer>
   ) : <Drawer visible={false} />;
 
-  const rowClassName = (record) => {
-    if (record.markedForDeletionAt) return styles.deleted;
-    return '';
-  };
-
   return (
     <React.Fragment>
 
-      <div className={styles.use('py-3')}>
+      <div className="py-3">
         <LinkButton type="primary" href="/mailboxes/new">Add Mailbox</LinkButton>
       </div>
 

@@ -8,7 +8,7 @@ import AuthWrapper from '../../../components/auth-wrapper';
 import Layout from '../../../components/layout';
 import LinkButton from '../../../components/link-button';
 import AccountSelector from '../../../components/google/account-selector';
-import styles from '../../../styles';
+import Styled from '../../../components/styled';
 
 const { Text } = Typography;
 
@@ -29,11 +29,11 @@ const GoogleSyncMailboxScreen = () => {
           {target && (
             <AccountSelector hint={target.email}>
               {({ mailbox }) => (
-                <div className={styles.cardFooter}>
+                <Styled.CardFooter>
                   <LinkButton type="primary" size="large" href={`/mailboxes/${id}/sync`} disabled={!mailbox || mailbox.email !== target.email}>Next</LinkButton>
                   {(!mailbox && target) && <Text type="warning">{`You need to be logged in to ${target.email} to continue`}</Text>}
                   {(mailbox && target.email !== mailbox.email) && <Text type="warning">{`You need to be logged in to ${target.email} to continue`}</Text>}
-                </div>
+                </Styled.CardFooter>
               )}
             </AccountSelector>
           )}

@@ -4,15 +4,34 @@ import React, { useRef, useMemo, forwardRef, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { List, Empty, Typography, Row, Col, Affix, Dropdown, Menu, Button, Icon } from 'antd';
 import { parseOneAddress } from 'email-addresses';
+import styled from 'styled-components';
 
-import { useMailSelector } from '../../../../hooks/mail-selector-context';
-import { useScrollWindow } from '../../../../hooks/scroll-window';
-import { useScrollObserver } from '../../../../hooks/scroll-observer';
-import { makeStyles } from '../../../../styles';
-import custom from './styles.css';
+import { useMailSelector } from '../../../hooks/mail-selector-context';
+import { useScrollWindow } from '../../../hooks/scroll-window';
+import { useScrollObserver } from '../../../hooks/scroll-observer';
 
 const { Text } = Typography;
-const styles = makeStyles(custom);
+
+const SearchRow = styled(Row)`
+  background: white;
+`;
+
+const ListItem = styled(List.Item)`
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+  align-items: normal;
+
+  background-color: ${props => (props.selected ? 'rgba(24, 144, 255, 0.05)' : 'inherit')};
+
+  &:hover { background-color: rgba(0, 21, 41, 0.05); }
+
+  & > { width: 100%; }
+`;
+
+const StyledText = styled(Text)`
+  width: 100%;
+`;
 
 const Container = () => {
   const { selectedMailboxPos, selectThread, selectedThreadId, labels, selectLabel, selectedLabel } = useMailSelector();
@@ -40,7 +59,7 @@ const Container = () => {
   return (
     <React.Fragment>
       <Affix offsetTop={0} target={() => root.current}>
-        <Row className={styles.search}>
+        <SearchRow>
           <Col>
             <Dropdown trigger={['click']} overlay={<Menu onClick={menuHandler}>{items}</Menu>}>
               <Button block type="link">
@@ -49,7 +68,7 @@ const Container = () => {
               </Button>
             </Dropdown>
           </Col>
-        </Row>
+        </SearchRow>
       </Affix>
       <Message.Listing selectedThreadId={selectedThreadId} />
     </React.Fragment>
@@ -111,7 +130,7 @@ const Listing = ({ selectedThreadId }) => {
     <List>
       {items.length > 0 && items}
       {items.length === 0 && (
-        <div className={styles.use('centralize')}>
+        <div>
           <Empty />
         </div>
       )}
@@ -141,9 +160,8 @@ const Item = forwardRef(({ cursor, message, selected }, ref) => {
   const { subject } = headers;
 
   return (
-    <List.Item onClick={clickHandler} className={styles.use('item', `${selected ? 'selected' : ''}`)}>
-
-      <Row type="flex" justify="space-between" align="top" className={styles.use('mb-1')}>
+    <ListItem onClick={clickHandler} selected={selected}>
+      <Row type="flex" justify="space-between" align="top" className="mb-1">
         <Col>
           {from ? (
             <Text strong ellipsis>{from.name || from.address}</Text>
@@ -157,12 +175,11 @@ const Item = forwardRef(({ cursor, message, selected }, ref) => {
         </Col>
       </Row>
 
-      <Text className={styles.text} ellipsis>{subject}</Text>
-      <Text className={styles.text} ellipsis type="secondary">{snippet}</Text>
+      <StyledText ellipsis>{subject}</StyledText>
+      <StyledText ellipsis type="secondary">{snippet}</StyledText>
 
       <div ref={ref} data-cursor={cursor} />
-
-    </List.Item>
+    </ListItem>
   );
 });
 

@@ -5,7 +5,7 @@ import AuthWrapper from '../../components/auth-wrapper';
 import LinkButton from '../../components/link-button';
 import Layout from '../../components/layout';
 import Wizard from '../../components/pages/register/wizard';
-import styles from '../../styles';
+import Styled from '../../components/styled';
 import MailboxSync from '../../components/mailbox-sync';
 
 const SyncScreen = () => {
@@ -19,9 +19,9 @@ const SyncScreen = () => {
 
             <MailboxSync mailboxId={account.defaultMailbox.id}>
               {({ status }) => (
-                <div className={styles.cardFooter}>
+                <Styled.CardFooter>
                   <LinkButton type="primary" size="large" href="/" disabled={status !== 'finished'}>Done</LinkButton>
-                </div>
+                </Styled.CardFooter>
               )}
             </MailboxSync>
 

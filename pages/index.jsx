@@ -1,12 +1,20 @@
 import React, { useEffect } from 'react';
-
 import { Layout, Icon } from 'antd';
 import { useRouter } from 'next/router';
+import styled from 'styled-components';
 
 import { useAuth } from '../hooks/auth-context';
-import styles from '../styles';
 
 const { Content } = Layout;
+
+const StyledLayout = styled(Layout)`
+  height: 100vh;
+  main {
+    justify-content: center;
+    align-items: center;
+    display: flex;
+  }
+`;
 
 const Index = () => {
   const { loading, account } = useAuth();
@@ -20,11 +28,11 @@ const Index = () => {
   }, [account, loading, router]);
 
   return (
-    <Layout className={styles.full}>
-      <Content className={styles.centralize}>
+    <StyledLayout>
+      <Content>
         <Icon type="loading" />
       </Content>
-    </Layout>
+    </StyledLayout>
   );
 };
 

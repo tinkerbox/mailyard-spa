@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Typography, Divider, Row, Col, Avatar, Statistic } from 'antd';
 
 import Google from './auth-buttons';
-import styles from '../../styles';
+import Styled from '../styled';
 
 const { Text } = Typography;
 
@@ -15,17 +15,17 @@ const GoogleProfile = React.memo(({ profile }) => {
       <Col sm={0} md={4} lg={5} />
       <Col sm={24} md={16} lg={14}>
 
-        <div className={styles.cardRow}>
-          <Avatar src={imageUrl} size={48} className={`${styles['mx-2']} ${styles['mx-md-3']} `} />
+        <Styled.CardRow>
+          <Avatar src={imageUrl} size={48} className="mx-2 mx-md-3" />
           <Statistic title={name} value={email} />
-        </div>
+        </Styled.CardRow>
 
         <Divider />
 
-        <div className={styles.cardFooter}>
+        <Styled.CardFooter>
           <Google.Logout render={({ onClick }) => <a onClick={onClick} role="button">Switch Account</a>} />
           <Text>Not the account you want to use?</Text>
-        </div>
+        </Styled.CardFooter>
 
       </Col>
       <Col xs={0} sm={2} md={4} lg={6} />
