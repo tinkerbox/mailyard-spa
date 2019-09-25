@@ -21,7 +21,7 @@ const START_SYNC_MUTATION = gql`
   }
 `;
 
-const sync = async (token, dispatch, api, parse, uploader, syncSessionId) => {
+const sync = async (token, dispatch, api, parse, uploader, syncSessionId, mounted) => {
   const params = token ? { pageToken: token } : {};
   const { result: batchQuery } = await api.getAllMessages(params);
   const { messages, nextPageToken } = batchQuery;
@@ -30,10 +30,15 @@ const sync = async (token, dispatch, api, parse, uploader, syncSessionId) => {
     return new Promise(async (resolve, reject) => {
       try {
         const { result: detailQuery } = await retry(() => api.getMessage(id));
-        const parsed = await parse(detailQuery.raw);
-        const extractor = new EmailExtractor(parsed);
+        if (!mounted.current) return;
 
+        const parsed = await parse(detailQuery.raw);
+        if (!mounted.current) return;
+
+        const extractor = new EmailExtractor(parsed);
         const { data } = await uploader.sync(detailQuery, extractor, syncSessionId);
+        if (!mounted.current) return;
+
         const { putRequest } = data.sync;
 
         const response = await uploadFile(putRequest, detailQuery.raw);
@@ -41,6 +46,7 @@ const sync = async (token, dispatch, api, parse, uploader, syncSessionId) => {
           // TODO: error handling, retries, etc
           console.log(detailQuery);
         }
+        if (!mounted.current) return;
 
         dispatch({
           type: 'tick',
@@ -116,6 +122,9 @@ const useMessageSynchronizer = (mailboxId) => {
   const { client } = useContext(ApolloContext);
   const { parse } = useEmailParser();
   const { api } = useGoogle();
+  const mounted = useRef(true);
+
+  useEffect(() => () => { mounted.current = false; }, []);
 
   const uploader = useRef();
   useEffect(() => {
@@ -124,13 +133,14 @@ const useMessageSynchronizer = (mailboxId) => {
   }, [client, mailboxId]);
 
   useEffect(() => {
+    // TODO: use ref to track unmounting
     let didCancel = false;
 
     if (status.nextPageToken && status.status === 'running' && !didCancel) {
       if (status.nextPageToken === 'first-query') {
-        sync(null, dispatch, api, parse, uploader.current, status.syncSessionId);
+        sync(null, dispatch, api, parse, uploader.current, status.syncSessionId, mounted);
       } else {
-        sync(status.nextPageToken, dispatch, api, parse, uploader.current, status.syncSessionId);
+        sync(status.nextPageToken, dispatch, api, parse, uploader.current, status.syncSessionId, mounted);
       }
     }
 
