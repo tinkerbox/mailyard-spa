@@ -27,6 +27,13 @@ const Index = () => {
     }
   }, [account, loading, router]);
 
+  useEffect(() => {
+    console.log(loading, account);
+    if (!loading && !account) {
+      router.push('/login');
+    }
+  }, [account, loading, router]);
+
   return (
     <StyledLayout>
       <Content>

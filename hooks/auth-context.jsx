@@ -1,4 +1,4 @@
-/* globals window, localStorage */
+/* globals localStorage */
 
 import { isEqual } from 'lodash';
 import React, { useContext, useReducer, useEffect, useCallback, useRef, useMemo } from 'react';
@@ -97,8 +97,6 @@ const reducer = (state, action) => {
 const AuthContext = React.createContext();
 
 const AuthProvider = (props) => {
-  const existingAccountId = (typeof window !== 'undefined') ? localStorage.getItem(STORAGE_IDENTIFIER) : null;
-
   const { client } = useContext(ApolloContext);
   const mounted = useRef(true);
   const [state, dispatch] = useReducer(reducer, { account: null, accountId: null, loading: true });
@@ -157,8 +155,8 @@ const AuthProvider = (props) => {
   }, [client]);
 
   useEffect(() => {
-    if (!state.account && existingAccountId) refresh();
-  }, [existingAccountId, refresh, state.account]);
+    if (!state.account && state.loading) refresh();
+  }, [refresh, state.account, state.loading]);
 
   const values = useMemo(() => ({
     login,
