@@ -11,7 +11,6 @@ query {
     status
     plan
     expiresAt
-    nextPaymentAt
     gracePeriodEndsAt
     accountDeletionAt
     billingToken
@@ -53,7 +52,7 @@ const Subscription = () => {
             {subscription.expiresAt && <small>{`Expires ${new Date(subscription.expiresAt).toLocaleDateString()}`}</small>}
           </div>
 
-          {subscription.nextPaymentAt && <Statistic title="Next payment due on" value={new Date(subscription.nextPaymentAt).toLocaleDateString()} />}
+          {subscription.expiresAt && <Statistic title="Next payment due on" value={new Date(subscription.expiresAt).toLocaleDateString()} />}
 
           <div>
             <p>Manage your subscription</p>
