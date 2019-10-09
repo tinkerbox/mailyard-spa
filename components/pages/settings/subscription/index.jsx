@@ -56,7 +56,7 @@ const Subscription = () => {
 
           <div>
             <p>Manage your subscription</p>
-            <Button href={`${config.MAILYARD_WEB_URL}/billing/api/auth?token=${subscription.billingToken}`}>Billing Portal</Button>
+            <Button href={`${config.MAILYARD_WEB_URL}/billing/auth?token=${subscription.billingToken}`}>Billing Portal</Button>
           </div>
 
         </Row>
