@@ -1,5 +1,4 @@
 require('dotenv').config();
-require('sqreen');
 
 const path = require('path');
 const Sentry = require('@sentry/node');
