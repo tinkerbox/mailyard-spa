@@ -34,6 +34,18 @@ const StyledText = styled(Text)`
   width: 100%;
 `;
 
+const labelsToIgnore = [
+  'INBOX',
+  'UNREAD',
+  'SPAM',
+  'TRASH',
+  'CATEGORY_PROMOTIONS',
+  'CATEGORY_FORUMS',
+  'CATEGORY_UPDATES',
+  'CATEGORY_SOCIAL',
+  'CATEGORY_PERSONAL',
+];
+
 const Container = () => {
   const { selectedMailboxPos, selectThread, selectedThreadId, labels, selectLabel, selectedLabel } = useMailSelector();
   const { root } = useScrollObserver();
@@ -44,7 +56,8 @@ const Container = () => {
   }
 
   const items = useMemo(() => {
-    return labels.map(item => (
+
+    return labels.filter(item => !labelsToIgnore.includes(item.name)).map(item => (
       <Menu.Item key={item.slug}>
         {item.name}
       </Menu.Item>
