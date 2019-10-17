@@ -5,11 +5,11 @@ import PropTypes from 'prop-types';
 import { List, Empty, Typography, Row, Col, Affix, Dropdown, Menu, Button, Icon } from 'antd';
 import { parseOneAddress } from 'email-addresses';
 import styled from 'styled-components';
-import quotedPrintable from 'quoted-printable';
 
 import { useMailSelector } from '../../../hooks/mail-selector-context';
 import { useScrollWindow } from '../../../hooks/scroll-window';
 import { useScrollObserver } from '../../../hooks/scroll-observer';
+import decode from '../../../lib/utf-decoder';
 
 const { Text } = Typography;
 
@@ -172,16 +172,8 @@ const Item = forwardRef(({ cursor, message, selected }, ref) => {
 
   const from = useMemo(() => parseOneAddress(headers.from), [headers.from]);
 
-  const subject = (() => {
-    if (headers.subject.startsWith('=?utf-8?Q?')) return quotedPrintable.decode(headers.subject.substring(10, headers.subject.length - 2));
-    return headers.subject;
-  })();
-
-  const fromName = (() => {
-    if (!from.name) return null;
-    if (from.name.startsWith('=?utf-8?Q?')) return quotedPrintable.decode(from.name.substring(10, from.name.length - 2));
-    return from.name;
-  })();
+  const subject = decode(headers.subject);
+  const fromName = decode(from.name);
 
   return (
     <ListItem onClick={clickHandler} selected={selected}>

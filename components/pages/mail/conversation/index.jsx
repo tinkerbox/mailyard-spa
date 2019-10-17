@@ -4,7 +4,6 @@ import gql from 'graphql-tag';
 import { Empty, Icon, PageHeader, Tag, Card, Avatar, Typography } from 'antd';
 import { parseOneAddress } from 'email-addresses';
 import styled from 'styled-components';
-import quotedPrintable from 'quoted-printable';
 
 import ErrorBoundary from '../../../error-boundary';
 import { useMailSelector } from '../../../../hooks/mail-selector-context';
@@ -12,6 +11,7 @@ import { useGraphQLQuery } from '../../../../hooks/graphql-query';
 import { useEmailParser } from '../../../../hooks/email-parser';
 import { downloadFile } from '../../../../lib/file-manager';
 import Viewer from './viewer';
+import decode from '../../../../lib/utf-decoder';
 
 const { Text } = Typography;
 
@@ -101,10 +101,7 @@ const Container = () => {
 const Listing = ({ thread, children }) => {
   const { labels } = thread;
 
-  const subject = (() => {
-    if (thread.subject.startsWith('=?utf-8?Q?')) return quotedPrintable.decode(thread.subject.substring(10, thread.subject.length - 2));
-    return thread.subject;
-  })();
+  const subject = decode(thread.subject);
 
   const tags = labels.map(label => <Tag key={label.id}>{label.name}</Tag>);
   return (
@@ -147,10 +144,7 @@ const Item = ({ message, parse }) => {
     return () => { didCancel = true; };
   }, [getRequest]);
 
-  const fromName = (() => {
-    if (from.name.startsWith('=?utf-8?Q?')) return quotedPrintable.decode(from.name.substring(10, from.name.length - 2));
-    return from.name;
-  })();
+  const fromName = decode(from.name);
 
   const sender = from ? (
     <React.Fragment>
