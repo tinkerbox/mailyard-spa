@@ -4,10 +4,9 @@ const path = require('path');
 const Sentry = require('@sentry/node');
 const express = require('express');
 const next = require('next');
-const helmet = require('helmet');
 
 const { logger } = require('./lib/logger');
-const csp = require('./config/csp');
+const helmet = require('./config/helmet');
 
 const dev = process.env.NODE_ENV === 'development';
 
@@ -21,19 +20,13 @@ if (!dev) {
 const app = express();
 const port = process.env.PORT || 3000;
 
-app.use(helmet({
-  frameguard: {
-    action: 'deny',
-  },
-}));
+app.use(helmet);
 
 if (!dev) {
   app.use((req, res, _next) => {
     if (req.headers['x-forwarded-proto'] === 'https') return _next();
     return res.redirect(`https://${req.headers.host}${req.url}`);
   });
-
-  app.use(csp);
 }
 
 if (process.env.CANONICAL_HOST) {
