@@ -1,12 +1,12 @@
 const helmet = require('helmet');
 
-const sixtyDaysInSeconds = 5184000;
+const sixMonths = 15768000;
 const useNonce = (req, res) => `'nonce-${res.locals.nonce}'`;
 
 const frameguard = { action: 'deny' };
 
 const hsts = {
-  maxAge: sixtyDaysInSeconds,
+  maxAge: sixMonths,
   includeSubDomains: true,
   preload: true,
 };
