@@ -7,6 +7,7 @@ const frameguard = { action: 'deny' };
 
 const hsts = {
   maxAge: sixtyDaysInSeconds,
+  includeSubDomains: true,
   preload: true,
 };
 
