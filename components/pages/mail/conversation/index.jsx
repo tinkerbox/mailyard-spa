@@ -51,6 +51,18 @@ const THREAD_QUERY = gql`
   }
 `;
 
+const labelsToIgnore = [
+  'INBOX',
+  'UNREAD',
+  'SPAM',
+  'TRASH',
+  'CATEGORY_PROMOTIONS',
+  'CATEGORY_FORUMS',
+  'CATEGORY_UPDATES',
+  'CATEGORY_SOCIAL',
+  'CATEGORY_PERSONAL',
+];
+
 const Container = () => {
   const { selectedMailboxPos, selectedThreadId } = useMailSelector();
   const { parse } = useEmailParser();
@@ -103,7 +115,7 @@ const Listing = ({ thread, children }) => {
 
   const subject = decode(thread.subject);
 
-  const tags = labels.map(label => <Tag key={label.id}>{label.name}</Tag>);
+  const tags = labels.filter(item => !labelsToIgnore.includes(item.name)).map(label => <Tag key={label.id}>{label.name}</Tag>);
   return (
     <StyledThread>
       <PageHeader title={subject} tags={tags} />
