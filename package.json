@@ -38,7 +38,7 @@
     "apollo-link-retry": "^2.2.15",
     "base64url": "^3.0.1",
     "cross-fetch": "^3.0.4",
-    "dompurify": "^1.0.11",
+    "dompurify": "^2.0.7",
     "dotenv": "^8.2.0",
     "email-addresses": "^3.0.3",
     "emailjs-mime-parser": "^2.0.7",
