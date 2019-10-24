@@ -39,7 +39,7 @@ const featurePolicy = (() => {
   };
 })();
 
-const referrerPolicy = { policy: 'strict-origin-when-cross-origin' };
+const referrerPolicy = { policy: ['same-origin', 'strict-origin-when-cross-origin'] };
 
 module.exports = helmet({
   frameguard,
