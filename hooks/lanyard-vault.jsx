@@ -1,6 +1,6 @@
 /* globals localStorage */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 
 import Lanyard from '../lib/lanyard';
@@ -11,54 +11,64 @@ const decoder = new TextDecoder('utf-8');
 const LanyardContext = React.createContext();
 
 const LanyardProvider = ({ children }) => {
+  const lanyard = useRef();
   const [vault, setVault] = useState();
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
-    if (loaded) return;
+    let didCancel = false;
 
-    if (vault && !('vault' in localStorage)) {
-      // save new vault to local storage
-      (async () => {
-        const exportedVault = await vault.exportVault();
-        localStorage.setItem('vault', JSON.stringify(exportedVault));
-        setLoaded(true);
-      })();
-    }
+    (async () => {
+      if (!lanyard.current) {
+        const muk = await Lanyard.generateMasterUnlockKey('123123123', 'salt-123');
+        lanyard.current = await new Lanyard(muk);
+      }
 
-    if (!vault && ('vault' in localStorage)) {
-      // retrieve vault from local storage
-      (async () => {
-        const _vault = await Lanyard.importVault(JSON.parse(localStorage.getItem('vault')));
-        setVault(_vault.vault);
-        setLoaded(true);
-      })();
-    }
+      if (loaded || !lanyard.current) return;
 
-    if (vault && ('vault' in localStorage)) {
-      // update existing vault in local storage
-      (async () => {
-        const exportedVault = await vault.exportVault();
-        localStorage.setItem('vault', JSON.stringify(exportedVault));
-        setLoaded(true);
-      })();
-    }
+      if (vault && !('vault' in localStorage)) {
+        // save new vault to local storage
+        (async () => {
+          const exportedVault = await vault.exportVault();
+          localStorage.setItem('vault', JSON.stringify(exportedVault));
+          if (!didCancel) setLoaded(true);
+        })();
+      }
 
-    if (!vault && !('vault' in localStorage)) {
-      // vault not ready
-      setLoaded(true);
-    }
+      if (!vault && ('vault' in localStorage)) {
+        // retrieve vault from local storage
+        (async () => {
+          const _vault = await lanyard.current.importVault(JSON.parse(localStorage.getItem('vault')));
+          setVault(_vault.vault);
+          if (!didCancel) setLoaded(true);
+        })();
+      }
+
+      if (vault && ('vault' in localStorage)) {
+        // update existing vault in local storage
+        (async () => {
+          const exportedVault = await vault.exportVault();
+          localStorage.setItem('vault', JSON.stringify(exportedVault));
+          if (!didCancel) setLoaded(true);
+        })();
+      }
+
+      if (!vault && !('vault' in localStorage)) {
+        // vault not ready
+        if (!didCancel) setLoaded(true);
+      }
+    })();
+
+    return () => { didCancel = false; };
   }, [vault, loaded]);
 
   const registerVault = async () => {
-    const muk = await Lanyard.generateMUK();
-    const _vault = await Lanyard.createVault(muk);
+    const _vault = await lanyard.current.createVault();
     setVault(_vault.vault);
-    return muk;
   };
 
   const importVault = async (muk, payload) => {
-    const _vault = await Lanyard.importVault(muk, payload);
+    const _vault = await lanyard.current.importVault(muk, payload);
     setVault(_vault.vault);
   };
 
