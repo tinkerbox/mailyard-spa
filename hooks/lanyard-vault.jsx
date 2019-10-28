@@ -21,7 +21,7 @@ const LanyardProvider = ({ children }) => {
     (async () => {
       if (!lanyard.current) {
         const muk = await Lanyard.generateMasterUnlockKey('123123123', 'salt-123');
-        lanyard.current = await new Lanyard(muk);
+        lanyard.current = new Lanyard(muk);
       }
 
       if (loaded || !lanyard.current) return;
