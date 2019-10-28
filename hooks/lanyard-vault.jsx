@@ -15,7 +15,10 @@ const LanyardProvider = ({ children }) => {
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
+    if (loaded) return;
+
     if (vault && !('vault' in localStorage)) {
+      // save new vault to local storage
       (async () => {
         const exportedVault = await vault.exportVault();
         localStorage.setItem('vault', JSON.stringify(exportedVault));
@@ -24,6 +27,7 @@ const LanyardProvider = ({ children }) => {
     }
 
     if (!vault && ('vault' in localStorage)) {
+      // retrieve vault from local storage
       (async () => {
         const _vault = await Lanyard.importVault(JSON.parse(localStorage.getItem('vault')));
         setVault(_vault.vault);
@@ -32,6 +36,7 @@ const LanyardProvider = ({ children }) => {
     }
 
     if (vault && ('vault' in localStorage)) {
+      // update existing vault in local storage
       (async () => {
         const exportedVault = await vault.exportVault();
         localStorage.setItem('vault', JSON.stringify(exportedVault));
@@ -40,6 +45,7 @@ const LanyardProvider = ({ children }) => {
     }
 
     if (!vault && !('vault' in localStorage)) {
+      // vault not ready
       setLoaded(true);
     }
   }, [vault, loaded]);
