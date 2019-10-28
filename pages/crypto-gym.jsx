@@ -1,3 +1,5 @@
+/* globals localStorage */
+
 import React, { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 
@@ -6,14 +8,12 @@ import Layout from '../components/layout';
 
 import { LanyardProvider, useLanyard } from '../hooks/lanyard-vault';
 
-const encoder = new TextEncoder();
 const decoder = new TextDecoder('utf-8');
 
 const CryptoGymScene = dynamic(() => Promise.resolve(() => {
-  const { vault, registerVault, encryptString, decryptString } = useLanyard();
+  const { vault, createKey, loaded, registerVault, encryptString, decryptString } = useLanyard();
 
-  const [keyId, setKeyId] = useState();
-  // TODO: move key id manage to context provider
+  const [keyId, setKeyId] = useState(localStorage.getItem('keyId'));
   const [encrypted, setEncrypted] = useState();
   const [decrypted, setDecrypted] = useState();
 
@@ -23,11 +23,12 @@ const CryptoGymScene = dynamic(() => Promise.resolve(() => {
     let didCancel = false;
 
     (async () => {
+      if (!loaded) return;
       if (!vault) {
         const muk = await registerVault();
-        console.dir(muk);
       } else if (!keyId) {
-        const _keyId = await vault.createKey();
+        const _keyId = await createKey();
+        localStorage.setItem('keyId', _keyId);
         setKeyId(_keyId);
       } else if (!encrypted) {
         encryptString(keyId, raw).then((value) => {
@@ -41,7 +42,7 @@ const CryptoGymScene = dynamic(() => Promise.resolve(() => {
     })();
 
     return () => { didCancel = true; };
-  }, [decryptString, decrypted, encryptString, encrypted, keyId, registerVault, vault]);
+  }, [createKey, decryptString, decrypted, encryptString, encrypted, keyId, loaded, registerVault, vault]);
 
   return (
     <React.Fragment>

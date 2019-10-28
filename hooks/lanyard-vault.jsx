@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+/* globals localStorage */
+
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 
 import Lanyard from '../lib/lanyard';
@@ -10,6 +12,37 @@ const LanyardContext = React.createContext();
 
 const LanyardProvider = ({ children }) => {
   const [vault, setVault] = useState();
+  const [loaded, setLoaded] = useState(false);
+
+  useEffect(() => {
+    if (vault && !('vault' in localStorage)) {
+      (async () => {
+        const exportedVault = await vault.exportVault();
+        localStorage.setItem('vault', JSON.stringify(exportedVault));
+        setLoaded(true);
+      })();
+    }
+
+    if (!vault && ('vault' in localStorage)) {
+      (async () => {
+        const _vault = await Lanyard.importVault(JSON.parse(localStorage.getItem('vault')));
+        setVault(_vault.vault);
+        setLoaded(true);
+      })();
+    }
+
+    if (vault && ('vault' in localStorage)) {
+      (async () => {
+        const exportedVault = await vault.exportVault();
+        localStorage.setItem('vault', JSON.stringify(exportedVault));
+        setLoaded(true);
+      })();
+    }
+
+    if (!vault && !('vault' in localStorage)) {
+      setLoaded(true);
+    }
+  }, [vault, loaded]);
 
   const registerVault = async () => {
     const muk = await Lanyard.generateMUK();
@@ -42,8 +75,16 @@ const LanyardProvider = ({ children }) => {
     return decoder.decode(decrypted);
   };
 
+  const createKey = async () => {
+    const keyId = await vault.createKey();
+    setLoaded(false);
+    return keyId;
+  };
+
   const values = {
+    loaded,
     vault,
+    createKey,
     registerVault,
     importVault,
     exportVault,
