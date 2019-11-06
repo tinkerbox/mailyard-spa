@@ -20,7 +20,7 @@ const contentSecurityPolicy = (() => {
       formAction: ["'self'"],
       scriptSrc: ["'self'", useNonce],
       styleSrc: ["'self'", "'unsafe-inline'", useNonce],
-      connectSrc: ["'self'", process.env.MAILYARD_API_HOST, 'sentry.io'],
+      connectSrc: ["'self'", process.env.MAILYARD_API_HOST, 'sentry.io', 'apis.google.com', 'storage.googleapis.com'],
       imgSrc: ["'self'", 'lh5.googleusercontent.com'],
       frameAncestors: ["'none'"],
       reportUri: process.env.REPORT_URI,
