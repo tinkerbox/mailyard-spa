@@ -21,7 +21,7 @@
   "homepage": "https://github.com/tinkerbox/mailyard-spa#readme",
   "dependencies": {
     "@babel/runtime": "^7.6.3",
-    "@jbuschke/formik-antd": "^1.5.4",
+    "formik-antd": "^1.5.4",
     "@sentry/browser": "^5.7.1",
     "@sentry/node": "^5.7.1",
     "@welldone-software/why-did-you-render": "^3.3.8",
