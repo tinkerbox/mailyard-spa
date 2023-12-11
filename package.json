@@ -59,7 +59,7 @@
     "react-apollo": "^2.5.8",
     "react-dom": "^16.11.0",
     "react-google-login": "^5.0.6",
-    "styled-components": "^4.4.0",
+    "styled-components": "^6.1.0",
     "uuid": "^3.3.3",
     "worker-loader": "^2.0.0",
     "yup": "^0.27.0"
